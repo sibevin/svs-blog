@@ -1,0 +1,9 @@
+doctype html
+html
+  head
+    meta charset="utf-8"
+    title Slm Examples
+  body
+    == this.content
+    div id="app"
+    script src="./js/build.js"
