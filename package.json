@@ -25,6 +25,7 @@
     "gulp-concat": "^2.6.1",
     "gulp-sequence": "^0.4.6",
     "gulp-slm": "^1.1.1",
+    "gulp-uglify": "^2.0.1",
     "html-loader": "^0.4.4",
     "require-dir": "^0.3.1",
     "slm-loader": "^0.2.3",
