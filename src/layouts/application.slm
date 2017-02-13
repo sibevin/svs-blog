@@ -2,7 +2,12 @@ doctype html
 html
   head
     meta charset="utf-8"
-    title Slm Examples
+    title
+      == this.title
+    meta name="description"
+      == this.description
+    meta name="keywords"
+      == this.tags
     javascript:
       var FILE = ${=j(this.file)};
   body

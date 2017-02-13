@@ -9,7 +9,7 @@ gulp.task('clean', tasks.clean);
 gulp.task('webpack', tasks.webpack);
 gulp.task('metadata', tasks.metadata);
 
-gulp.task('default', ['webpack', 'build-slm']);
+gulp.task('default', ['build-slm', 'metadata', 'webpack']);
 gulp.task('build-slm', ['slm-index', 'slm-views', 'slm-posts']);
 
 gulp.task('watch', function(){

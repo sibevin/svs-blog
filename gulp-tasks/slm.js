@@ -5,34 +5,62 @@ const path = require('path')
 const through = require('through2')
 const slmCompile = require('slm').compile
 const cached = require('gulp-cached')
+const htmlParser = require('htmlparser2');
 
-const simpleSlmCompile = function(layoutSlm, chunk) {
-  return slmCompile(layoutSlm, null)({
-    content: String(chunk.contents)
+const buildHtml = function(layoutSlm, chunk) {
+  var appData = JSON.parse(fs.readFileSync('./config/app.js', 'utf8'))
+  var content = String(chunk.contents)
+  var data = {}
+  var handler = new htmlParser.DomHandler(function(err, dom){
+    if (err) {
+      console.log('err', err)
+    } else {
+      for (ele of dom) {
+        if (ele.name === 'div' && ele.attribs.class === 'meta-data') {
+          var rawMeta = ele.children[0].data
+          if (rawMeta === 'end') {
+            break
+          } else {
+            var result = rawMeta.match(/^([^ ]*)\ (.*)$/)
+            if (result !== null) {
+              data[result[1]] = result[2]
+            }
+          }
+        }
+      }
+    }
   })
-}
-
-const postSlmCompile = function(layoutSlm, chunk) {
+  var parser = new htmlParser.Parser(handler)
+  parser.write(content)
+  parser.end()
   console.log('chunk', chunk.path)
-  console.log('chunk.content', String(chunk.contents))
+  console.log('data', data)
+  var title = appData.name || ''
+  if (data.title !== undefined) {
+    title = data.title + ' | ' + appData.name
+  }
+  console.log('title', title)
   return slmCompile(layoutSlm, null)({
-    content: String(chunk.contents),
-    file: path.basename(chunk.path, '.html')
+    content: content,
+    file: data.file || '',
+    title: title,
+    keywords: data.tags || appData.tags,
+    description: data.description || appData.description
   })
 }
 
 const PAGE_TYPES = {
   index: {
     layout: './src/layouts/application.slm',
-    compile: simpleSlmCompile
+    compile: buildHtml
   },
   views: {
     layout: './src/layouts/application.slm',
-    compile: simpleSlmCompile
+    compile: buildHtml
   },
   posts: {
     layout: './src/layouts/application.slm',
-    compile: postSlmCompile
+    compile: buildHtml
   }
 }
 
