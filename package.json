@@ -9,6 +9,7 @@
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
   },
   "dependencies": {
+    "lodash": "^4.17.4",
     "vue": "^2.1.0"
   },
   "devDependencies": {
@@ -27,6 +28,7 @@
     "gulp-slm": "^1.1.1",
     "gulp-uglify": "^2.0.1",
     "html-loader": "^0.4.4",
+    "merge2": "^1.0.3",
     "require-dir": "^0.3.1",
     "slm-loader": "^0.2.3",
     "through2": "^2.0.3",

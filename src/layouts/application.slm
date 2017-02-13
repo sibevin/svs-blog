@@ -3,6 +3,8 @@ html
   head
     meta charset="utf-8"
     title Slm Examples
+    javascript:
+      var FILE = ${=j(this.file)};
   body
     == this.content
     div id="app"
