@@ -23,12 +23,12 @@
     "gulp": "^3.9.1",
     "gulp-cached": "^1.1.1",
     "gulp-clean": "^0.3.2",
+    "gulp-compass": "^2.1.0",
     "gulp-concat": "^2.6.1",
     "gulp-sequence": "^0.4.6",
     "gulp-slm": "^1.1.1",
     "gulp-uglify": "^2.0.1",
     "html-loader": "^0.4.4",
-    "htmlparser": "^1.7.7",
     "htmlparser2": "^3.9.2",
     "merge2": "^1.0.3",
     "require-dir": "^0.3.1",
@@ -38,7 +38,6 @@
     "vue-template-compiler": "^2.1.0",
     "webpack": "^2.2.0",
     "webpack-dev-server": "^2.2.0",
-    "webpack-stream": "^3.2.0",
-    "xmldom": "^0.1.27"
+    "webpack-stream": "^3.2.0"
   }
 }

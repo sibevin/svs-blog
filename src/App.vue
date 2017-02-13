@@ -1,6 +1,6 @@
 <template lang="slm">
 div id="app"
-  img src="./images/logo.png"
+  img src="./images/components/logo.png"
   h1
     | {{ msg }}
   h2 Essential Links

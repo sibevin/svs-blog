@@ -1,0 +1,127 @@
+@import "compass/typography/vertical_rhythm"
+@import "compass/css3/border-radius"
+@import "modules/globals"
+@import "modules/header_style"
+@import "compass/css3/box-shadow"
+
+$base-font-size: $fs_def
+$base-line-height: $lh_def
+
+body
+  font-family: $ff_def
+
+h1
+  +margin-leader(.25)
+  +margin-trailer(.25)
+  +adjust-font-size-to($fs_xxl)
+  +header-style
+  &:before
+    +header-point($fs_xxl)
+
+h2
+  +adjust-font-size-to($fs_l)
+  +header-style
+  &:before
+    +header-point($fs_l)
+
+h3, h4, h5, h6
+  +adjust-font-size-to($fs_ml)
+  +header-style
+  &:before
+    +header-point($fs_ml)
+
+p
+  +adjust-font-size-to($fs_def)
+
+pre
+  +margin-leader(.2)
+  +margin-trailer(.2)
+  font-family: monospace
+  +single-box-shadow(0px, 0px, 10px, 0px, $c_l)
+
+code
+  display: inline-block
+  font-family: monospace
+  +adjust-font-size-to($fs_def)
+  padding: 0px 0.5em
+
+pre
+  code
+    display: block
+    &::selection
+      background: $c_selected
+    &::-moz-selection
+      background: $c_selected
+
+.hljs
+  &::selection
+    background: $c_selected
+  &::-moz-selection
+    background: $c_selected
+  span
+    &::selection
+      background: $c_selected
+    &::-moz-selection
+      background: $c_selected
+
+a
+  color: $c_d
+  padding: 0px 3px
+
+.content
+  li
+    +adjust-font-size-to($fs_def)
+    &:before
+      content: "_"
+      +header-point($fs_s)
+
+strong
+  font-weight: bold
+
+i
+  font-style: italic
+
+.rwd-table
+  overflow-x: auto
+
+.meta-data
+  display: none
+
+.text-red
+  color: $c_red
+.text-blue
+  color: $c_blue
+.text-green
+  color: $c_green
+.text-orange
+  color: $c_orange
+.text-grey
+  color: $c_grey
+
+.mk-red
+  border: 2px solid $c_red
+  +border-radius(3px)
+.mk-blue
+  border: 2px solid $c_blue
+  +border-radius(3px)
+.mk-green
+  border: 2px solid $c_green
+  +border-radius(3px)
+.mk-orange
+  border: 2px solid $c_orange
+  +border-radius(3px)
+.mkb-red
+  border: 2px solid red
+  background: hsla(0, 100%, 50%, 0.1)
+
+.emoji
+  width: 1.5em
+  height: 1.5em
+  display: inline-block
+  margin-bottom: -0.25em
+
+.inline-block
+  display: inline-block
+  vertical-align: top
+  table
+    margin-right: 1em

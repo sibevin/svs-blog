@@ -1,0 +1,59 @@
+$ta_btns: "menu", "search"
+
+.home
+  display: table
+  position: absolute
+  width: 100%
+  height: 100%
+  .title-area
+    display: table-cell
+    vertical-align: middle
+    color: #808080
+    text-align: center
+    .ta-title
+      display: inline-block
+      font-size: 2.0em
+      padding: 8px
+      border-bottom: 2px solid
+    .ta-sub-title
+      padding: 8px
+      text-align: center
+      font-size: 1.3em
+    .ta-mobile
+      display: none
+    .ta-btns
+      text-align: center
+      .ta-btn
+        display: inline-block
+        cursor: pointer
+      @each $ta_btn in $ta_btns
+        .ta-btn-#{$ta_btn}
+          padding: 20px 6px
+          .ta-icon
+            height: 72px
+            width: 72px
+            background: url("/images/header/#{$ta_btn}_d_48x.svg")
+            background-size: 100%
+@media only screen and (min-device-width : 320px) and (max-device-width : 480px)
+  .home
+    .title-area
+      .ta-title
+        display: none
+      .ta-sub-title
+        display: none
+      .ta-mobile
+        display: inline-block
+        border: 10px solid
+        padding: 24px 0px
+        .ta-title
+          display: block
+          font-size: 5.0em
+          width: 250px
+          border-bottom: none
+        .ta-sub-title
+          display: inline-block
+          padding: 12px 24px
+          font-size: 1.3em
+          border-top: 2px solid
+      .ta-btns
+        display: none

@@ -1,0 +1,34 @@
+@import "compass/typography/vertical_rhythm"
+@import "modules/globals"
+
+.post
+  .content
+    padding: 8px
+    table
+      border: 1px $c_black solid
+      +margin-leader(.5)
+      +margin-trailer(.5)
+      tr
+        &:hover
+          background: $c_ll
+      @mixin cell
+        border: 1px $c_black solid
+        +adjust-font-size-to($fs_def)
+        padding: 0px 8px
+      td
+        +cell
+      th
+        +cell
+        font-weight: bold
+        background: $c_ll
+    .table-block
+      table
+        border-collapse: separate
+        border-spacing: 2px
+        border: none
+        td
+          border: 1px $c_black solid
+        td.tb-hidden
+          border: 1px $c_white solid
+        table
+          margin: 0px
