@@ -1,2 +1,91 @@
-h1
-  | Index
+.home
+  .hm-trademark
+    .tm-icon
+    .tm-title
+      | 魔法師的手杖
+  .hm-title
+    .ht-text
+      h1 近期文章
+  .hm-post-list
+    .post-list
+      .pl-entry
+        .pl-ca
+          .category-icon
+            .ca-icon-tools
+        .pl-content
+          .pl-name
+            | mysql指令一覽
+          .pl-time
+            | 2013-02-04 11:07:15
+          .pl-tags
+            .tag-area
+              .tag
+                a.tag-link herf="/tag/mysql"
+                  | MySQL
+              .tag
+                a.tag-link herf="/tag/cheat-sheet"
+                  | 小抄
+      .pl-entry
+        .pl-ca
+          .category-icon
+            .ca-icon-coding
+        .pl-content
+          .pl-name
+            | rails讀書會 - Test Prescription - Ch.15 讓你的測試跑的更快 / 跑更快的測試
+          .pl-time
+            | 2016-05-15 18:53:34
+          .pl-tags
+            .tag-area
+              .tag
+                | 測試
+              .tag
+                | Test Prescription
+              .tag
+                | 讀書會
+      .pl-entry
+        .pl-ca
+          .category-icon
+            .ca-icon-tools
+        .pl-content
+          .pl-name
+            | 一些有關設計模式的連結
+            a.pl-link href="http://www.rubydoc.info/gems/yard/file/docs/Tags.md"
+              img src="/images/list/weblink_25x.svg"
+          .pl-time
+            | 2016-07-31 12:10:03
+          .pl-tags
+            .tag-area
+              .tag
+                | Design Pattern
+              .tag
+                | 連結
+  .hm-readmore
+    a.hr-text href="http://www.rubydoc.info/gems/yard/file/docs/Tags.md"
+      | 所有文章
+  .hm-title
+    .ht-text
+      h1 熱門標籤
+  .hm-tag-list
+    .tag-list
+      .tl-entry
+        .tl-name style="flex: 9 0 auto"
+          a.tl-link href="http://www.rubydoc.info/gems/yard/file/docs/Tags.md"
+            | 書
+        .tl-bar style="flex: 1 0 auto"
+          | 18
+      .tl-entry
+        .tl-name style="flex: 8 0 auto"
+          a.tl-link href="http://www.rubydoc.info/gems/yard/file/docs/Tags.md"
+            | Ruby > Gem
+        .tl-bar style="flex: 2 0 auto"
+          | 14
+  .hm-readmore
+    a.hr-text href="http://www.rubydoc.info/gems/yard/file/docs/Tags.md"
+      | 所有標籤
+  .hm-title
+    .ht-text
+      h1 關於我
+  .hm-about-me-area
+    .ama-avatar
+    .ama-name
+    .ama-desc

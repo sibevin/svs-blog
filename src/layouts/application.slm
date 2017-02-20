@@ -2,6 +2,7 @@ doctype html
 html
   head
     meta charset="utf-8"
+    meta content="width=device-width, initial-scale=1.0" name="viewport"
     title
       == this.title
     meta name="description"
@@ -10,7 +11,9 @@ html
       == this.tags
     javascript:
       var FILE = ${=j(this.file)};
+    script src="/js/consts/metadata.js"
+    link href="/css/application.css" rel="stylesheet"
   body
     == this.content
     div id="app"
-    script src="./js/build.js"
+    script src="/js/build.js"

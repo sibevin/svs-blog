@@ -1,0 +1,28 @@
+@import "modules/globals"
+
+$list_p: 8px
+$item_p: 8px
+
+.post-list
+  .pl-entry
+    display: flex
+    flex-direction: row
+    justify-content: space-between
+    align-items: flex-start
+    padding: $list_p 0
+    .pl-ca
+      order: 1
+      flex: 0 0 auto
+    .pl-content
+      order: 2
+      flex: 1 1 auto
+      .pl-name
+        padding-bottom: $item_p
+        a.pl-link
+          img
+            vertical-align: middle
+            height: 20px
+            width: 20px
+      .pl-time
+        padding-bottom: $item_p/2
+        color: $c_grey

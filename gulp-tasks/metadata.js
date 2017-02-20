@@ -129,5 +129,5 @@ module.exports = function() {
   return merge(postsData, tagsData)
       .pipe(concat('metadata.js'))
       .pipe(uglify())
-      .pipe(gulp.dest('./src/js/consts/'))
+      .pipe(gulp.dest('dist/js/consts/'))
 }
