@@ -15,8 +15,13 @@ $tag_r: 5px
     border-radius: $tag_r
     .tl-name
       order: 1
+      flex: 0 0 40%
       padding: 0px $text_p
+      color: $c_white
       line-height: 2em
+      overflow: hidden
+      white-space: nowrap
+      text-overflow: ellipsis
       .tl-link
         color: $c_white
         cursor: pointer
@@ -25,10 +30,17 @@ $tag_r: 5px
           color: $c_ll
     .tl-bar
       order: 2
+      padding: 0px $text_p
+      line-height: 2em
+    .tl-bar-left
+      order: 3
+      padding: 0px $text_p
+      line-height: 2em
       color: $c_d
       border-radius: 0 $tag_r $tag_r 0
       background: $c_white
-      border: 2px $c_d solid
-      padding: 0px $text_p
+      border: 2px solid
       text-align: right
-      line-height: 2em
+@media only screen and (min-device-width : $desktop_w)
+  .tag-list
+    padding: 0 20%

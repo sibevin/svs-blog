@@ -15,5 +15,3 @@ html
     link href="/css/application.css" rel="stylesheet"
   body
     == this.content
-    div id="app"
-    script src="/js/build.js"

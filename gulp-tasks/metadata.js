@@ -63,13 +63,14 @@ var buildPostConst = function(chunk, enc, cb) {
 
 var addTag = function(tagData, tag) {
   if (tagData[tag] === undefined) {
+    tagData[tag] = { count: 1 }
+  }
+  if (tagData[tag]['name'] === undefined) {
     var tagName = _.map(tag.split('_'), _.upperFirst).join(' > ')
     tagName = _.map(tagName.split('-'), _.upperFirst).join(' ')
-    tagData[tag] = {
-      name: tagName,
-      count: 1
-    }
-  } else if (tagData[tag]['count'] === undefined) {
+    tagData[tag]['name'] = tagName
+  }
+  if (tagData[tag]['count'] === undefined) {
     tagData[tag]['count'] = 1
   } else {
     tagData[tag]['count'] = tagData[tag]['count'] + 1
@@ -79,7 +80,11 @@ var addTag = function(tagData, tag) {
     if (tagSubs.length > 0) {
       var combinedTag = ''
       for (var tagSub of tagSubs) {
-        combinedTag = combinedTag + '_' + tagSub
+        if (combinedTag === '') {
+          combinedTag = tagSub
+        } else {
+          combinedTag = combinedTag + '_' + tagSub
+        }
         if (tagData[combinedTag] !== undefined && tagData[combinedTag]['color'] !== undefined ) {
           tagData[tag]['color'] = tagData[combinedTag]['color']
           break
