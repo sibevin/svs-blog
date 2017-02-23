@@ -88,7 +88,7 @@ module.exports = {
       .pipe(cached('views'))
       .pipe(slm())
       .pipe(through.obj(embedHtmlContent('views')))
-      .pipe(gulp.dest('./dist/views'))
+      .pipe(gulp.dest('./dist/'))
   },
   posts: function() {
     return gulp.src('src/posts/*.slm')
@@ -99,6 +99,6 @@ module.exports = {
         console.log('error', error)
       })
       .pipe(through.obj(embedHtmlContent('posts')))
-      .pipe(gulp.dest('./dist/posts'))
+      .pipe(gulp.dest('./dist/post'))
   }
 }
