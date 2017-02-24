@@ -12,7 +12,7 @@ gulp.task('img-favicon', tasks.image.favicon);
 gulp.task('img-static', tasks.image.static);
 gulp.task('clean', tasks.clean);
 
-gulp.task('default', ['build-slm', 'copy-img', 'metadata', 'webpack']);
+gulp.task('default', ['build-slm', 'copy-img', 'sass', 'metadata', 'webpack']);
 gulp.task('build-slm', ['slm-index', 'slm-views', 'slm-posts']);
 gulp.task('copy-img', ['img-favicon', 'img-static']);
 
