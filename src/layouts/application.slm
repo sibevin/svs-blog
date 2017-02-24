@@ -5,10 +5,9 @@ html
     meta content="width=device-width, initial-scale=1.0" name="viewport"
     title
       == this.title
-    meta name="description"
-      == this.description
-    meta name="keywords"
-      == this.tags
+    meta name="description" content==this.description
+    - if this.tags
+      meta name="keywords" content==this.tags
     javascript:
       var FILE = ${=j(this.file)};
     script src="/js/consts/metadata.js"
