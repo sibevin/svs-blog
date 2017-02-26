@@ -66,6 +66,7 @@
 
 <script>
 import { Paginator } from 'modules/paginator.js'
+import { UrlParamParser } from 'modules/url_param_parser.js'
 const _ = require('lodash')
 const MAX_POST_COUNT = 10
 const MAX_TAG_COUNT = 10
@@ -78,7 +79,14 @@ export default {
       tagMap: TAGS,
       tagMaxCount: _.maxBy(_.values(TAGS), 'count').count,
       paginator: new Paginator(_.keys(POSTS).length),
+      urlParams: new UrlParamParser(),
       queryKeyword: ""
+    }
+  },
+  created: function() {
+    var urlQuery = this.urlParams.value('q')
+    if (urlQuery != undefined) {
+      this.queryKeyword = urlQuery
     }
   },
   computed: {
