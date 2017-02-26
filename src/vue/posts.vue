@@ -27,7 +27,6 @@
                   | {{ tagMap[tag].name }}
   .pts-ctrl-panel
     .ctrl-panel
-      .cp-trademark
       .cp-pagination
         .cp-pg-col.cp-first
         .cp-pg-col.cp-middle.cp-active.cp-number v-show="paginator.hasPrev()" v-on:click="switchPage(1)"
@@ -44,9 +43,25 @@
           |  &lt;
         .cp-pg-col.cp-middle.cp-active.cp-number v-show="paginator.hasNext()" v-on:click="switchPage(paginator.lastPage)"
           | {{ paginator.lastPage }}
+        .cp-pg-col.cp-middle.cp-sep
+        .cp-pg-col.cp-middle.cp-number.cp-counter
+          | {{ filteredPosts.length }}
         .cp-pg-col.cp-last
-      .cp-search
-        input type="text" v-model="queryKeyword"
+      .cp-menu
+        .cp-first
+        .cp-middle.cp-mu-btn
+          a href="/"
+            img src="/images/header/trademark_50x.svg"
+        .cp-middle.cp-mu-btn
+          img src="/images/header/toc_b_48x.svg"
+        .cp-middle.cp-mu-btn
+          img src="/images/header/toc_b_48x.svg"
+        .cp-middle.cp-mu-btn
+          img src="/images/header/toc_b_48x.svg"
+        .cp-middle.cp-mu-search-bar
+          img src="/images/header/search_b_48x.svg"
+          input (type="search" v-model="queryKeyword" autofocus)
+        .cp-last
 </template>
 
 <script>
@@ -62,23 +77,47 @@ export default {
       posts: POSTS,
       tagMap: TAGS,
       tagMaxCount: _.maxBy(_.values(TAGS), 'count').count,
-      paginator: new Paginator(_.keys(POSTS).length)
+      paginator: new Paginator(_.keys(POSTS).length),
+      queryKeyword: ""
     }
   },
   computed: {
     sortedPosts: function() {
       return _.sortBy(this.posts, ['datetime']).reverse()
     },
+    filteredPosts: function() {
+      var keyword = this.queryKeyword.toLowerCase()
+      var tagMap = this.tagMap
+      var posts = []
+      if (keyword === "") {
+        posts = this.sortedPosts
+      } else {
+        posts = this.sortedPosts.filter(function(post){
+          var searchTarget = []
+          searchTarget.push(post.title)
+          searchTarget.push(post.datetime)
+          searchTarget.push(post.category)
+          searchTarget = searchTarget.concat(post.tags)
+          searchTarget = searchTarget.concat(_.map(post.tags, function(tag){
+            return tagMap[tag].name
+          }))
+          return (searchTarget.join(' ').toLowerCase().indexOf(keyword) > -1)
+        })
+      }
+      return posts
+    },
     paginatedPosts: function() {
-      return this.paginator.fetch(this.sortedPosts)
-    }
-    filiteredPosts: function() {
-      return this.paginatedPosts
+      return this.paginator.fetch(this.filteredPosts)
     }
   },
   methods: {
     switchPage: function(targetPage) {
       this.paginator.gotoPage(targetPage)
+    }
+  },
+  watch: {
+    filteredPosts: function() {
+      this.paginator.reset(this.filteredPosts.length)
     }
   }
 }
