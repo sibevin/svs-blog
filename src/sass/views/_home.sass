@@ -3,6 +3,7 @@
 $home_p_desktop: 30%
 $home_p_mobile: 8px
 $home_trademark_s: 120px
+$panel_h: 60px
 
 .home
   padding: 0 $home_p_mobile
@@ -18,15 +19,19 @@ $home_trademark_s: 120px
   .hm-trademark
     text-align: center
     color: $c_grey
-    margin-bottom: 20px
+    margin: 20px 0px
     .tm-icon
       margin: auto
       height: $home_trademark_s
       width: $home_trademark_s
       vertical-align: middle
-      background: url("/images/header/trademark_50x.svg")
+      background: url("/images/header/trademark_l_120x.svg")
     .tm-title
       font-size: $fs_xl
+    .tm-subtitle
+      margin-top: 6px
+      font-size: $fs_m
+      font-family: $ff_serif
   .hm-readmore
     margin-top: 16px
     text-align: center
@@ -38,6 +43,18 @@ $home_trademark_s: 120px
       padding: 8px
       &:hover
         background: $c_ll
+  .hm-ctrl-panel
+    position: fixed
+    height: $panel_h
+    padding: 0 $home_p_mobile
+    bottom: 0
+    left: 0
+    right: 0
+    background: $c_white
+  .hm-page
+    padding-bottom: $panel_h
 @media only screen and (min-device-width : $tablet_w)
   .home
     padding: 0 $home_p_desktop
+    .hm-ctrl-panel
+      padding: 0 $home_p_desktop

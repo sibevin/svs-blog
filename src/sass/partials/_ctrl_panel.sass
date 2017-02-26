@@ -1,6 +1,22 @@
 @import "modules/globals"
 
+$menu_icon_s: 32px
+$blur_r: 8px
+$pg_border: 2px solid
+
 .ctrl-panel
+  box-shadow: 0px 0px $blur_r $blur_r rgba(255,255,255,1)
+  .cp-first
+    order: 1
+    flex: 1 0 auto
+    text-align: right
+  .cp-last
+    text-align: left
+    order: 3
+    flex: 1 0 auto
+  .cp-middle
+    order: 2
+    flex: 0 0 auto
   .cp-pagination
     display: flex
     flex-direction: row
@@ -8,22 +24,12 @@
     align-items: center
     font-size: $fs_s
     padding: 12px
+    border-bottom: 1px solid
     .cp-pg-col
       margin: 0 4px
-    .cp-first
-      order: 1
-      flex: 1 0 auto
-      text-align: right
-    .cp-middle
-      order: 2
-      flex: 0 0 auto
-    .cp-last
-      text-align: left
-      order: 3
-      flex: 1 0 auto
     .cp-number
       padding: 2px 3px
-      border: 2px solid
+      border: $pg_border
     .cp-current
       color: $c_l
     .cp-active
@@ -32,3 +38,36 @@
     .cp-disabled
       color: $c_l
       cursor: not-allowed
+    .cp-counter
+      color: $c_white
+      background: $c_black
+      border-color: $c_black
+    .cp-sep
+      border-left: $pg_border
+      height: $fs_def
+  .cp-menu
+    display: flex
+    flex-direction: row
+    justify-content: center
+    align-items: center
+    font-size: $fs_s
+    padding: 12px
+    .cp-mu-btn, .cp-mu-search-bar
+      order: 2
+      flex: 0 0 auto
+      margin: 0px 3px
+      img
+        width: $menu_icon_s
+        height: $menu_icon_s
+    .cp-mu-search-bar
+      //border: $pg_border
+      border-radius: 5px
+      padding: 2px
+      background: $c_lll
+      img
+        vertical-align: middle
+      input
+        width: 80px
+        vertical-align: middle
+        background: $c_lll
+        border: none
