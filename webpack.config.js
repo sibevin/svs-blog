@@ -4,7 +4,8 @@ var webpack = require('webpack')
 module.exports = {
   entry: {
     build: './src/main.js',
-    index: './src/index.js'
+    index: './src/js/entry/index.js',
+    posts: './src/js/entry/posts.js'
   },
   output: {
     path: path.resolve(__dirname, './dist'),
@@ -44,7 +45,12 @@ module.exports = {
   resolve: {
     alias: {
       'vue$': 'vue/dist/vue.common.js'
-    }
+    },
+    modules: [
+      path.resolve('./src/js'),
+      path.resolve('./src/vue'),
+      path.resolve('./node_modules')
+    ]
   },
   devServer: {
     historyApiFallback: true,
