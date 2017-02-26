@@ -17,7 +17,7 @@
           .pl-content
             .pl-name
               a.pl-website v-bind:href="post.website" v-show="post.website" target="_blank"
-                img src="/images/list/weblink_25x.svg"
+                img src="/images/list/weblink_24x.svg"
               a v-bind:href="'/post/' + post.file"
                 | {{ post.title }}
             .pl-time
