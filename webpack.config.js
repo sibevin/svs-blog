@@ -5,7 +5,8 @@ module.exports = {
   entry: {
     build: './src/main.js',
     index: './src/js/entry/index.js',
-    posts: './src/js/entry/posts.js'
+    posts: './src/js/entry/posts.js',
+    tags: './src/js/entry/tags.js'
   },
   output: {
     path: path.resolve(__dirname, './dist'),

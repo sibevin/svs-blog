@@ -1,3 +1,2 @@
-.meta-data title 標籤
-h1
-  | Tags
+div id="app"
+script src="/js/tags.js"
