@@ -6,7 +6,8 @@ module.exports = {
     build: './src/main.js',
     index: './src/js/entry/index.js',
     posts: './src/js/entry/posts.js',
-    tags: './src/js/entry/tags.js'
+    tags: './src/js/entry/tags.js',
+    tag: './src/js/entry/tag.js'
   },
   output: {
     path: path.resolve(__dirname, './dist'),
@@ -55,7 +56,27 @@ module.exports = {
   },
   devServer: {
     historyApiFallback: true,
-    noInfo: true
+    noInfo: true,
+    proxy: {
+      '/**': {  //catch all requests
+        target: '/index.html',  //default target
+        secure: false,
+        bypass: function(req, res, opt){
+          //your custom code to check for any exceptions
+          //console.log('bypass check', {req: req, res:res, opt: opt});
+          console.log('req.path', req.path)
+          if(req.path.indexOf('.css') !== -1 || req.path.indexOf('.js') !== -1 || req.path.indexOf('/images/') !== -1){
+            return req.path
+          }
+          if(req.path === '/'){
+            return 'index.html'
+          }
+          if(req.path.indexOf('.html') === -1){
+            return req.path + '.html'
+          }
+        }
+      }
+    }
   },
   performance: {
     hints: false
