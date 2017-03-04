@@ -18,10 +18,10 @@
     .ctrl-panel
       .cp-pagination
         .cp-pg-col.cp-first
-        .cp-pg-col.cp-middle.cp-active.cp-number.cp-sort-switch-btn v-on:click="sortKey.switch('count')" v-bind:class="{'cp-count-selected': sortKey.isTab('count')}"
+        .cp-pg-col.cp-middle.cp-active.cp-number.cp-sort-switch-btn v-on:click="sortTb.switch('count')" v-bind:class="{'cp-count-selected': sortTb.isTab('count')}"
           span.cp-ssb-alphabet
             | A
-          |  / 
+          |  /
           span.cp-ssb-count
             | 1
         .cp-pg-col.cp-middle.cp-sep
@@ -77,7 +77,7 @@ export default {
       paginator: new Paginator(_.keys(TAGS).length),
       urlParams: new UrlParamParser(),
       queryKeyword: "",
-      sortKey: new TabSwitcher('alphabet')
+      sortTb: new TabSwitcher('alphabet')
     }
   },
   created: function() {
@@ -92,7 +92,7 @@ export default {
         value['tag'] = key
         return value
       }))
-      if (this.sortKey.isTab('alphabet')) {
+      if (this.sortTb.isTab('alphabet')) {
         return _.sortBy(_.values(tags), ['name'])
       } else {
         return _.sortBy(_.values(tags), ['count']).reverse()

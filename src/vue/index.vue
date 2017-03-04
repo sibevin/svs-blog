@@ -46,7 +46,7 @@
             .tl-bar-left v-bind:style="{ color: tag.color, flex:  barRatio((1.6 - tag.count / tagMaxCount)*5 + 1) + ' 0 auto' }"
               | {{ tag.count }}
       .hm-readmore
-        a.hr-text href="http://www.rubydoc.info/gems/yard/file/docs/Tags.md"
+        a.hr-text href="/tags"
           | 所有標籤
       .hm-title
         .ht-text
