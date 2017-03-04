@@ -9,7 +9,7 @@
     .tag-list
       .tl-entry v-for="tag in paginatedTags" v-bind:style="{ background: tag.color }"
         .tl-name
-          a.tl-link v-bind:href="'/tag/' + tag.tag"
+          a.tl-link v-bind:href="'/tag?t=' + tag.tag"
             | {{ tag.name }}
         .tl-bar v-bind:style="{ flex: barRatio((0.4 + tag.count / tagMaxCount)*5 - 1) + ' 0 auto' }"
         .tl-bar-left v-bind:style="{ color: tag.color, flex:  barRatio((1.6 - tag.count / tagMaxCount)*5 + 1) + ' 0 auto' }"
@@ -65,8 +65,6 @@ import { Paginator } from 'modules/paginator.js'
 import { TabSwitcher } from 'modules/tab_switcher.js'
 import { UrlParamParser } from 'modules/url_param_parser.js'
 const _ = require('lodash')
-const MAX_POST_COUNT = 10
-const MAX_TAG_COUNT = 10
 
 export default {
   name: 'index',

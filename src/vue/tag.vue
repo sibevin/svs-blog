@@ -1,11 +1,23 @@
 <template lang="slm">
-.posts
+.tag-page
   .page-title
-    .pt-icon
-      .pt-icon-img.pts-icon
-    h1.pt-text
-      | 文章
-  .pts-post-list
+    a href="/tags"
+      .pt-icon
+        .pt-icon-img.tgp-icon
+    h1.pt-text v-bind:style="{ color: currentTagData.color }"
+      | 標籤{{ currentTagName }}
+  .tgp-error-msg v-show="errorMsg != ''"
+    .error-msg
+      .em-error-code
+        | 404
+      .em-text
+        | {{ errorMsg }}
+  .tgp-related-tags v-show="relatedTags.length > 1"
+    .tag-area
+      .tag v-for="tag in relatedTags" v-bind:style="{ background: tag.color }"
+        a.tag-link v-bind:href="'/tag?t=' + tag.tag"
+          | {{ tag.name }}
+  .tgp-post-list
     .post-list
       .pl-entry v-for="post in paginatedPosts"
         .pl-ca
@@ -25,7 +37,7 @@
               .tag v-for="tag in post.tags" v-bind:style="{ background: tagMap[tag].color }"
                 a.tag-link v-bind:href="'/tag?t=' + tag"
                   | {{ tagMap[tag].name }}
-  .pts-ctrl-panel
+  .tgp-ctrl-panel
     .ctrl-panel
       .cp-pagination
         .cp-pg-col.cp-first
@@ -66,6 +78,7 @@
 
 <script>
 import { Paginator } from 'modules/paginator.js'
+import { TabSwitcher } from 'modules/tab_switcher.js'
 import { UrlParamParser } from 'modules/url_param_parser.js'
 const _ = require('lodash')
 
@@ -76,20 +89,72 @@ export default {
       posts: POSTS,
       tagMap: TAGS,
       tagMaxCount: _.maxBy(_.values(TAGS), 'count').count,
+      tags: [],
       paginator: new Paginator(_.keys(POSTS).length),
       urlParams: new UrlParamParser(),
-      queryKeyword: ""
+      queryKeyword: "",
+      currentTag: "",
+      currentTagData: {},
+      errorMsg: ''
     }
   },
   created: function() {
+    var tagQuery = this.urlParams.value('t')
+    this.currentTagData = this.tagMap[tagQuery]
+    if (this.currentTagData != undefined) {
+      this.currentTag = tagQuery
+    } else {
+      this.currentTag = undefined
+      this.currentTagData = {
+        name: '找不到標籤',
+        color: '#000',
+        count: 0
+      }
+      this.errorMsg = '我們之間一定有什麼誤會。'
+    }
     var urlQuery = this.urlParams.value('q')
     if (urlQuery != undefined) {
       this.queryKeyword = urlQuery
     }
+    var tags = _.values(_.mapValues(this.tagMap, function(value, key){
+      value['tag'] = key
+      return value
+    }))
+    this.tags = _.sortBy(_.values(tags), ['name'])
   },
   computed: {
+    currentTagName: function() {
+      return ' — ' + this.currentTagData.name
+    },
+    relatedTags: function() {
+      if (this.currentTag != undefined) {
+        var subTags = this.currentTag.split('_')
+        var tags = this.tags.filter(function(tag){
+          var isFound = false
+          for (var subTag of subTags) {
+            if (tag.tag.toLowerCase().indexOf(subTag) > -1) {
+              isFound = true
+              break
+            }
+          }
+          return isFound
+        })
+        return tags
+      } else {
+        return []
+      }
+    },
     sortedPosts: function() {
-      return _.sortBy(this.posts, ['datetime']).reverse()
+      if (this.currentTag != undefined) {
+        var posts = _.sortBy(this.posts, ['datetime']).reverse()
+        var tag = this.currentTag
+        posts = posts.filter(function(post){
+          return (post.tags.join(' ').toLowerCase().indexOf(tag.toLowerCase()) > -1)
+        })
+        return posts
+      } else {
+        return []
+      }
     },
     filteredPosts: function() {
       var keyword = this.queryKeyword.toLowerCase()

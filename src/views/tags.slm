@@ -1,2 +1,6 @@
+.meta-data title 標籤
+.meta-data description 標籤找東西超好用的啊
+.meta-data end
+
 div id="app"
 script src="/js/tags.js"
