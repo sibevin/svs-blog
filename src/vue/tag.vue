@@ -65,13 +65,10 @@
           a href="/"
             img src="/images/header/trademark_50x.svg"
         .cp-middle.cp-mu-btn
-          img src="/images/header/toc_b_48x.svg"
-        .cp-middle.cp-mu-btn
-          img src="/images/header/toc_b_48x.svg"
-        .cp-middle.cp-mu-btn
-          img src="/images/header/toc_b_48x.svg"
+          a href="/tags"
+            img src="/images/menu/tags_48x.svg"
         .cp-middle.cp-mu-search-bar
-          img src="/images/header/search_b_48x.svg"
+          img src="/images/menu/search_48x.svg"
           input (type="search" v-model="queryKeyword" autofocus)
         .cp-last
 </template>
