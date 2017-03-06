@@ -8,8 +8,6 @@ html
     meta name="description" content==this.description
     - if this.tags
       meta name="keywords" content==this.tags
-    javascript:
-      var FILE = ${=j(this.file)};
     script src="/js/consts/metadata.js"
     link href="/css/application.css" rel="stylesheet"
   body

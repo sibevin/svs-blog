@@ -4,12 +4,13 @@ $desktop_p: 30%
 $mobile_p: 8px
 $panel_h: 108px
 $simple_panel_h: 60px
+$page_bp: 8px
 
 .layout
   .lo-page
-    padding: 0 $mobile_p $panel_h
+    padding: 0 $mobile_p ($panel_h + $page_bp)
     &.lo-simple
-      padding: 0 $mobile_p $simple_panel_h
+      padding: 0 $mobile_p ($simple_panel_h + $page_bp)
   .lo-ctrl-panel
     position: fixed
     height: $panel_h
@@ -23,8 +24,8 @@ $simple_panel_h: 60px
 @media only screen and (min-device-width : $tablet_w)
   .layout
     .lo-page
-      padding: 0 $desktop_p $panel_h
+      padding: 0 $desktop_p ($panel_h + $page_bp)
       &.lo-simple
-        padding: 0 $desktop_p $simple_panel_h
+        padding: 0 $desktop_p ($simple_panel_h + $page_bp)
     .lo-ctrl-panel
       padding: 0 $desktop_p

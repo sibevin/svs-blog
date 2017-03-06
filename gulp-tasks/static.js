@@ -4,12 +4,17 @@ const cached = require('gulp-cached')
 module.exports = {
   favicon: function() {
     return gulp.src('src/images/favicon.ico')
-      .pipe(cached('favicon_images'))
-      .pipe(gulp.dest('./dist/'))
+      .pipe(cached('static_favicon'))
+      .pipe(gulp.dest('./dist'))
   },
-  static: function() {
+  image: function() {
     return gulp.src('src/images/static/**/*', { base: './src/images/static' })
-      .pipe(cached('static_images'))
+      .pipe(cached('static_image'))
       .pipe(gulp.dest('./dist/images'))
+  },
+  js: function() {
+    return gulp.src('src/js/vendor/*')
+      .pipe(cached('static_js'))
+      .pipe(gulp.dest('./dist/js/vendor'))
   }
 }

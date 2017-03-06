@@ -61,13 +61,13 @@ const PAGE_TYPES = {
     compile: buildHtml
   },
   posts: {
-    layout: './src/layouts/application.slm',
+    layout: './src/layouts/post.slm',
     compile: buildHtml
   }
 }
 
 
-var embedHtmlContent = function(pageType) {
+const embedHtmlContent = function(pageType) {
   return function(chunk, enc, cb) {
     var pageTypeData = PAGE_TYPES[pageType]
     var layoutSlm = fs.readFileSync(pageTypeData['layout'], 'utf8')
