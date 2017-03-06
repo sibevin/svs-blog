@@ -8,7 +8,7 @@ const cached = require('gulp-cached')
 const htmlParser = require('htmlparser2');
 
 const buildHtml = function(layoutSlm, chunk) {
-  var appData = JSON.parse(fs.readFileSync('./config/app.js', 'utf8'))
+  var appData = JSON.parse(fs.readFileSync('./config/app.json', 'utf8'))
   var content = String(chunk.contents)
   var data = {}
   var handler = new htmlParser.DomHandler(function(err, dom){

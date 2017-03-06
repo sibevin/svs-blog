@@ -103,7 +103,7 @@ var buildTagConst = function(chunk, enc, cb) {
   console.log('build_tag', String(chunk.contents))
   var tags = String(chunk.contents).slice(0, -2).replace(/[\r\n]/g, '').split(',')
   console.log('tags', tags)
-  var tagData = JSON.parse(fs.readFileSync('./config/tags.js', 'utf8'))
+  var tagData = JSON.parse(fs.readFileSync('./config/tags.json', 'utf8'))
   console.log('tagData', tagData)
   for (tag of tags) {
     var tagSubs = tag.split('_')
@@ -124,7 +124,7 @@ var buildTagConst = function(chunk, enc, cb) {
 }
 
 var buildCategoryConst = function(chunk, enc, cb) {
-  var caData = JSON.parse(fs.readFileSync('./config/categories.js', 'utf8'))
+  var caData = JSON.parse(fs.readFileSync('./config/categories.json', 'utf8'))
   var content = String(chunk.contents) + 'var CATEGORIES = ' + JSON.stringify(caData) + ';'
   chunk.contents = new Buffer(content)
   cb(null, chunk)
