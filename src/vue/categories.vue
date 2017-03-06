@@ -1,38 +1,39 @@
 <template lang="slm">
-.categories
-  .page-title
-    a href="/tags"
-      .pt-icon
-        .pt-icon-img.cgs-icon
-    h1.pt-text
-      | 分類
-  .cgs-category-list
-    .cgs-ca-icon v-for="ca in categories" v-bind:class="{ selected: caCbs.isTab(ca) }"
-      a v-on:click="caCbs.switch(ca)"
-        img v-bind:src="'/images/category/' + ca + '_50x.svg'"
-      .cgs-ca-text
-        | {{ caMap[ca].name }}
-  .cgs-post-list
-    .post-list
-      .pl-entry v-for="post in paginatedPosts"
-        .pl-ca
-          .category-icon
-            a v-bind:href="'/category/' + post.category"
-              div v-bind:class="'ca-icon-' + post.category"
-        .pl-content
-          .pl-name
-            a.pl-website v-bind:href="post.website" v-show="post.website" target="_blank"
-              img src="/images/list/weblink_25x.svg"
-            a v-bind:href="'/post/' + post.file"
-              | {{ post.title }}
-          .pl-time
-            | {{ post.datetime }}
-          .pl-tags
-            .tag-area
-              .tag v-for="tag in post.tags" v-bind:style="{ background: tagMap[tag].color }"
-                a.tag-link v-bind:href="'/tag?t=' + tag"
-                  | {{ tagMap[tag].name }}
-  .cgs-ctrl-panel
+.categories.layout
+  .lo-page
+    .page-title
+      a href="/tags"
+        .pt-icon
+          .pt-icon-img.cgs-icon
+      h1.pt-text
+        | 分類
+    .cgs-category-list
+      .cgs-ca-icon v-for="ca in categories" v-bind:class="{ selected: caCbs.isTab(ca) }"
+        a v-on:click="caCbs.switch(ca)"
+          img v-bind:src="'/images/category/' + ca + '_50x.svg'"
+        .cgs-ca-text
+          | {{ caMap[ca].name }}
+    .cgs-post-list
+      .post-list
+        .pl-entry v-for="post in paginatedPosts"
+          .pl-ca
+            .category-icon
+              a v-bind:href="'/category/' + post.category"
+                div v-bind:class="'ca-icon-' + post.category"
+          .pl-content
+            .pl-name
+              a.pl-website v-bind:href="post.website" v-show="post.website" target="_blank"
+                img src="/images/list/weblink_25x.svg"
+              a v-bind:href="'/post/' + post.file"
+                | {{ post.title }}
+            .pl-time
+              | {{ post.datetime }}
+            .pl-tags
+              .tag-area
+                .tag v-for="tag in post.tags" v-bind:style="{ background: tagMap[tag].color }"
+                  a.tag-link v-bind:href="'/tag?t=' + tag"
+                    | {{ tagMap[tag].name }}
+  .lo-ctrl-panel
     .ctrl-panel
       .cp-pagination
         .cp-pg-col.cp-first

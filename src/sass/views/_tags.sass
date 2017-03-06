@@ -1,25 +1,5 @@
 @import "modules/globals"
 
-$tags_p_desktop: 30%
-$tags_p_mobile: 8px
-$panel_h: 120px
-
 .tags
   .tgs-icon
     background-image: url("/images/menu/tags_48x.svg")
-  .tgs-tag-list
-    padding: 0 $tags_p_mobile $panel_h
-  .tgs-ctrl-panel
-    position: fixed
-    height: $panel_h
-    padding: 0 $tags_p_mobile
-    bottom: 0
-    left: 0
-    right: 0
-    background: $c_white
-@media only screen and (min-device-width : $tablet_w)
-  .tags
-    .tgs-tag-list
-      padding: 0 $tags_p_desktop $panel_h
-    .tgs-ctrl-panel
-      padding: 0 $tags_p_desktop

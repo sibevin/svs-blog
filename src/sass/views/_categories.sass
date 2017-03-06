@@ -1,15 +1,11 @@
 @import "modules/globals"
 
-$categories_p_desktop: 30%
-$categories_p_mobile: 8px
-$panel_h: 120px
-
 .categories
   .cgs-icon
     background-image: url("/images/menu/category_48x.svg")
   .cgs-category-list
     text-align: center
-    padding: 0 $categories_p_mobile 20px
+    padding-bottom: 20px
     .cgs-ca-icon
       display: inline-block
       color: $c_grey
@@ -19,22 +15,3 @@ $panel_h: 120px
       &.selected
         .cgs-ca-text
           color: $c_black
-
-  .cgs-post-list
-    padding: 0 $categories_p_mobile $panel_h
-  .cgs-ctrl-panel
-    position: fixed
-    height: $panel_h
-    padding: 0 $categories_p_mobile
-    bottom: 0
-    left: 0
-    right: 0
-    background: $c_white
-@media only screen and (min-device-width : $tablet_w)
-  .categories
-    .cgs-category-list
-      padding: 0 $categories_p_desktop 20px
-    .cgs-post-list
-      padding: 0 $categories_p_desktop $panel_h
-    .cgs-ctrl-panel
-      padding: 0 $categories_p_desktop

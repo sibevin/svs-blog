@@ -1,6 +1,6 @@
 <template lang="slm">
-  .home
-    .hm-page
+  .home.layout
+    .lo-page.lo-simple
       .hm-trademark
         .tm-icon
         .tm-title
@@ -57,7 +57,7 @@
         .ama-desc
         .ama-twitter
           a class="twitter-timeline" data-lang="zh-tw" data-height="600" href="https://twitter.com/sibevin"
-    .hm-ctrl-panel
+    .lo-ctrl-panel.lo-simple
       .ctrl-panel
         .cp-menu
           .cp-first

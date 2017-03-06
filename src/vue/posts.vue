@@ -1,33 +1,34 @@
 <template lang="slm">
-.posts
-  .page-title
-    .pt-icon
-      .pt-icon-img.pts-icon
-    h1.pt-text
-      | 文章
-  .pts-post-list
-    .post-list
-      .pl-entry v-for="post in paginatedPosts"
-        .pl-ca
-          .category-icon
-            a v-bind:href="'/category/' + post.category"
-              div v-bind:class="'ca-icon-' + post.category"
-        .pl-content
-          .pl-name
-            .pl-draft v-show="showDraft && post.draft"
-              | 草稿
-            a.pl-website v-bind:href="post.website" v-show="post.website" target="_blank"
-              img src="/images/list/weblink_25x.svg"
-            a v-bind:href="'/post/' + post.file"
-              | {{ post.title }}
-          .pl-time
-            | {{ post.datetime }}
-          .pl-tags
-            .tag-area
-              .tag v-for="tag in post.tags" v-bind:style="{ background: tagMap[tag].color }"
-                a.tag-link v-bind:href="'/tag?t=' + tag"
-                  | {{ tagMap[tag].name }}
-  .pts-ctrl-panel
+.posts.layout
+  .lo-page
+    .page-title
+      .pt-icon
+        .pt-icon-img.pts-icon
+      h1.pt-text
+        | 文章
+    .pts-post-list
+      .post-list
+        .pl-entry v-for="post in paginatedPosts"
+          .pl-ca
+            .category-icon
+              a v-bind:href="'/category/' + post.category"
+                div v-bind:class="'ca-icon-' + post.category"
+          .pl-content
+            .pl-name
+              .pl-draft v-show="showDraft && post.draft"
+                | 草稿
+              a.pl-website v-bind:href="post.website" v-show="post.website" target="_blank"
+                img src="/images/list/weblink_25x.svg"
+              a v-bind:href="'/post/' + post.file"
+                | {{ post.title }}
+            .pl-time
+              | {{ post.datetime }}
+            .pl-tags
+              .tag-area
+                .tag v-for="tag in post.tags" v-bind:style="{ background: tagMap[tag].color }"
+                  a.tag-link v-bind:href="'/tag?t=' + tag"
+                    | {{ tagMap[tag].name }}
+  .lo-ctrl-panel
     .ctrl-panel
       .cp-pagination
         .cp-pg-col.cp-first

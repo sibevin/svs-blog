@@ -1,43 +1,44 @@
 <template lang="slm">
-.tag-page
-  .page-title
-    a href="/tags"
-      .pt-icon
-        .pt-icon-img.tgp-icon
-    h1.pt-text v-bind:style="{ color: currentTagData.color }"
-      | 標籤{{ currentTagName }}
-  .tgp-error-msg v-show="errorMsg != ''"
-    .error-msg
-      .em-error-code
-        | 404
-      .em-text
-        | {{ errorMsg }}
-  .tgp-related-tags v-show="relatedTags.length > 1"
-    .tag-area
-      .tag v-for="tag in relatedTags" v-bind:style="{ background: tag.color }"
-        a.tag-link v-bind:href="'/tag?t=' + tag.tag"
-          | {{ tag.name }}
-  .tgp-post-list
-    .post-list
-      .pl-entry v-for="post in paginatedPosts"
-        .pl-ca
-          .category-icon
-            a v-bind:href="'/category/' + post.category"
-              div v-bind:class="'ca-icon-' + post.category"
-        .pl-content
-          .pl-name
-            a.pl-website v-bind:href="post.website" v-show="post.website" target="_blank"
-              img src="/images/list/weblink_25x.svg"
-            a v-bind:href="'/post/' + post.file"
-              | {{ post.title }}
-          .pl-time
-            | {{ post.datetime }}
-          .pl-tags
-            .tag-area
-              .tag v-for="tag in post.tags" v-bind:style="{ background: tagMap[tag].color }"
-                a.tag-link v-bind:href="'/tag?t=' + tag"
-                  | {{ tagMap[tag].name }}
-  .tgp-ctrl-panel
+.tag-page.layout
+  .lo-page
+    .page-title
+      a href="/tags"
+        .pt-icon
+          .pt-icon-img.tgp-icon
+      h1.pt-text v-bind:style="{ color: currentTagData.color }"
+        | 標籤{{ currentTagName }}
+    .tgp-error-msg v-show="errorMsg != ''"
+      .error-msg
+        .em-error-code
+          | 404
+        .em-text
+          | {{ errorMsg }}
+    .tgp-related-tags v-show="relatedTags.length > 1"
+      .tag-area
+        .tag v-for="tag in relatedTags" v-bind:style="{ background: tag.color }"
+          a.tag-link v-bind:href="'/tag?t=' + tag.tag"
+            | {{ tag.name }}
+    .tgp-post-list
+      .post-list
+        .pl-entry v-for="post in paginatedPosts"
+          .pl-ca
+            .category-icon
+              a v-bind:href="'/category/' + post.category"
+                div v-bind:class="'ca-icon-' + post.category"
+          .pl-content
+            .pl-name
+              a.pl-website v-bind:href="post.website" v-show="post.website" target="_blank"
+                img src="/images/list/weblink_25x.svg"
+              a v-bind:href="'/post/' + post.file"
+                | {{ post.title }}
+            .pl-time
+              | {{ post.datetime }}
+            .pl-tags
+              .tag-area
+                .tag v-for="tag in post.tags" v-bind:style="{ background: tagMap[tag].color }"
+                  a.tag-link v-bind:href="'/tag?t=' + tag"
+                    | {{ tagMap[tag].name }}
+  .lo-ctrl-panel
     .ctrl-panel
       .cp-pagination
         .cp-pg-col.cp-first

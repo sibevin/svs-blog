@@ -1,25 +1,5 @@
 @import "modules/globals"
 
-$posts_p_desktop: 30%
-$posts_p_mobile: 8px
-$panel_h: 120px
-
 .posts
   .pts-icon
     background-image: url("/images/menu/paper_48x.svg")
-  .pts-post-list
-    padding: 0 $posts_p_mobile $panel_h
-  .pts-ctrl-panel
-    position: fixed
-    height: $panel_h
-    padding: 0 $posts_p_mobile
-    bottom: 0
-    left: 0
-    right: 0
-    background: $c_white
-@media only screen and (min-device-width : $tablet_w)
-  .posts
-    .pts-post-list
-      padding: 0 $posts_p_desktop $panel_h
-    .pts-ctrl-panel
-      padding: 0 $posts_p_desktop
