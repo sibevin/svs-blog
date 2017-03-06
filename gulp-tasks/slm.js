@@ -20,6 +20,8 @@ const buildHtml = function(layoutSlm, chunk) {
           var rawMeta = ele.children[0].data
           if (rawMeta === 'end') {
             break
+          } else if (rawMeta === 'draft') {
+            data['draft'] = true
           } else {
             var result = rawMeta.match(/^([^ ]*)\ (.*)$/)
             if (result !== null) {

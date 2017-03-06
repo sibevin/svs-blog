@@ -12,17 +12,21 @@ var fetchMetadata = function(chunk, enc, cb) {
   var content = String(chunk.contents)
   var lines = content.split("\n")
   var data = {}
-  var reg = /^\.meta-data\ ([^ ]*)\ (.*)$/
   for (var line of lines) {
     if (line.match(/^\.meta-data\ end/)) {
       break
     } else {
-      var result = line.match(reg)
+      var result = line.match(/^\.meta-data\ ([^ ]*)\ (.*)$/)
       if (result !== null) {
         if (result[1] === 'tags') {
           data[result[1]] = result[2].split(',')
         } else {
           data[result[1]] = result[2]
+        }
+      } else {
+        result = line.match(/^\.meta-data\ ([^ ]*)$/)
+        if (result !== null && result[1] === 'draft') {
+          data['draft'] = true
         }
       }
     }

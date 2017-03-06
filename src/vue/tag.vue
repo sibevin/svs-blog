@@ -143,12 +143,12 @@ export default {
     },
     sortedPosts: function() {
       if (this.currentTag != undefined) {
-        var posts = _.sortBy(this.posts, ['datetime']).reverse()
         var tag = this.currentTag
-        posts = posts.filter(function(post){
-          return (post.tags.join(' ').toLowerCase().indexOf(tag.toLowerCase()) > -1)
+        var posts = _.values(this.posts).filter(function(post){
+          var tagFound = post.tags.join(' ').toLowerCase().indexOf(tag.toLowerCase()) > -1
+          return (post['draft'] != true && tagFound)
         })
-        return posts
+        return _.sortBy(posts, ['datetime']).reverse()
       } else {
         return []
       }

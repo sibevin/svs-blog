@@ -89,7 +89,10 @@ export default {
   },
   computed: {
     sortedPosts: function() {
-      return _.sortBy(this.posts, ['datetime']).reverse()
+      var posts = _.values(this.posts).filter(function(post){
+        return (post['draft'] != true)
+      })
+      return _.sortBy(posts, ['datetime']).reverse()
     },
     filteredPosts: function() {
       var keyword = this.queryKeyword.toLowerCase()

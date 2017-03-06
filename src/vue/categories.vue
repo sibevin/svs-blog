@@ -100,12 +100,11 @@ export default {
   },
   computed: {
     sortedPosts: function() {
-      var posts = _.sortBy(this.posts, ['datetime']).reverse()
       var caCbs = this.caCbs
-      posts = posts.filter(function(post){
-        return caCbs.isTab(post.category)
+      var posts = _.values(this.posts).filter(function(post){
+        return (post['draft'] != true && caCbs.isTab(post.category))
       })
-      return posts
+      return _.sortBy(posts, ['datetime']).reverse()
     },
     filteredPosts: function() {
       var keyword = this.queryKeyword.toLowerCase()
