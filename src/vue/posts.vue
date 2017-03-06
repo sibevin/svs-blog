@@ -14,6 +14,8 @@
               div v-bind:class="'ca-icon-' + post.category"
         .pl-content
           .pl-name
+            .pl-draft v-show="showDraft && post.draft"
+              | 草稿
             a.pl-website v-bind:href="post.website" v-show="post.website" target="_blank"
               img src="/images/list/weblink_25x.svg"
             a v-bind:href="'/post/' + post.file"
@@ -78,7 +80,8 @@ export default {
       tagMaxCount: _.maxBy(_.values(TAGS), 'count').count,
       paginator: new Paginator(_.keys(POSTS).length),
       urlParams: new UrlParamParser(),
-      queryKeyword: ""
+      queryKeyword: "",
+      showDraft: false
     }
   },
   created: function() {
@@ -86,11 +89,16 @@ export default {
     if (urlQuery != undefined) {
       this.queryKeyword = urlQuery
     }
+    var draftQuery = this.urlParams.value('d')
+    if (draftQuery != undefined) {
+      this.showDraft = true
+    }
   },
   computed: {
     sortedPosts: function() {
+      var showDraft = this.showDraft
       var posts = _.values(this.posts).filter(function(post){
-        return (post['draft'] != true)
+        return (post['draft'] != true || showDraft)
       })
       return _.sortBy(posts, ['datetime']).reverse()
     },
