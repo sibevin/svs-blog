@@ -55,6 +55,8 @@
         .ama-avatar
         .ama-name
         .ama-desc
+        .ama-twitter
+          a class="twitter-timeline" data-lang="zh-tw" data-height="600" href="https://twitter.com/sibevin"
     .hm-ctrl-panel
       .ctrl-panel
         .cp-menu

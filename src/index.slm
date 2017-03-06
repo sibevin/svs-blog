@@ -1,2 +1,3 @@
 div id="app"
 script src="/js/index.js"
+script(async src="//platform.twitter.com/widgets.js" charset="utf-8")
