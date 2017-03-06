@@ -75,6 +75,7 @@ export default {
       paginator: new Paginator(_.keys(TAGS).length),
       urlParams: new UrlParamParser(),
       queryKeyword: "",
+      showDraft: false,
       sortTb: new TabSwitcher('alphabet')
     }
   },
@@ -83,6 +84,10 @@ export default {
     if (urlQuery != undefined) {
       this.queryKeyword = urlQuery
     }
+    var draftQuery = this.urlParams.value('d')
+    if (draftQuery != undefined) {
+      this.showDraft = true
+    }
   },
   computed: {
     sortedTags: function() {
@@ -90,6 +95,10 @@ export default {
         value['tag'] = key
         return value
       }))
+      var showDraft = this.showDraft
+      tags = tags.filter(function(tag){
+        return (tag['draft'] != true || showDraft)
+      })
       if (this.sortTb.isTab('alphabet')) {
         return _.sortBy(_.values(tags), ['name'])
       } else {

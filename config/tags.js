@@ -147,5 +147,9 @@
   "fp": {
     "name": "Functional Programming",
     "color": "#0e543f"
+  },
+  "frag": {
+    "name": "碎片",
+    "draft": true
   }
 }
