@@ -7,7 +7,8 @@ module.exports = {
     index: './src/js/entry/index.js',
     posts: './src/js/entry/posts.js',
     tags: './src/js/entry/tags.js',
-    tag: './src/js/entry/tag.js'
+    tag: './src/js/entry/tag.js',
+    categories: './src/js/entry/categories.js'
   },
   output: {
     path: path.resolve(__dirname, './dist'),

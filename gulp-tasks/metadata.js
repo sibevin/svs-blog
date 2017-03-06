@@ -119,6 +119,13 @@ var buildTagConst = function(chunk, enc, cb) {
   cb(null, chunk)
 }
 
+var buildCategoryConst = function(chunk, enc, cb) {
+  var caData = JSON.parse(fs.readFileSync('./config/categories.js', 'utf8'))
+  var content = String(chunk.contents) + 'var CATEGORIES = ' + JSON.stringify(caData) + ';'
+  chunk.contents = new Buffer(content)
+  cb(null, chunk)
+}
+
 
 module.exports = function() {
   var postsData = gulp.src('src/posts/*.slm')
@@ -133,6 +140,7 @@ module.exports = function() {
 
   return merge(postsData, tagsData)
       .pipe(concat('metadata.js'))
+      .pipe(through.obj(buildCategoryConst))
       .pipe(uglify())
       .pipe(gulp.dest('dist/js/consts/'))
 }

@@ -1,7 +1,7 @@
 export class TabSwitcher {
   constructor(tab = null) {
     this.initTab = tab
-    this.currentTab = tab
+    this.reset()
   }
   switch (tab) {
     if (this.currentTab === tab) {
@@ -12,7 +12,7 @@ export class TabSwitcher {
   }
   isTab(tabs) {
     if (Array.isArray(tabs)) {
-      return (tabs.indexOf(this.currentTab) > 0)
+      return (tabs.indexOf(this.currentTab) > -1)
     } else {
       return (this.currentTab === tabs)
     }

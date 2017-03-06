@@ -1,7 +1,7 @@
 import Vue from 'vue'
-import Posts from 'tag.vue'
+import Tag from 'tag.vue'
 
 new Vue({
   el: '#app',
-  render: h => h(Posts)
+  render: h => h(Tag)
 })
