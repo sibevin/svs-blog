@@ -22,101 +22,126 @@ $base-line-height: $lh_def
   +border-radius(3px)
 
 .post
-  h1
-    +margin-leader(.5)
-    +margin-trailer(.5)
-    +adjust-font-size-to($fs_xxl)
-    +header-style
-    &:before
-      +header-point($fs_xxl)
-  h2
-    +margin-leader(.25)
-    +margin-trailer(.25)
-    +adjust-font-size-to($fs_l)
-    +header-style
-    &:before
-      +header-point($fs_l)
-
-  h3, h4, h5, h6
-    +adjust-font-size-to($fs_ml)
-    +header-style
-    &:before
-      +header-point($fs_ml)
-    table
-      border: 1px $c_black solid
+  .pt-header
+    padding-bottom: 20px
+    .pt-title
+      font-size: $fs_xxl
+      padding: 20px 0
+    .pt-info
+      display: flex
+      flex-direction: row
+      justify-content: flex-end
+      align-items: center
+      .pt-tags
+        order: 1
+        flex: 1 1 auto
+        text-align: right
+      .pt-category
+        order: 2
+        flex: 0 0 auto
+    .pt-datetime
+      margin-bottom: 12px
+      padding-bottom: 3px
+      border-bottom: 1px $c_l solid
+      color: $c_l
+      text-align: right
+      font-family: $ff_mono
+  .pt-content
+    h1
       +margin-leader(.5)
       +margin-trailer(.5)
-      tr
-        &:hover
-          background: $c_ll
-      @mixin cell
-        border: 1px $c_black solid
-        +adjust-font-size-to($fs_def)
-        padding: 0px 8px
-      td
-        +cell
-      th
-        +cell
-        font-weight: bold
-        background: $c_ll
-  p
-    +adjust-font-size-to($fs_def)
+      +adjust-font-size-to($fs_xxl)
+      +header-style
+      &:before
+        +header-point($fs_xxl)
+    h2
+      +margin-leader(.25)
+      +margin-trailer(.25)
+      +adjust-font-size-to($fs_l)
+      +header-style
+      &:before
+        +header-point($fs_l)
 
-  pre
-    +margin-leader(.2)
-    +margin-trailer(.2)
-    font-family: monospace
-    +single-box-shadow(0px, 0px, 10px, 0px, $c_l)
-
-  code
-    display: inline-block
-    font-family: monospace
-    +adjust-font-size-to($fs_def)
-    padding: 0px 0.5em
-
-  pre
-    code
-      display: block
-      &::selection
-        background: $c_selected
-      &::-moz-selection
-        background: $c_selected
-  .table-block
-    table
-      border-collapse: separate
-      border-spacing: 2px
-      border: none
-      td
-        border: 1px $c_black solid
-      td.tb-hidden
-        border: 1px $c_white solid
+    h3, h4, h5, h6
+      +adjust-font-size-to($fs_ml)
+      +header-style
+      &:before
+        +header-point($fs_ml)
       table
-        margin: 0px
-  .hljs
-    &::selection
-      background: $c_selected
-    &::-moz-selection
-      background: $c_selected
-    span
+        border: 1px $c_black solid
+        +margin-leader(.5)
+        +margin-trailer(.5)
+        tr
+          &:hover
+            background: $c_ll
+        @mixin cell
+          border: 1px $c_black solid
+          +adjust-font-size-to($fs_def)
+          padding: 0px 8px
+        td
+          +cell
+        th
+          +cell
+          font-weight: bold
+          background: $c_ll
+    p
+      +adjust-font-size-to($fs_def)
+
+    pre
+      +margin-leader(.2)
+      +margin-trailer(.2)
+      font-family: monospace
+      +single-box-shadow(0px, 0px, 10px, 0px, $c_l)
+
+    code
+      display: inline-block
+      font-family: monospace
+      +adjust-font-size-to($fs_def)
+      padding: 0px 0.5em
+
+    pre
+      code
+        display: block
+        &::selection
+          background: $c_selected
+        &::-moz-selection
+          background: $c_selected
+    .table-block
+      table
+        border-collapse: separate
+        border-spacing: 2px
+        border: none
+        td
+          border: 1px $c_black solid
+        td.tb-hidden
+          border: 1px $c_white solid
+        table
+          margin: 0px
+    .hljs
       &::selection
         background: $c_selected
       &::-moz-selection
         background: $c_selected
-  a
-    color: $c_d
-    padding: 0px 3px
+      span
+        &::selection
+          background: $c_selected
+        &::-moz-selection
+          background: $c_selected
+    a
+      color: $c_d
+      padding: 0px 3px
 
-  li
-    +adjust-font-size-to($fs_def)
-    &:before
-      content: "_"
-      +header-point($fs_s)
+    li
+      +adjust-font-size-to($fs_def)
+      &:before
+        content: "_"
+        +header-point($fs_s)
 
-  strong
-    font-weight: bold
+    strong
+      font-weight: bold
 
-  i
-    font-style: italic
+    i
+      font-style: italic
 
-  .rwd-table
-    overflow-x: auto
+    .rwd-table
+      overflow-x: auto

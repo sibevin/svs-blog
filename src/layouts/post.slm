@@ -20,7 +20,23 @@ html
   body
     .post.layout
       .lo-page.lo-simple
-        == this.content
+        .pt-header id="app"
+          .pt-title
+            | {{ currentPost.title }}
+          .pt-datetime
+            | {{ currentPost.datetime }}
+          .pt-info
+            .pt-tags
+              .tag-area
+                .tag v-for="tag in currentPost.tags" v-bind:style="{ background: tagMap[tag].color }"
+                  a.tag-link v-bind:href="'/tag?t=' + tag"
+                    | {{ tagMap[tag].name }}
+            .pt-category
+              .category-icon
+                a v-bind:href="'/category/' + currentPost.category"
+                  div v-bind:class="'ca-icon-' + currentPost.category"
+        .pt-content
+          == this.content
       .lo-ctrl-panel.lo-simple
         .ctrl-panel
           .cp-menu
@@ -66,3 +82,4 @@ html
         });
         emojify.run();
       });
+    script src="/js/post.js"

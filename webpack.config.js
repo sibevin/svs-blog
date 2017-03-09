@@ -8,6 +8,7 @@ module.exports = {
     posts: './src/js/entry/posts.js',
     tags: './src/js/entry/tags.js',
     tag: './src/js/entry/tag.js',
+    post: './src/js/entry/post.js',
     categories: './src/js/entry/categories.js'
   },
   output: {

@@ -8,20 +8,24 @@ gulp.task('slm-posts', tasks.slm.posts);
 gulp.task('webpack', tasks.webpack);
 gulp.task('metadata', tasks.metadata);
 gulp.task('sass', tasks.sass);
-gulp.task('img-favicon', tasks.image.favicon);
-gulp.task('img-static', tasks.image.static);
+gulp.task('static-favicon', tasks.static.favicon);
+gulp.task('static-image', tasks.static.image);
+gulp.task('static-js', tasks.static.js);
 gulp.task('clean', tasks.clean);
 
-gulp.task('default', ['build-slm', 'copy-img', 'sass', 'metadata', 'webpack']);
+gulp.task('default', ['build-slm', 'copy-static', 'sass', 'metadata', 'webpack']);
 gulp.task('build-slm', ['slm-index', 'slm-views', 'slm-posts']);
-gulp.task('copy-img', ['img-favicon', 'img-static']);
+gulp.task('copy-static', ['static-favicon', 'static-image', 'static-js']);
 
 gulp.task('watch', function(){
   gulp.watch('src/index.slm', ['slm-index']);
   gulp.watch('src/posts/*.slm', ['slm-posts', 'metadata']);
   gulp.watch('src/views/*.slm', ['slm-views']);
   gulp.watch('src/sass/**/*.sass', ['sass']);
-  gulp.watch('src/images/static/**/*.svg', ['img-static']);
+  gulp.watch('src/images/static/**/*.svg', ['static-image']);
+  gulp.watch('src/js/vendor/*.js', ['static-js']);
+  gulp.watch('src/layouts/post.slm', ['slm-posts']);
+  gulp.watch('src/layouts/application.slm', ['slm-index', 'slm-views']);
 });
 
 // var webpack = require('webpack-stream');

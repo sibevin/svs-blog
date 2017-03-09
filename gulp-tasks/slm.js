@@ -41,11 +41,12 @@ const buildHtml = function(layoutSlm, chunk) {
   if (data.title !== undefined) {
     title = data.title + ' | ' + appData.name
   }
-  console.log('title', title)
   return slmCompile(layoutSlm, null)({
     content: content,
     file: data.file || '',
     title: title,
+    datetime: data.datetime,
+    category: data.category,
     keywords: data.tags || appData.tags,
     description: data.description || appData.description
   })
