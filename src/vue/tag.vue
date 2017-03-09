@@ -69,8 +69,8 @@
           a href="/tags"
             img src="/images/menu/tags_48x.svg"
         .cp-middle.cp-mu-search-bar
-          img src="/images/menu/search_48x.svg"
-          input (type="search" v-model="queryKeyword" autofocus)
+          img src="/images/menu/search_48x.svg" v-on:click="$refs['searchInput'].focus()"
+          input (type="search" ref="searchInput" v-model="queryKeyword" autofocus)
         .cp-last
 </template>
 
