@@ -74,7 +74,6 @@
 
 <script>
 import { Paginator } from 'modules/paginator.js'
-import { TabSwitcher } from 'modules/tab_switcher.js'
 import { CheckboxSwitcher } from 'modules/checkbox_switcher.js'
 import { UrlParamParser } from 'modules/url_param_parser.js'
 const _ = require('lodash')
