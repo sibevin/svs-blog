@@ -1,25 +1,9 @@
 @import "compass/typography/vertical_rhythm"
+@import "modules/header_style"
 @import "modules/globals"
 
 $base-font-size: $fs_def
 $base-line-height: $lh_def
-
-@mixin header-style
-  a
-    text-decoration: none
-    color: $c_black
-
-@mixin header-point($size)
-  content: "-"
-  background: $c_black
-  color: $c_black
-  display: inline-block
-  width: $size
-  line-height: $size
-  margin: 0px 10px
-  text-align: center
-  font-family: $ff_serif
-  +border-radius(3px)
 
 .post
   .pt-header
