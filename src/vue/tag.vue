@@ -23,7 +23,7 @@
         .pl-entry v-for="post in paginatedPosts"
           .pl-ca
             .category-icon
-              a v-bind:href="'/category/' + post.category"
+              a v-bind:href="'/categories?c=' + post.category"
                 div v-bind:class="'ca-icon-' + post.category"
           .pl-content
             .pl-name

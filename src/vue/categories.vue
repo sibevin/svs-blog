@@ -13,12 +13,18 @@
           img v-bind:src="'/images/category/' + ca + '_50x.svg'"
         .cgs-ca-text
           | {{ caMap[ca].name }}
+    .cgs-error-msg v-show="caCbs.isTab('error')"
+      .error-msg
+        .em-error-code
+          | 404
+        .em-text
+          | 我們之間一定有什麼誤會。
     .cgs-post-list
       .post-list
         .pl-entry v-for="post in paginatedPosts"
           .pl-ca
             .category-icon
-              a v-bind:href="'/category/' + post.category"
+              a v-bind:href="'/categories?c=' + post.category"
                 div v-bind:class="'ca-icon-' + post.category"
           .pl-content
             .pl-name
@@ -74,7 +80,7 @@
 
 <script>
 import { Paginator } from 'modules/paginator.js'
-import { CheckboxSwitcher } from 'modules/checkbox_switcher.js'
+import { TabSwitcher } from 'modules/tab_switcher.js'
 import { UrlParamParser } from 'modules/url_param_parser.js'
 const _ = require('lodash')
 
@@ -83,16 +89,22 @@ export default {
   data() {
     return {
       categories: _.keys(CATEGORIES),
-      caCbs: new CheckboxSwitcher(),
+      caCbs: new TabSwitcher(),
       posts: POSTS,
       tagMap: TAGS,
       caMap: CATEGORIES,
       paginator: new Paginator(0),
       urlParams: new UrlParamParser(),
-      queryKeyword: "",
+      queryKeyword: ""
     }
   },
   created: function() {
+    var caQuery = this.urlParams.value('c')
+    if (this.caMap[caQuery] != undefined) {
+      this.caCbs.setTab(caQuery)
+    } else if (caQuery != undefined) {
+      this.caCbs.setTab('error')
+    }
     var urlQuery = this.urlParams.value('q')
     if (urlQuery != undefined) {
       this.queryKeyword = urlQuery
