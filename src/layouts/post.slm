@@ -13,50 +13,58 @@ html
     script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"
     script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"
     script src="/js/consts/metadata.js"
+    script src="/js/vendor/md5.min.js"
+    script src="/js/vendor/contents.js"
     script src="/js/vendor/emojify.min.js"
     javascript:
       var FILE = ${=j(this.file)};
       hljs.initHighlightingOnLoad();
   body
-    .post.layout
-      .lo-page.lo-simple
-        .pt-header id="app"
-          .pt-title
-            | {{ currentPost.title }}
-          .pt-datetime
-            | {{ currentPost.datetime }}
-          .pt-info
-            .pt-tags
-              .tag-area
-                .tag v-for="tag in currentPost.tags" v-bind:style="{ background: tagMap[tag].color }"
-                  a.tag-link v-bind:href="'/tag?t=' + tag"
-                    | {{ tagMap[tag].name }}
-            .pt-category
-              .category-icon
-                a v-bind:href="'/category/' + currentPost.category"
-                  div v-bind:class="'ca-icon-' + currentPost.category"
-        .pt-content
-          == this.content
-      .lo-ctrl-panel.lo-simple
-        .ctrl-panel
-          .cp-menu
-            .cp-first
-            .cp-middle.cp-mu-btn
-              a href="/"
-                img src="/images/header/trademark_50x.svg"
-            .cp-middle.cp-mu-btn
-              a href="/posts"
-                img src="/images/menu/paper_48x.svg"
-            .cp-middle.cp-mu-btn
-              a href="/tags"
-                img src="/images/menu/tags_48x.svg"
-            .cp-middle.cp-mu-btn
-              a href="/categories"
-                img src="/images/menu/category_48x.svg"
-            .cp-middle.cp-mu-btn
-              a href="/posts"
-                img src="/images/menu/search_48x.svg"
-            .cp-last
+    div id="app"
+      .post.layout v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"
+        .lo-page.lo-simple
+          .pt-header id="app"
+            .pt-title
+              | {{ currentPost.title }}
+            .pt-datetime
+              | {{ currentPost.datetime }}
+            .pt-info
+              .pt-tags
+                .tag-area
+                  .tag v-for="tag in currentPost.tags" v-bind:style="{ background: tagMap[tag].color }"
+                    a.tag-link v-bind:href="'/tag?t=' + tag"
+                      | {{ tagMap[tag].name }}
+              .pt-category
+                .category-icon
+                  a v-bind:href="'/category/' + currentPost.category"
+                    div v-bind:class="'ca-icon-' + currentPost.category"
+          .pt-content
+            == this.content
+        .lo-ctrl-panel.lo-simple
+          .ctrl-panel
+            .lo-toc
+              .toc
+            .cp-menu
+              .cp-first
+              .cp-middle.cp-mu-btn
+                a href="/"
+                  img src="/images/header/trademark_50x.svg"
+              .cp-middle.cp-mu-btn
+                a href="/posts"
+                  img src="/images/menu/paper_48x.svg"
+              .cp-middle.cp-mu-btn
+                a href="/tags"
+                  img src="/images/menu/tags_48x.svg"
+              .cp-middle.cp-mu-btn
+                a href="/categories"
+                  img src="/images/menu/category_48x.svg"
+              .cp-middle.cp-mu-btn
+                a v-on:click="tocTb.switch('on')"
+                  img src="/images/menu/toc_48x.svg"
+              .cp-middle.cp-mu-btn
+                a href="/posts"
+                  img src="/images/menu/search_48x.svg"
+              .cp-last
     javascript:
       $(function () {
         // TOC

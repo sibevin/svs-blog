@@ -1,0 +1,24 @@
+@import "modules/globals"
+
+$toc_p: 16px
+$toc_indent_w: 12px
+$toc_point_size: $fs_xs
+
+.toc
+  padding-bottom: $toc_p
+  ol
+    li
+      padding: $toc_p $toc_p 0px $toc_indent_w
+      &:before
+        content: "-"
+        background: $c_black
+        color: $c_black
+        display: inline-block
+        width: $toc_point_size
+        line-height: $toc_point_size
+        margin: 0px 3px
+        text-align: center
+        font-family: $ff_serif
+        +border-radius(3px)
+      a
+        text-decoration: none

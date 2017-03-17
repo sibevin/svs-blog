@@ -3,8 +3,9 @@
 $desktop_p: 30%
 $mobile_p: 8px
 $panel_h: 108px
-$simple_panel_h: 60px
+$simple_panel_h: 66px
 $page_bp: 8px
+$toc_h: 150px
 
 .layout
   .lo-page
@@ -21,6 +22,20 @@ $page_bp: 8px
     background: $c_white
     &.lo-simple
       height: $simple_panel_h
+  .lo-toc
+    overflow-y: auto
+    display: none
+    border: 1px solid
+  &.lo-toc-on
+    .lo-page
+      &.lo-simple
+        padding: 0 $mobile_p ($simple_panel_h + $page_bp + $toc_h)
+    .lo-ctrl-panel
+      &.lo-simple
+        height: $toc_h + $simple_panel_h
+      .lo-toc
+        display: block
+        height: $toc_h
 @media only screen and (min-device-width : $tablet_w)
   .layout
     .lo-page
@@ -29,3 +44,7 @@ $page_bp: 8px
         padding: 0 $desktop_p ($simple_panel_h + $page_bp)
     .lo-ctrl-panel
       padding: 0 $desktop_p
+    &.lo-toc-on
+      .lo-page
+        &.lo-simple
+          padding: 0 $desktop_p ($simple_panel_h + $page_bp + $toc_h)
