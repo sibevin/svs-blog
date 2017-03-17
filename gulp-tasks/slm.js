@@ -95,7 +95,7 @@ module.exports = {
   },
   posts: function() {
     return gulp.src('src/posts/*.slm')
-      .pipe(cached('posts'))
+      //.pipe(cached('posts'))
       .pipe(slm())
       .on('error', function(error) {
         debugger
