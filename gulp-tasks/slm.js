@@ -102,6 +102,6 @@ module.exports = {
         console.log('error', error)
       })
       .pipe(through.obj(embedHtmlContent('posts')))
-      .pipe(gulp.dest('./dist/post'))
+      .pipe(gulp.dest('./dist/posts'))
   }
 }
