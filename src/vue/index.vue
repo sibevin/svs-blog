@@ -96,13 +96,13 @@ export default {
         value['tag'] = key
         return value
       }))
-      return _.sortBy(_.values(tags), ['count']).reverse().slice(1, MAX_TAG_COUNT)
+      return _.sortBy(_.values(tags), ['count']).reverse().slice(0, MAX_TAG_COUNT)
     },
     recentPosts: function() {
       var posts = _.values(this.posts).filter(function(post){
         return (post['draft'] != true)
       })
-      return _.sortBy(posts, ['datetime']).reverse().slice(1, MAX_POST_COUNT)
+      return _.sortBy(posts, ['datetime']).reverse().slice(0, MAX_POST_COUNT)
     }
   },
   methods: {

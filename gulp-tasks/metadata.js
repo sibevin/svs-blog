@@ -60,7 +60,7 @@ var fetchTag = function(chunk, enc, cb) {
 }
 
 var buildPostConst = function(chunk, enc, cb) {
-  var content = 'var POSTS = {' + String(chunk.contents).slice(0, -2) + '};'
+  var content = 'var POSTS = {' + String(chunk.contents).replace(/[\r\n]/g, '').slice(0, -1) + '};'
   chunk.contents = new Buffer(content)
   cb(null, chunk)
 }
@@ -127,17 +127,18 @@ var buildCategoryConst = function(chunk, enc, cb) {
   var caData = JSON.parse(fs.readFileSync('./config/categories.json', 'utf8'))
   var content = String(chunk.contents) + 'var CATEGORIES = ' + JSON.stringify(caData) + ';'
   chunk.contents = new Buffer(content)
+  console.log('content', content)
   cb(null, chunk)
 }
 
 
 module.exports = function() {
-  var postsData = gulp.src('src/posts/*.slm')
+  var postsData = gulp.src(['src/posts/*.slm', 'src/bookmarks/*.slm'])
       .pipe(through.obj(fetchMetadata))
       .pipe(concat('posts.js'))
       .pipe(through.obj(buildPostConst))
 
-  var tagsData = gulp.src('src/posts/*.slm')
+  var tagsData = gulp.src(['src/posts/*.slm', 'src/bookmarks/*.slm'])
       .pipe(through.obj(fetchTag))
       .pipe(concat('tags.js'))
       .pipe(through.obj(buildTagConst))
