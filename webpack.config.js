@@ -67,7 +67,7 @@ module.exports = {
           //your custom code to check for any exceptions
           //console.log('bypass check', {req: req, res:res, opt: opt});
           console.log('req.path', req.path)
-          if(req.path.indexOf('.css') !== -1 || req.path.indexOf('.js') !== -1 || req.path.indexOf('/images/') !== -1){
+          if(path.extname(req.path) === '.css' || path.extname(req.path) === '.js' || req.path.indexOf('/images/') !== -1){
             return req.path
           }
           if(req.path === '/'){
