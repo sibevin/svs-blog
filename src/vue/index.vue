@@ -21,7 +21,7 @@
               .pl-name
                 a.pl-website v-bind:href="post.website" v-show="post.website" target="_blank"
                   img src="/images/list/weblink_24x.svg"
-                a v-bind:href="'/posts/' + post.file"
+                a v-bind:href="post.category === 'bm' ? post.website : '/posts/' + post.file"
                   | {{ post.title }}
               .pl-time
                 | {{ post.datetime }}
