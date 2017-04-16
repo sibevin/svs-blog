@@ -114,7 +114,8 @@
     "color": "#ff7400"
   },
   "book": {
-    "name": "書"
+    "name": "書",
+    "color": "#a04208"
   },
   "book_poodr": {
     "name": "POODR",
@@ -151,5 +152,20 @@
   "frag": {
     "name": "碎片",
     "draft": true
+  },
+  "ops": {
+    "name": "Operation"
+  },
+  "linux": {
+    "name": "Linux",
+    "color": "#660000"
+  },
+  "erlang": {
+    "name": "Erlang",
+    "color": "#A2003E"
+  },
+  "rx": {
+    "name": "ReactiveX",
+    "color": "#a0147b",
   }
 }
