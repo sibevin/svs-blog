@@ -51,23 +51,6 @@ $base-line-height: $lh_def
       +header-style
       &:before
         +header-point($fs_ml)
-      table
-        border: 1px $c_black solid
-        +margin-leader(.5)
-        +margin-trailer(.5)
-        tr
-          &:hover
-            background: $c_ll
-        @mixin cell
-          border: 1px $c_black solid
-          +adjust-font-size-to($fs_def)
-          padding: 0px 8px
-        td
-          +cell
-        th
-          +cell
-          font-weight: bold
-          background: $c_ll
     p
       +adjust-font-size-to($fs_def)
 
@@ -86,10 +69,29 @@ $base-line-height: $lh_def
     pre
       code
         display: block
+        overflow-x: auto
         &::selection
           background: $c_selected
         &::-moz-selection
           background: $c_selected
+    table
+      border: 1px $c_black solid
+      +margin-leader(.5)
+      +margin-trailer(.5)
+      tr
+        &:hover
+          background: $c_ll
+      @mixin cell
+        border: 1px $c_black solid
+        +adjust-font-size-to($fs_def)
+        padding: 0px 8px
+      td
+        +cell
+      th
+        +cell
+        font-weight: bold
+        background: $c_ll
+
     .table-block
       table
         border-collapse: separate
