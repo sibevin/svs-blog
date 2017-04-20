@@ -1,0 +1,33 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>在部落格中加上emoji功能 | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2016-07-23-211731-add-emoji-feature-to-blog";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title 在部落格中加上emoji功能</div><div class="meta-data">datetime 2016-07-23 21:17:31</div><div class="meta-data">tags blog,js</div><div class="meta-data">category coding</div><div class="meta-data">link add-emoji-feature-to-blog</div><div class="meta-data">file 2016-07-23-211731-add-emoji-feature-to-blog</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>前言</h1><p>一張圖勝千言萬語，是時候加上emoji的功能了。( :smirk: 好吧，我承認只是為了讓blog更華麗 :sparkles: )</p><h1>How</h1><h2>加入 emojify.js</h2><p><a href="https://github.com/Ranks/emojify.js" target="_blank">emojify.js</a>是一個自動將網頁上的emoji代號轉成對應emoji圖的好用工具，基本上在head中加入它的js就可以了。</p><h2>設定 emoji 的圖片路徑</h2><p>emoji 的圖要準備好，我將emojify github中的 dist/images/basic 加到網頁對應的 /images/emoji 路徑中。</p><h2>設定 emojify</h2><p>emojify.js 提供了一些參數可以做額外的設定，可以參考官方的README。下面是本部落格的設定：</p><pre><code class="js">emojify.setConfig({
+  ignore_emoticons: true,
+  img_dir: '/images/emoji',
+  blacklist: {
+    elements: ['script', 'textarea', 'pre', 'code'],
+    classes: ['no-emojify']
+  }
+});
+emojify.run();</code></pre><p>其中<code>ignore_emoticons: true</code>指的是不使用<code>:)</code>之類的符號，而是只使用<code>:smile:</code>等代號，這樣可以避免貼程式碼被誤轉成 emoji 的情況。<code>img_dir: '/images/emoji'</code>則是設定 emoji 的圖片路徑，注意這裡要用<code>/</code>開頭，不然會用相對路徑來找圖片。<code>blacklist</code>則是用來設定哪些元件或是css類別不使用 emoji，因為預設把連結拿掉了，所以我把它加回去。</p><h2>在文章中插入 emoji</h2><p>只要在想顯示 emoji 的地方加上代號即可，不過要注意的是在中文句子中要用空白隔開，例如：<code>這是一句 :smile: 中文。</code>，這樣就有 emoji 可以用了。Ya ~ :v:</p><h1>Refs</h1><ul><li><a href="https://github.com/Ranks/emojify.js" target="_blank">Github - emojify.js</a></li></ul></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

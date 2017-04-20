@@ -1,0 +1,31 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>從無到有建立一個rails專案 | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2015-10-10-104039-build-a-rails-app-from-zero";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title 從無到有建立一個rails專案</div><div class="meta-data">datetime 2015-10-10 10:40:39</div><div class="meta-data">tags rails</div><div class="meta-data">category coding</div><div class="meta-data">link build-a-rails-app-from-zero</div><div class="meta-data">file 2015-10-10-104039-build-a-rails-app-from-zero</div><div class="meta-data">template post</div><div class="meta-data">draft</div><div class="meta-data">end</div><h1>事前準備</h1><ul><li>檢查ruby與rails的版本</li></ul><h1>使用rails new建立一個新專案</h1><p>rails提供了許多選項可以使用，例如可以使用<code>-d</code>修改預設的資料庫設定，或是用<code>-T</code>將預設的unit test關閉(如果你想用其它的test framework，例如rspec)。你可以下<code>rails new -h</code>查看更多選項與細節。下面是一個範例：</p><pre><code>$ rails new ex-app -d mysql -T --no-rc </code></pre><h1>設定config/database.yml與config/secrets.yml</h1><p>這兩個檔案都屬於重要的機密檔案，不應該commit到git裡，所以要把這兩個檔案加到.gitignore。</p><p><i>.gitignore</i></p><pre><code># ...
+# Ignore configs
+/config/database.yml
+/config/secrets.yml</code></pre><p>另外我會複製一份原始的database.example.yml與secrets.example.yml commit到git中當做設定的範例，當然，要記得要改掉secrets.example.yml裡面的值。</p><h1>做第一次git commit</h1><pre><code>$ cd ex-app
+$ git init
+$ git add ./
+$ git commit -v</code></pre><h1>設定database</h1><p>更改config/database.yml，加入資料庫相關的設定，包含連線用的帳密。設定完之後下<code>rake db:create</code>建立資料庫。</p><h1>啟動測試網站</h1><pre><code>$ rails s</code></pre><h1>同場加映 - 加入常用的gem</h1><p><i>(all environments)</i></p><ul><li>devise - 使用者authentication</li><li>simple_form - 用簡單的語法快速建立form</li><li>enumerize - 在model中建立類似enum的column</li><li>uidable - 在model中建立unique id的column</li><li>kaminari - 專門處理分頁的gem</li><li>slim-rails - 使用slim</li></ul><p><i>(development)</i></p><ul><li>letter_opener - 用browser開啟信件</li><li>rubocop - 檢查ruby語法</li><li>rails_best_practices - 檢查rails的語法</li><li>annotate - 在model、migration與routes中自動產生註解</li></ul><p><i>(development, test)</i></p><ul><li>pry-byebug - pry的debugger</li><li>rspec-rails - rspec for rails</li><li>factory_girl_rails - factory girl for rails</li><li>faker - 建立假資料</li></ul><h2>FB登入會用到的</h2><p><i>(all environments)</i></p><ul><li>omniauth</li><li>omniauth-facebook</li></ul><h2>建立API會用到的</h2><p><i>(all environments)</i></p><ul><li>grape</li></ul><p><i>(development)</i></p><ul><li>grape-swagger</li><li>grape-swagger-rails</li></ul><h2>前端</h2><p><i>(all environments)</i></p><ul><li>font-awesome-rails</li></ul><p><i>source 'https://rails-assets.org'</i></p><ul><li>rails-assets-bootstrap</li></ul><h2>前端 - React</h2><p><i>(all environments)</i></p><ul><li>react-rails</li><li>browserify-rails</li></ul><p><i>source 'https://rails-assets.org'</i></p><ul><li>rails-assets-reflux</li><li>rails-assets-fetch</li></ul></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

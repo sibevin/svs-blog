@@ -1,0 +1,207 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>Metaprogramming Ruby 2 - ch2 - The Object Model | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2016-04-10-134313-mr2-ch2-the-object-model";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title Metaprogramming Ruby 2 - ch2 - The Object Model</div><div class="meta-data">datetime 2016-04-10 13:43:13</div><div class="meta-data">tags mp,book_mr2,note,ruby</div><div class="meta-data">category coding</div><div class="meta-data">link mr2-ch2-the-object-model</div><div class="meta-data">file 2016-04-10-134313-mr2-ch2-the-object-model</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>前言</h1><p>這是 Metaprogramming Ruby 2 的閱讀筆記，只會記錄我覺得重要的地方。如果你想要了解完整的內容或是想讓Ruby程式做一些神奇的事，強烈推薦去讀讀這本書。</p><h1>Open Classes</h1><p><span class="mk-blue">Open Class</span>：我們可以在任何時間點reopen已經存在的class並修改它。</p><pre><code class="ruby">class A
+  def say
+    "Hi"
+  end
+end
+
+a = A.new
+p a.say # Hi
+# p a.say_hello # NoMethodError
+
+class A
+  def say_hello
+    "Hello"
+  end
+end
+
+p a.say # Hi
+p a.say_hello # Hello</code></pre><p>上面的例子，第二個class A並不是重新定義class A，而是reopen class A，並加一個新的method在class A之中。有趣的是即使是在reopen之前宣告的instance a，在reopen加上method之後就會有新的method可以用。</p><h1>The Problem with Open Classes</h1><pre><code class="ruby">class A
+  def say
+    "Hi"
+  end
+end
+
+a = A.new
+p a.say # Hi
+
+class A
+  def say
+    "Hello"
+  end
+end
+
+p a.say # Hello</code></pre><p>由上面的例子可以發現reopen之後我們可以將原本存在在class的method履寫掉，這樣的特性會在使用open class時很容易不小心改掉class原本的method而造成非預期的bug，所以這個技巧又被稱做<span class="mk-blue">Monkeypatch</span>。</p><h1>Inside the Object Model</h1><pre><code class="ruby">class A
+  def say
+    @var = 1
+    "Hi"
+  end
+end
+
+a = A.new
+
+p a.class # A
+p a.methods # [:say, ... ]
+p a.instance_variable # []
+
+p a.say # Hi
+
+p a.instance_variable # [:@var]
+
+p A.class # Class
+p A.instance_methods # [:say, ... ]
+p A.superclass # Object
+
+p Class.class # Class
+p Class.superclass # Module
+p Class.instance_methods # [:new, ... ]
+
+p Module.superclass # Object
+
+p Object.superclass # BasicObject
+
+p BasicObject.superclass # nil</code></pre><p>a, A, Class, Module, Object, BasicObject之間的關係可以從下圖了解：</p><div class="image-center"><a href="/images/post/20160410155612-mr2-ch2-object-model.png"><img alt="ruby 物件關係圖" src="/images/post/20160410155612-mr2-ch2-object-model.png" /></a><div class="image-text">ruby 物件關係圖</div></div><h2>Instance Variables</h2><p>@var是a的一個instance variable，instance variable是在instance a中定義的，跟A一點關係也沒有，也就是即使是同一個class的instance，也可以有完全不同的instance variable。另外從上面的例子可以知道@var是在say被呼叫之後才被定義，也就是instance variable是可以動態被建立的，而不是預先定義。</p><h2>Methods</h2><p>say是A的一個instance method，instance method是定義在A中，但只有A的instance a才可以呼叫。你會發現a.methods與A.instance_methods列出來的結果是一樣的(在沒有include其它module的情況下)，也就是instance method是定義在A中，而每一個instance都會共用相同的instance methods。</p><h2>Modules</h2><p>Class繼承Module表示每一個Class都是一個Module，不過在使用上我們會做區分，module表示會被include在其它的地方，而class會用來做instance或是建立繼承體系。</p><h2>Constants</h2><p>在ruby中會把class或是module的命名稱做constants，它們都會是大寫字母開頭。Constants在ruby中是可以被變更的(書上舉Rake的例子還蠻有趣的)，與變數不同的是它有namespace的概念。</p><pre><code class="ruby">A = "A root-level constant"
+
+module B
+  class C
+    A = "A constant in a class"
+
+    def self.get_class_a
+      A
+    end
+
+    def self.get_root_a
+      ::A
+    end
+
+    def self.show_nesting
+      Module.nesting
+    end
+  end
+
+  def self.show_nesting
+    Module.nesting
+  end
+end
+
+p A # "A root-level constant"
+p B::C::A # "A constant in a class"
+
+p B::C.get_class_a # "A constant in a class"
+p B::C.get_root_a # "A root-level constant"
+
+p B.constants # [:C]
+p B::C.constants # [:A]
+p Module.constants # [:A, :B, :Object, :Module, :Class, :BasicObject, :Kernel, ... ]
+
+p B.show_nesting # [B]
+p B::C.show_nesting # [B::C, B]</code></pre><ul><li>class或是module的命名我們會使用pascal cased，例如<code>MyClass</code>。</li><li>可以使用::來取得root的constants，例如上面的 <code>::A</code>。</li><li><code>Module.constant</code>會列出所有root-level的constants。 <code>Module.nesting</code>則可以列出目前的namespace。</li></ul><h2>Loading and Requiring</h2><p>請參考： <a href="/posts/2016-05-02-145830-load-vs-require-in-ruby" target="_blank">ruby的load與require是差在什麼地方？</a></p><h1>What Happens When You Call a Method?</h1><h2>Method Lookup</h2><pre><code class="ruby">class A
+  def say
+    "Hi"
+  end
+end
+
+class B < A
+end
+
+b = B.new
+p b.say # Hi
+B.ancestors # [B, A, Object, Kernel, BasicObject]</code></pre><p>instance b呼叫了say，這時候ruby會先去找對應這個instance的class，也就是B有沒有定義這個method，如果沒有則往繼承體系上找有沒有這個method，以上面的例子而言，在class A中找到了say，於是就會使用class A中定義的say。我們可以使用 <code>ancestors</code>來查看一個class它所對應的繼承體系。</p><h2>Modules and Lookup</h2><p>請參考： <a href="/posts/2014-05-04-081714-ruby-module" target="_blank">ruby module的用法</a></p><pre><code class="ruby">class A
+  def say
+    "A say Hi"
+  end
+end
+
+module M1
+  def say
+    "M1 say Hi"
+  end
+end
+
+module M2
+  def say
+    "M2 say Hi"
+  end
+end
+
+class B < A
+  include M1
+  prepend M2
+  def say
+    "B say Hi"
+  end
+end
+
+class B
+  def say
+    "Reopen B say Hi"
+  end
+end
+
+module M3
+  def say
+    "M3 say Hi"
+  end
+end
+
+module M4
+  def say
+    "M4 say Hi"
+  end
+end
+
+module SayRefinement
+  refine B do
+    include M3
+    prepend M4
+    def say
+      "Refinement B say Hi"
+    end
+  end
+end
+
+b = B.new
+p b.say # "M2 say Hi"
+p B.ancestors # [M2, B, M1, A, Object, Kernel, BasicObject]
+
+using SayRefinement
+
+p b.say # "M4 say Hi"
+p B.ancestors # [M2, B, M1, A, Object, Kernel, BasicObject]</code></pre><div class="image-center"><a href="/images/post/20160511181400-mr2-ch2-method-lookup.png"><img alt="Method Lookup的順序" src="/images/post/20160511181400-mr2-ch2-method-lookup.png" /></a><div class="image-text">Method Lookup的順序</div></div><h2>The Kernel</h2><p><span class="mk-blue">Kernel Method</span>：因為Object有include Kernel module，因此ruby中所有的物件都可以使用Kernel內定義的method。換句話說，只要將method加入Kernel中，則所有的物件都會擁有這個method，這會讓method變成像是ruby keyword的錯覺，酷。</p><pre><code class="ruby">module Kernel
+  def say
+    "Hi"
+  end
+end
+
+p say
+
+class A
+end
+
+a = A.new
+p a.say</code></pre><p>上面的例子，我們用<span class="mk-blue">Open Class</span>的方式將say塞到Kernel中，這時候say變成到處都可以用了。書上也舉了AwesomePrint這個有趣的例子。</p><h2>Method Execution</h2><h3>The self Keyword</h3><p>ruby的每一行程式碼都是在某個物件中執行，我們稱做current object，而ruby會把current object記錄到 <code>self</code>之中。如果呼叫一個method但不指定receiver的話，預設就會把self當做receiver。當你呼叫method時指定了receiver，則self會在呼叫時method切換到對應的receiver。</p><h3>Private Method</h3><p>在ruby中，private method指的是不能使用receiver呼叫的method，即使是self也不行。這樣的定義表示除了在物件本身之中呼叫外，其它的地方都無法呼叫這個method。</p><h3>The Top Level</h3><p>在一開始進入irb或是ruby的程式而尚未呼叫任何的method時，這時候的self會是一個叫做 <code>main</code>的Object，我們稱做top-level context，它是在程式一開始時由ruby interpreter自動配置的物件。(雖然叫做main，可是與C或是Java裡的main()義意完全不同。)</p><h3>Class Definitions and self</h3><p>在class中，self會指向class本身。</p><pre><code class="ruby">class A
+  self # => A
+end</code></pre><h2>Refinements</h2><p>請參考： <a href="/posts/2016-05-02-163010-refinement-in-ruby" target="_blank">ruby的refinement</a></p></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

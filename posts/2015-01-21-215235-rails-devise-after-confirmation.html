@@ -1,0 +1,48 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>如何讓使用者完成註冊確認之後就做某件事 | 魔法師的手杖</title><meta content="如何讓使用者完成註冊確認之後就做某件事" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2015-01-21-215235-rails-devise-after-confirmation";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title 如何讓使用者完成註冊確認之後就做某件事</div><div class="meta-data">description 如何讓使用者完成註冊確認之後就做某件事</div><div class="meta-data">datetime 2015-01-21 21:52:35</div><div class="meta-data">tags rails,devise</div><div class="meta-data">category coding</div><div class="meta-data">link rails-devise-after-confirmation</div><div class="meta-data">file 2015-01-21-215235-rails-devise-after-confirmation</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>問題</h1><p>我們希望能在一個使用者帳號被建立的時候初始化一些資料，最好的時間點就是當使用者完成註冊確認的時候。</p><h1>解法</h1><p>devise在3.1.2之後在<code>Devise::Confirmable</code>有提供一個method叫<code>after_confirmation</code>。你可以override它如下：</p><pre><code class="hljs">class User < ActiveRecord::Base
+  devise :database_authenticatable, :registerable,
+     :recoverable, :rememberable, :trackable, :validatable, :confirmable
+
+  def after_confirmation
+    # do something...
+  end
+end</code></pre><p>不過這樣的做法有個缺點就是每次使用者更改email重新做confirmation的時候都會再做一次，這顯然不是我們想要的。比較好的做法是override<code>confirm!</code>這個method，並且在method中檢查confirmed_at是否已經存在過來判斷是不是第一次做confirmation，程式如下：</p><pre><code class="hljs">class User < ActiveRecord::Base
+  devise :database_authenticatable, :registerable,
+     :recoverable, :rememberable, :trackable, :validatable, :confirmable
+
+  def confirm!
+    super
+    if first_confirmation?
+      # do something...
+    end
+  end
+
+  private
+
+  def first_confirmation?
+    previous_changes[:confirmed_at] && previous_changes[:confirmed_at].first.nil?
+  end
+end</code></pre><h1>Refs</h1><ul><li><a href="http://stackoverflow.com/questions/4558463/rails-devise-after-confirmation#comment12853945_4558910" target="_blank">SO - Rails Devise: after_confirmation</a></li></ul></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

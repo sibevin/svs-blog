@@ -1,0 +1,29 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>Random Token - 建立亂數字串最簡單的方法 | 魔法師的手杖</title><meta content="Random Token - 建立亂數字串最簡單的方法" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2014-10-06-110155-gem-random-token-generate-random-string";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title Random Token - 建立亂數字串最簡單的方法</div><div class="meta-data">description Random Token - 建立亂數字串最簡單的方法</div><div class="meta-data">datetime 2014-10-06 11:01:55</div><div class="meta-data">tags ruby_gem,work</div><div class="meta-data">category coding</div><div class="meta-data">link gem-random-token-generate-random-string</div><div class="meta-data">file 2014-10-06-110155-gem-random-token-generate-random-string</div><div class="meta-data">template post</div><div class="meta-data">website https://github.com/sibevin/random_token</div><div class="meta-data">end</div><ul><li><a href="https://github.com/sibevin/random_token" target="_blank">Github</a></li><li><a href="http://rubygems.org/gems/random_token" target="_blank">RubyGem</a><code> (random_token)</code></li></ul><h1>What</h1><p>建立亂數字串最簡單的方法。</p><h1>Why</h1><p>建立一個亂數字串其實很簡單，google一下就找到<a href="http://stackoverflow.com/questions/88311/how-best-to-generate-a-random-string-in-ruby" target="_blank">做法</a>了。但如果還要讓生成的字串加上後製的處理，例如大小寫轉換或是過濾某些字元，那就要花額外的功與程式碼去做。而這個gem是希望可以將這些步驟簡化並整合到gem中，讓建立亂數字串的過程可以更簡單，也可以達到DRY。</p><h1>How</h1><p>這個 gem提供了兩種方式來產生亂數字串，第一種是直接給字串長度：</p><pre><code class="hljs">RandomToken.gen(8)
+# "iUEFxcG2"</code></pre><p>可以加上一些參數來修改生成的字串：</p><pre><code class="hljs">RandomToken.gen(20, seed: :alphabet, friendly: true, case: :up)
+# "YTHJHTXKSSXTPLARALRH"</code></pre><p>假如你懶的打字，參數可以簡化如下：</p><pre><code class="hljs">RandomToken.gen(20, s: :a, f: true, c: :u)
+# "YTHJHTXKSSXTPLARALRH"</code></pre><p>另一種方式是使用格式化字串，例如：</p><pre><code class="hljs">RandomToken.gen("%4H-%4H-%4H-%4H")
+# "FD77-2792-91A9-6CE3"</code></pre><p>詳細的使用方式請參考<a href="https://github.com/sibevin/random_token/blob/master/README.md" target="_blank">README</a>，這裡就不再贅述。</p><h1>心得</h1><p>當初只是想要做一個方便用來生成亂數字串的工具，沒有想說要做多完整的功能，另一方面也想嘗試怎麼做一個gem。沒想到做了之後就會開始欲罷不能的多做一些功能，像是string format或是指定亂數機率分佈等。</p><p>做這個gem最大的收獲就是實作string format，如何去parse傳入的string有哪些directive，然而轉成想要的option。看似困難，其實實際下去做感覺反而沒想像的這麼難。另一個收獲是學習使用ruby內建的test framework，之前在寫rails都是用rspec，但如果只是一個gem，用rspec似乎有點殺雞牛刀的感覺，還要增加dependence，所以就試著用ruby的unit test來做測試。感覺跟寫rspec很像，不過每個case前都要用test_開頭的語法有點多餘就是了。</p></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

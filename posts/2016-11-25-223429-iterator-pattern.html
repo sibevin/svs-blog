@@ -1,0 +1,294 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>Iterator Pattern - 反覆器模式 | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2016-11-25-223429-iterator-pattern";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title Iterator Pattern - 反覆器模式</div><div class="meta-data">datetime 2016-11-25 22:34:29</div><div class="meta-data">tags dp</div><div class="meta-data">category coding</div><div class="meta-data">link iterator-pattern</div><div class="meta-data">file 2016-11-25-223429-iterator-pattern</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>前言</h1><p>最近讀書會在讀深入淺出設計模式，趁這個機會複習一下設計模式，試著舉出簡單的例子並且用非模式與模式的方式來實作，比較它們的差異與優缺點。</p><h1>範例問題</h1><p>現在有兩個log記錄器，分別為 SystemLogger(系統log記錄器) 與 ApplicationLogger(應用程式log記錄器)，如下所示：</p><pre><code class="ruby">class SystemLogger
+  def initialize
+    @sys_logs = []
+  end
+
+  def add(msg)
+    timestamp = Time.now.strftime('%Y%m%d_%H%M%S_%N')
+    @sys_logs << [timestamp, msg]
+  end
+
+  def logs
+    @sys_logs
+  end
+end
+
+class ApplicationLogger
+  def initialize
+    @app_logs = {}
+  end
+
+  def add(msg)
+    timestamp = Time.now.strftime('%Y%m%d_%H%M%S_%N')
+    @app_logs[timestamp] = msg
+  end
+
+  def logs
+    @app_logs
+  end
+end</code></pre><p>這兩個Logger做的事幾乎一樣，同樣都有add(加入新的log)與logs(列出目前儲存的log)兩個method，但最大的差別就在於logs回傳的格式不同。SystemLogger回傳的是一個Array裡面每一個項目是一個由 timestamp(時間標記)與msg(訊息) 組成的pair，例如：<code>[[timestamp1, msg1], [timestamp2, msg2], ...]</code>；而ApplicationLogger則是利用一個hash來儲存log，以timestamp為key，msg為value，例如：<code>{timestamp1 => msg1, timestamp2 => msg2, ...}</code>。</p><p>現在有一個LogCollector，負責收集這兩個Logger產生的log並將它們的log整合到一個array中，那要怎麼實作LogCollector呢？</p><h1>沒有使用模式的實作</h1><pre><code class="ruby">class LogCollector
+  def initialize(loggers)
+    @loggers = loggers
+  end
+
+  def collect
+    all_logs = []
+    @loggers.each do |logger|
+      if logger.is_a?(SystemLogger)
+        logger.logs.each do |log|
+          all_logs << log.last
+        end
+      end
+      if logger.is_a?(ApplicationLogger)
+        logger.logs.each do |_timestamp, log|
+          all_logs << log
+        end
+      end
+    end
+    all_logs
+  end
+end
+
+sys_logger = SystemLogger.new
+app_logger = ApplicationLogger.new
+
+sys_logger.add('Segmentation fault.')
+app_logger.add('This is a pen, this is an apple.')
+sys_logger.add('The server is on fire.')
+app_logger.add('Kait is not a cat.')
+
+log_collector = LogCollector.new([sys_logger, app_logger])
+p log_collector.collect</code></pre><h2>上面實作的缺點</h2><ul><li>LogCollector必須知道SystemLogger與ApplicationLogger如何存儲資料的細節，才可以從logs取得資料。一旦任何一個logger改了儲存的方式，LogCollector就必須跟著改。</li><li>當有新的Logger加進來時，必須修改LogCollector裡collect這個method。</li></ul><h1>使用模式的實作</h1><pre><code class="ruby">module LogIterator
+  def next
+    fail 'You should implement "next" method.'
+  end
+
+  def has_next?
+    fail 'You should implement "has_next?" method.'
+  end
+end
+
+class SysLogIterator
+  include LogIterator
+
+  def initialize(logs)
+    @logs = logs.map(&:last)
+    @counter = 0
+  end
+
+  def next
+    log = @logs[@counter]
+    @counter += 1
+    log
+  end
+
+  def has_next?
+    (@counter < @logs.size)
+  end
+end
+
+class AppLogIterator
+  include LogIterator
+
+  def initialize(logs)
+    @logs = logs.values
+    @counter = 0
+  end
+
+  def next
+    log = @logs[@counter]
+    @counter += 1
+    log
+  end
+
+  def has_next?
+    (@counter < @logs.size)
+  end
+end
+
+module IteratorLogger
+  def iterator
+    fail 'You should implement "iterator" method.'
+  end
+end
+
+class SystemLogger
+  include IteratorLogger
+
+  def initialize
+    @sys_logs = []
+  end
+
+  def add(msg)
+    timestamp = Time.now.strftime('%Y%m%d_%H%M%S_%N')
+    @sys_logs << [timestamp, msg]
+  end
+
+  def iterator
+    SysLogIterator.new(@sys_logs)
+  end
+end
+
+class ApplicationLogger
+  include IteratorLogger
+
+  def initialize
+    @app_logs = {}
+  end
+
+  def add(msg)
+    timestamp = Time.now.strftime('%Y%m%d_%H%M%S_%N')
+    @app_logs[timestamp] = msg
+  end
+
+  def iterator
+    AppLogIterator.new(@app_logs)
+  end
+end
+
+class LogCollector
+  def initialize(loggers)
+    @loggers = loggers
+  end
+
+  def collect
+    all_logs = []
+    @loggers.each do |logger|
+      iterator = logger.iterator
+      while iterator.has_next?
+        all_logs << iterator.next
+      end
+    end
+    all_logs
+  end
+end
+
+sys_logger = SystemLogger.new
+app_logger = ApplicationLogger.new
+
+sys_logger.add('Segmentation fault.')
+app_logger.add('This is a pen, this is an apple.')
+sys_logger.add('The server is on fire.')
+app_logger.add('Kait is not a cat.')
+
+log_collector = LogCollector.new([sys_logger, app_logger])
+p log_collector.collect</code></pre><h2>如何實作</h2><ul><li>LogIterator定義了如何從取得資料的方法，其中has_next?是表示現在對應的位子是否有值，而next則是取出目前位子的資料，並移動到下一個。</li><li>每個Logger會有一個對應的LogIterator，來定義怎麼取得各自的log，例如 SystemLogger 會有一個 SysLogIterator。</li><li>每個Logger必須實作IteratorLogger，提供iterator這個method讓LogCollector可以得到對應的LogIterator。</li><li>LogCollector透過LogIterator來取得各個Logger的資料。</li></ul><h2>上面實作的優點</h2><ul><li>LogCollector只知道如何使用LogIterator來取資料，所以與Logger可以完整的切割，不用去知道Logger是怎麼儲存log的。</li><li>要增加新的Logger只要實作IteratorLogger就可以支援LogCollector。</li></ul><h1>使用 ruby Enumerable 的實作</h1><p>在ruby中，我們比較熟悉存取一連串資料的方式是用each來做，而要讓class有each的功能就必須include Enumerable這個module，下面是一個例子：</p><pre><code class="ruby">class SysLogIterator
+  include Enumerable
+
+  def initialize(logs)
+    @logs = logs.map(&:last)
+  end
+
+  def each(&block)
+    @logs.each(&block)
+  end
+end
+
+class AppLogIterator
+  include Enumerable
+
+  def initialize(logs)
+    @logs = logs.values
+  end
+
+  def each(&block)
+    @logs.each(&block)
+  end
+end
+
+module IteratorLogger
+  def iterator
+    fail 'You should implement "iterator" method.'
+  end
+end
+
+class SystemLogger
+  include IteratorLogger
+
+  def initialize
+    @sys_logs = []
+  end
+
+  def add(msg)
+    timestamp = Time.now.strftime('%Y%m%d_%H%M%S_%N')
+    @sys_logs << [timestamp, msg]
+  end
+
+  def iterator
+    SysLogIterator.new(@sys_logs)
+  end
+end
+
+class ApplicationLogger
+  include IteratorLogger
+
+  def initialize
+    @app_logs = {}
+  end
+
+  def add(msg)
+    timestamp = Time.now.strftime('%Y%m%d_%H%M%S_%N')
+    @app_logs[timestamp] = msg
+  end
+
+  def iterator
+    AppLogIterator.new(@app_logs)
+  end
+end
+
+class LogCollector
+  def initialize(loggers)
+    @loggers = loggers
+  end
+
+  def collect
+    all_logs = []
+    @loggers.each do |logger|
+      logger.iterator.each do |log|
+        all_logs << log
+      end
+    end
+    all_logs
+  end
+end
+
+sys_logger = SystemLogger.new
+app_logger = ApplicationLogger.new
+
+sys_logger.add('Segmentation fault.')
+app_logger.add('This is a pen, this is an apple.')
+sys_logger.add('The server is on fire.')
+app_logger.add('Kait is not a cat.')
+
+log_collector = LogCollector.new([sys_logger, app_logger])
+p log_collector.collect</code></pre><p>其中要注意的是，一旦include Enumerable，就必須實作each這個method，以SysLogIterator為例，實作each的方式其實就是將each導向@logs的each。因為都是each，所以可以直接將傳給each的block用參數的方式傳給裡面的each：</p><pre><code class="ruby">def each(&block)
+  @logs.each(&block)
+end</code></pre><p>上面的寫法可能不容易了解，其實上面做的事情就跟下面的程式做的是一樣的，也就是將資料一個個取出並當做參數傳入block中：</p><pre><code class="ruby">def each(&block)
+  @logs.each do |log|
+    block.call(log)
+  end
+end</code></pre><h1>樣式名稱</h1><p>Iterator Pattern - 反覆器(疊代器)模式</p><h1>目的</h1><p>當我們需要從一連串的資料集合(Aggregate)中將資料一個個取出來使用時，利用 Iterator(LogIterator) 抽象化存取資料的界面，讓 client(LogCollector) 端只需要操作 Iterator 而不用去了解底層是如何儲存資料的。另一方面，Iterator 也統一個存取資料的界面，只要有實作並提供 Iterator 的 Aggregate(SystemLogger, ApplicationLogger) 就都可以讓 client 端取得資料。</p><h1>使用時機</h1><ul><li>需要從一連串的資料集合(Aggregate)中將資料一個個取出來使用，而底層可能有多種儲存資料的方式。</li></ul></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

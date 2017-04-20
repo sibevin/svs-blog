@@ -1,0 +1,39 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>處理rails的時區 | 魔法師的手杖</title><meta content="處理rails的時區" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2015-01-02-001917-rails-handle-time-zone";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title 處理rails的時區</div><div class="meta-data">description 處理rails的時區</div><div class="meta-data">datetime 2015-01-02 00:19:17</div><div class="meta-data">tags rails</div><div class="meta-data">category coding</div><div class="meta-data">link rails-handle-time-zone</div><div class="meta-data">file 2015-01-02-001917-rails-handle-time-zone</div><div class="meta-data">template post</div><div class="meta-data">end</div><ul><li>如果你要讓使用者可以儲存他所在的時區，每個user必須要對應一個string的欄位用來記錄使用者的時區，這時候在edit的view中使用simple form時，可以加上<code>as: :time_zone</code>的選項，就可以建立時區的下拉式選單。</li></ul><pre><code class="hljs">f.input :timezone, as: :time_zone</code></pre><ul><li>要針對不同使用者根據他的時區設定顯示不同的時間，則要在controller中加上下面的code。如果是加在application controller，則表示會套用在所有的頁面。</li></ul><pre><code class="hljs">class ApplicationController < ActionController::Base
+  around_action :set_time_zone
+  def set_time_zone
+    if current_user && current_user.user_config.timezone.present?
+      Time.use_zone(current_user.user_config.timezone) { yield }
+    else
+      yield
+    end
+  end
+end</code></pre><ul><li>上面的動作如果設定好，時間並不會自動顯示成時區時間，必須要使用<code>in_time_zone</code>才可以顯示成時區時間。</li></ul><pre><code class="hljs">1.month.ago.in_time_zone</code></pre><ul><li>要顯示目前時區，可以使用<code>Time.zone.to_s</code>。</li><li>要檢查form傳來的字串是否為合法的時區字串，可以用<code>ActiveSupport::TimeZone[input_string]</code>，回傳非nil的值即代表是合法的時區字串。</li><li>存進資料庫的時候會自動轉成utc儲存，不用特別轉換。</li><li>如果要切換時區，但時間本身不變，例如原本是<code>2016-11-22 12:26:44 +0800</code>，要改成<code>2016-11-22 12:26:44 -0500</code>，則需要用到下面的方式處理：</li></ul><pre><code class="nohighlight">> now = Time.now
+2016-11-22 12:26:44 +0800
+> now_new_york_utc = ActiveSupport::TimeZone.new('America/New_York').local_to_utc(now)
+2016-11-22 17:26:44 UTC
+> now_new_york_utc.in_time_zone('America/New_York')
+Tue, 22 Nov 2016 12:26:44 EST -05:00</code></pre><h1>Ref</h1><ul><li><a href="http://api.rubyonrails.org/classes/Time.html#method-c-zone-3D" target="_blank">api.rubyonrails.org - Time - zone=</a></li><li></li><a href="http://stackoverflow.com/questions/16818180/ruby-rails-how-do-i-change-the-timezone-of-a-time-without-changing-the-time" target="_blank">SO - Ruby / Rails - How do i change the timezone of a Time, without changing the time</a></ul></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

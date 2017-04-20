@@ -1,0 +1,54 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>使用AngularJS偵測按鍵事件 | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2015-09-03-104908-detect-key-event-in-angularjs";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title 使用AngularJS偵測按鍵事件</div><div class="meta-data">datetime 2015-09-03 10:49:08</div><div class="meta-data">tags angularjs</div><div class="meta-data">category coding</div><div class="meta-data">link detect-key-event-in-angularjs</div><div class="meta-data">file 2015-09-03-104908-detect-key-event-in-angularjs</div><div class="meta-data">template post</div><div class="meta-data">end</div><p>AngualrJs提供了<code>ng-keyup, ng-keydown, ng-keypress</code>可以用來偵測按鍵事件。</p><h1>範例</h1><h2>html</h2><pre><code>&lt;div ng-controller=&quot;MyCtrl&quot;&gt;
+  &lt;input.search-input ng-keydown=&quot;onSearchKeyDown($event)&quot;&gt;
+&lt;/div&gt;</code></pre><h2>js</h2><pre><code>angular.module("exApp").controller("MyCtrl", function ($scope)
+{
+    $scope.onSearchKeyDown = function (event) {
+      # do something ...
+      $scope.key = event.keyCode
+    };
+}</code></pre><p>注意AngularJS的event會被傳遞至上層的DOM，例如：</p><h2>html</h2><pre><code>&lt;div ng-controller=&quot;MyCtrl&quot;&gt;
+  &lt;div.menu-panel ng-keydown=&quot;onMenuKeyDown($event)&quot;&gt;
+    &lt;input.search-input ng-keydown=&quot;onSearchKeyDown($event)&quot;&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre><h2>js</h2><pre><code>angular.module("exApp").controller("MyCtrl", function ($scope)
+{
+    $scope.onMenuKeyDown = function (event) {
+      $scope.keyMenu = event.keyCode
+    };
+    $scope.onSearchKeyDown = function (event) {
+      $scope.keySearch = event.keyCode
+    };
+}</code></pre><p>這時可以加上<code>event.stopPropagation();</code>來停止事件的傳遞。</p><pre><code>angular.module("exApp").controller("MyCtrl", function ($scope)
+{
+    $scope.onMenuKeyDown = function (event) {
+      $scope.keyMenu = event.keyCode
+    };
+    $scope.onSearchKeyDown = function (event) {
+      $scope.keySearch = event.keyCode
+      <span class="mk-blue">event.stopPropagation();</span>
+    };
+}</code></pre></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

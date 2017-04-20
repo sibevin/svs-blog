@@ -1,0 +1,38 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>在Atom中設定rails的自動補齊 | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2015-11-24-091200-setup-autocomplete-for-rails-in-atom-with-ctags";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title 在Atom中設定rails的自動補齊</div><div class="meta-data">datetime 2015-11-24 09:12:00</div><div class="meta-data">tags atom,ruby</div><div class="meta-data">category tools</div><div class="meta-data">link setup-autocomplete-for-rails-in-atom-with-ctags</div><div class="meta-data">file 2015-11-24-091200-setup-autocomplete-for-rails-in-atom-with-ctags</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>UPDATE 2017-03-30</h1><p>使用guard來自動產生tag有幾個問題，一個是每次修改檔案都會重建所有的tag，這不太對。另一點是要開guard才能生tag，但有些專案又不用guard，這樣有點尷尬，所以這個方法顯然不太好。後來我發現atom-ctags本身就會做產生tag的事，只是如果要整合ripper-tags，就必須要做一些修改。詳細內容可以參考：<a href="/posts/2017-03-30-154412-integrate-atom-ctags-with-ruby" target="_blank">整合atom-ctags與ripper-tags來支援ruby的專案</a>。</p><h1>=== 以下是舊的文章內容 ===</h1><h1>確認系統裡有安裝ctags</h1><pre><code>$ brew install ctags</code></pre><h1>試著跑一下ctags</h1><p>在rails專案中執行下面這個指令：</p><pre><code>$ ctags -R --languages=ruby --exclude=.git --exclude=log .</code></pre><p>如果要連bundle的gem也要做tag的話，可以加上bundle list --path：</p><pre><code>$ ctags -R --languages=ruby --exclude=.git --exclude=log . $(bundle list --paths)</code></pre><p>這時候有一個tags的file就會被建立。</p><h1>使用guard讓tag可以在檔案儲存時自動產生</h1><p>如果每次改檔案都要手動重新建立tag也實在太麻煩啦，這時候guard就非常好用了。首先在Gemfile中加入guard-ctags-bundler：</p><i>Gemfile</i><pre><code>group :development do
+  gem 'guard-ctags-bundler'
+end</code></pre><p>bundle install完之後，執行guard init加入Guardfile的設定。</p><pre><code>$ guard init ctags-bundler</code></pre><p>這時候你會發現產生的Guardfile會長的像下面這個樣子：</p><i>Guardfile</i><pre><code>guard 'ctags-bundler', :src_path => ["app", "lib", "spec/support"] do
+  watch(/^(app|lib|spec\/support)\/.*\.rb$/)
+  watch('Gemfile.lock')
+end</code></pre><p>guard-ctags-bundler還有提供很多選項可以做調整，請參考它的文件<a href="https://github.com/ivalkeen/guard-ctags-bundler" target="_blank">ivalkeen/guard-ctags-bundler</a>。</p><p>之後，在寫程式前執行guard，就可以自動產生tags了。</p><pre><code>$ guard</code></pre><h1>讓Atom可以吃ctags來做到自動補齊</h1><p>確認有安裝下列的package，就ok了。</p><ul><li>autocomplete-plus</li><li>atom-ctags</li></ul><p>記得將fuzzy的設定打開：在autocomplete-plus中的DefaultProvider設定選Fuzzy。</p><h1>UPDATE 2016-05-27</h1><p>官方的ctags對於ruby的支援 <a href="http://stackoverflow.com/questions/17338779/do-you-know-an-alternative-ctags-generator-for-ruby" target="_blank">不是很好</a>，所以可以改用 <a href="https://github.com/tmm1/ripper-tags" target="_blank">ripper-tags</a>來建立ctag的tag檔，這時候Guardfile也要做一下調整：</p><i>Gemfile</i><pre><code>group :development do
+  gem 'ripper-tags'
+end</code></pre><i>Guardfile</i><pre><code class="ruby">guard 'ctags-bundler',
+  src_path: ["app", "lib", "spec/support"],
+  binary: 'ripper-tags',
+  arguments: '-R --exclude=vendor' do
+  watch(/^(app|lib|spec\/support)\/.*\.rb$/)
+  watch('Gemfile.lock')
+end</code></pre></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

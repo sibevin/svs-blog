@@ -1,0 +1,29 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>AngularJS錯誤筆記 | 魔法師的手杖</title><meta content="AngularJS錯誤筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2014-10-30-101801-angular-error-notes";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title AngularJS錯誤筆記</div><div class="meta-data">description AngularJS錯誤筆記</div><div class="meta-data">datetime 2014-10-30 10:18:01</div><div class="meta-data">tags angularjs</div><div class="meta-data">category coding</div><div class="meta-data">link angular-error-notes</div><div class="meta-data">file 2014-10-30-101801-angular-error-notes</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>Error: error:unpr Unknown Provider</h1><h2>原因</h2><p>1. 最常出現在uglify之後的js檔，也就是原本都沒錯誤，但一uglify之後就出現問題了。主要的原因是dependence injection必須靠變數名稱來示別，而uglify的動作會將變數名稱改掉，就會出現這個錯誤。</p><p>2. 另外就是<a href="https://docs.angularjs.org/error/$injector/unpr?p0=cProvider" target="_blank">官方網站</a>提出來的幾種錯誤。</p><h2>解法</h2><p>1. 使用明確的宣告方式，也就是：</p><pre><code class="hljs">angular.module('MyApp').controller('MyController', function (MyService) {
+  // Do something with MyService
+});</code></pre><p>要改成</p><pre><code class="hljs">angular.module('MyApp').controller('MyController', ['MyService', function (MyService) {
+  // Do something with MyService
+}]);</code></pre><p>特別注意的是，除了controller, directive, service之外，directive內的controller也要改成正確的宣告方式(這很容易漏掉)。</p><p>2. 參見<a href="https://docs.angularjs.org/error/$injector/unpr?p0=cProvider" target="_blank">官網</a>解法。</p></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

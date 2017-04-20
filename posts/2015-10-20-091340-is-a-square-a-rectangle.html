@@ -1,0 +1,73 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>正方形是一個長方形嗎？ | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2015-10-20-091340-is-a-square-a-rectangle";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title 正方形是一個長方形嗎？</div><div class="meta-data">datetime 2015-10-20 09:13:40</div><div class="meta-data">tags ooad</div><div class="meta-data">category coding</div><div class="meta-data">link is-a-square-a-rectangle</div><div class="meta-data">file 2015-10-20-091340-is-a-square-a-rectangle</div><div class="meta-data">template post</div><div class="meta-data">end</div><p>這是參加rails新手村讀書會時，大家熱列討論的一個話題。先看個程式碼的例子：</p><pre class="ruby"><code>class Rectangle
+  attr_accessor :width, :height
+
+  def initialize(width: 1, height: 1)
+    @width = width
+    @height = height
+  end
+
+  def area
+    @width * @height
+  end
+end
+
+rect = Rectangle.new(width: 2, height: 3)
+puts rect.width  # 2
+puts rect.height # 3
+puts rect.area   # 6
+rect.width = 4
+puts rect.width  # 4
+puts rect.height # 3
+puts rect.area   # 12</code></pre><p>假如現在要實作一個正方形，那正方形到底能不能繼承長方形呢？我一開始覺得正方形同樣也有長、寬、面積，只是它的長寬必須一樣，正方形看起來是長方形的一個特例，就如同子類別是父類別的一個特例，不就剛好是適用於繼承嗎？所以正方形應該可以寫成下面這個樣子：</p><pre class="ruby"><code>class Square < Rectangle
+  def initialize(side: 1)
+    @width = side
+    @height = side
+  end
+
+  def width=(w)
+    @width = @height = w
+  end
+
+  def height=(h)
+    @width = @height = h
+  end
+end
+
+square = Square.new(side: 4)
+puts square.width  # 4
+puts square.height # 4
+puts square.area   # 16
+square.width = 5
+puts square.width  # 5
+puts square.height # 5
+puts square.area   # 25</code></pre><p>看起來很合理，那問題是出現在哪裡呢？我覺得如果在使用Rectangle的時候只限制在設定/取得長寬、取得面積這些用途，基本上不會有問題。但要記得的是當你把這兩個class拿給別人用，你不能預期別人會怎麼看待或使用長方形，舉個例子：當長方形的寬變成兩倍的時候，面積也要變成兩倍。</p><pre class="ruby"><code>rect = Rectangle.new(width: 2, height: 3)
+original_area = rect.area
+rect.width = rect.width * 2
+puts (rect.area == original_are * 2) # true</code></pre><p>但在這種情況下，正方形是無法當作長方形來使用，因為正方形的面積會成4倍。</p><pre class="ruby"><code>rect = Square.new(side: 2)
+original_area = rect.area
+rect.width = rect.width * 2
+puts (rect.area == original_area * 2) # false</code></pre><p>這違反了父類別可以使用的地方，子類別應該也要可以用的原則(Liskov Substitution Principle)。也許你會爭論說這不是預期的使用方式，可是就如同上面提到的，你不能預期別人是怎麼看待一個長方形(認為一個長方形當它的寬變2倍時，面積也要變2倍)，這樣的認知差異造成了長方形與正方形本質上的不同，如果硬要說正方形是一個長方形，在某些使用的情境上就失去了合理性。</p><h1>Ref:</h1><ul><li><a href="http://programmers.stackexchange.com/questions/238176/why-would-square-inheriting-from-rectangle-be-problematic-if-we-override-the-set" target="_blank">SO - Why would Square inheriting from Rectangle be problematic if we override the SetWidth and SetHeight methods?</a></li><li><a href="http://blog.csdn.net/Bitou_Von/article/details/4210654" target="_blank">架构师之路之 里氏代换原则（Liskov Substitution Principle, LSP）</a></li></ul></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

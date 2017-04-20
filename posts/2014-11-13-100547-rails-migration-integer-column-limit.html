@@ -1,0 +1,25 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>rails migration中integer column的limit | 魔法師的手杖</title><meta content="rails migration中integer column的limit" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2014-11-13-100547-rails-migration-integer-column-limit";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title rails migration中integer column的limit</div><div class="meta-data">description rails migration中integer column的limit</div><div class="meta-data">datetime 2014-11-13 10:05:47</div><div class="meta-data">tags rails_migration</div><div class="meta-data">category coding</div><div class="meta-data">link rails-migration-integer-column-limit</div><div class="meta-data">file 2014-11-13-100547-rails-migration-integer-column-limit</div><div class="meta-data">template post</div><div class="meta-data">end</div><p>integer的limit其實指的是byte的長度，而不是字串的長度，下面是對應表：</p><table class="pt-table"><thead><tr><td>:limit</td><td>SQL的資料型態</td><td>大小</td><td>最大值</td></tr></thead><tbody><tr><td>1</td><td>tinyint</td><td>1 byte</td><td>127</td></tr><tr><td>2</td><td>smallint</td><td>2 byte</td><td>32767</td></tr><tr><td>3</td><td>mediumint</td><td>3 byte</td><td>8388607</td></tr><tr><td>nil, 4, 11</td><td>int(11)</td><td>4 byte</td><td>2147483647</td></tr><tr><td>5..8</td><td>bigint</td><td>8 byte</td><td>9223372036854775807</td></tr></tbody></table><h1>Refs</h1><a href="https://ariejan.net/2009/08/20/once-and-for-all-rails-migrations-integer-limit-option/" target="_blank">Once and for all: Rails migrations integer :limit option</a></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

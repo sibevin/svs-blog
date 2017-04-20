@@ -1,0 +1,42 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>在部落格中加上目錄(TOC)功能 | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2016-06-19-111138-add-toc-feature-in-blog";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title 在部落格中加上目錄(TOC)功能</div><div class="meta-data">datetime 2016-06-19 11:11:38</div><div class="meta-data">tags blog,js</div><div class="meta-data">category coding</div><div class="meta-data">link add-toc-feature-in-blog</div><div class="meta-data">file 2016-06-19-111138-add-toc-feature-in-blog</div><div class="meta-data">template post</div><div class="meta-data">end</div><div class="image-center"><a href="/images/post/20160619121125087-toc-feature.png"><img alt="TOC" src="/images/post/20160619121125087-toc-feature.png" /></a><div class="image-text">TOC</div></div><h1>前言</h1><p>最近我在blog中加上了目錄(TOC = Table Of Contents)的功能，它會自動找出網頁的heading(h1, h2, ...)並加上anchor，另外也會自動生成目錄的列表。雖然只是小功能，可是對於瀏覽文章還蠻方便的。下面是實作這個功能一些相關的筆記。</p><h1>How</h1><h2>Why not AngularJS</h2><p>首先我先解釋一下為什麼不用AngularJS來做這個功能。如果看過這個blog的source，你會發現基本上這個blog是用html加上AngularJS做的，不過如果要生成TOC，並不適合使用AngularJS來處理。因為我不想在寫文章的時候，還要在heading的元件額外加上directive，所以生出的html heading只會是普通的heading，要在html找出特定元件不是AngularJS的使用情境，所以最後我選了其它的js外掛來處理這個功能。(好啦…其實是因為我懶的寫…)</p><h2>使用contents.js</h2><p>其實有很多TOC相關的js外掛可以用，不過最後我選了<a href="https://github.com/gajus/contents" target="_blank">contents.js</a>。使用的方式可以參考repo的example(不要看README的Demo，因為Demo的範例反而沒有更新)。下面是目前blog使用的js：</p><pre><code class="javascript">$(function () {
+  var contents,
+      articleId;
+  articleId = function (articleName, element) {
+    return md5(articleName);
+  };
+  contents = gajus
+    .Contents({articleId: articleId});
+  $('.tos').append(contents.list());
+});</code></pre><p>contents.js 好用的地方就是很多東西可以客製化，例如我想把生出來的目錄放在 <code>div.tos</code>之中，那只要加上 <code>$('.tos').append(contents.list());</code>就可以了。另一個客製化的地方是下面這個：</p><pre><code class="javascript">articleId = function (articleName, element) {
+  return md5(articleName);
+};
+contents = gajus
+  .Contents({articleId: articleId});</code></pre><p>contents.js 預設是去找heading中的文字並轉成anchor的id，不過它無法處理中文的heading。還好 contents.js 可以客製化id的生成方式，我直接使用<a href="https://github.com/blueimp/JavaScript-MD5" target="_blank">JavaScript MD5</a>(這個js可以處理UTF的文字)將heading的文字轉成md5 string，這樣就可以用嘍。</p><h1>UPDATE 2016.09.28</h1><p>上面客製化 articleId 的方法仍然有問題，如果兩個 heading 有相同的文字，則 TOC 裡會產生相同的 md5 anchor 而造成連結都會被指向第一個的 heading。解決的方式就是將 articleId 改成下面這樣：</p><pre><code class="javascript">articleId = function (articleName, element) {
+  return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+};
+contents = gajus
+  .Contents({articleId: articleId});</code></pre><p>也就是產生 articleId 的方式除了參考原本在 heading 的文字外，還參考了 heading 前後 DOM 包含的文字，這樣就可以大大減少重複的可能性。(如果連前後文都一樣，就只能說遺憾了…)</p></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

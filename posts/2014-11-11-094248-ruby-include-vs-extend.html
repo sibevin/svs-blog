@@ -1,0 +1,89 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>ruby的include與extend的差別 | 魔法師的手杖</title><meta content="ruby的include與extend的差別" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2014-11-11-094248-ruby-include-vs-extend";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title ruby的include與extend的差別</div><div class="meta-data">description ruby的include與extend的差別</div><div class="meta-data">datetime 2014-11-11 09:42:48</div><div class="meta-data">tags ruby,rails</div><div class="meta-data">category coding</div><div class="meta-data">link ruby-include-vs-extend</div><div class="meta-data">file 2014-11-11-094248-ruby-include-vs-extend</div><div class="meta-data">template post</div><div class="meta-data">end</div><p>簡單來說，module被include時，module的method會變成class的instance method，而被extend時，則會變成class method：</p><pre><code class="hljs">module M
+  def say
+    "hello"
+  end
+end
+
+class A
+  include(M)
+end
+
+a = A.new
+a.say # "hello"
+# A.say # undefined method `say' for A:Class (NoMethodError)
+
+class B
+  extend(M)
+end
+
+B.say # "hello"
+# b = B.new
+# b.say # undefined method `say' for #<B:0x007fb72a0ed858> (NoMethodError)</code></pre><p>如果要同時加入instance與class method，可以使用合體技：</p><pre><code class="hljs">module M
+  def self.included(base)
+    base.extend(ClassMethods)
+  end
+
+  module ClassMethods
+    def say_hello
+      "hello"
+    end
+  end
+
+  def say_hi
+    "hi"
+  end
+end
+
+class A
+  include(M)
+end
+
+A.say_hello # "hello"
+a = A.new
+a.say_hi # "hi"</code></pre><p>rails的<code>ActiveSupport::Concern</code>則把上面的合體技更加的簡化：</p><pre><code class="hljs">require "active_support/concern"
+
+module M
+  extend ActiveSupport::Concern
+
+  module ClassMethods
+    def say_hello
+      "hello"
+    end
+  end
+
+  def say_hi
+    "hi"
+  end
+end
+
+class A
+  include(M)
+end
+
+A.say_hello # "hello"
+a = A.new
+a.say_hi # "hi"</code></pre><p>當然concern的功能不只這些，有興趣可以參考<a href="http://api.rubyonrails.org/classes/ActiveSupport/Concern.html" target="_blank">ActiveSupport::Concern的文件</a></p></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

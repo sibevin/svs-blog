@@ -1,0 +1,25 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>處理空白選項的下拉式選單 | 魔法師的手杖</title><meta content="處理空白選項的下拉式選單" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2015-01-01-162247-rails-form-select-blank";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title 處理空白選項的下拉式選單</div><div class="meta-data">description 處理空白選項的下拉式選單</div><div class="meta-data">datetime 2015-01-01 16:22:47</div><div class="meta-data">tags rails_view</div><div class="meta-data">category coding</div><div class="meta-data">link rails-form-select-blank</div><div class="meta-data">file 2015-01-01-162247-rails-form-select-blank</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>問題</h1><p>想做一個下拉式選單讓使用者可以選取語言，如果使用者不選則預設為使用瀏覽器預設語系。不過預設的<code>select</code>似乎無法顯示空白選項。</p><h1>解法</h1><p>第一種方式是用<code>prompt</code>這個設定，它會在使用者尚未選取任何選項時顯示，不過一旦使用者選取其它項目，就不能選回空白。</p><pre><code class="hljs">f.input :locale, prompt: t(".use_browser_locale")</code></pre><p>第二種是將<code>include_blank</code>設成<code>true</code>，這樣的確就會有一個空白的選項出現可以選擇，不過它完全沒有任何提示字顯示在選項上，真的就是空白。</p><pre><code class="hljs">f.input :locale, include_blank: true</code></pre><p>第三種就是在<code>include_blank</code>後面接上要顯示的字串，這時候就會讓空白選項有提示字串顯示在上面。</p><pre><code class="hljs">f.input :locale, include_blank: t(".use_browser_locale")</code></pre></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

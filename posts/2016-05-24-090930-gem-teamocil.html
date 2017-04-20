@@ -1,0 +1,39 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>Teamocil - 一鍵自動分割視窗 | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2016-05-24-090930-gem-teamocil";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title Teamocil - 一鍵自動分割視窗</div><div class="meta-data">datetime 2016-05-24 09:09:30</div><div class="meta-data">tags ruby_gem</div><div class="meta-data">category tools</div><div class="meta-data">link gem-teamocil</div><div class="meta-data">file 2016-05-24-090930-gem-teamocil</div><div class="meta-data">template gem</div><div class="meta-data">website https://github.com/remiprev/teamocil</div><div class="meta-data">end</div><ul><li><a href="http://www.teamocil.com/" target="_blank">Homepage</a></li><li><a href="https://github.com/remiprev/teamocil" target="_blank">Github</a></li><li><a href="https://rubygems.org/gems/teamocil/" target="_blank">RubyGem</a><code> (teamocil)</code></li></ul><h1>What</h1><p>一個使用YAML當做設定可以自動讓tmux產生視窗與分割面版的工具。</p><h1>Why</h1><p>當你需要一次開多個視窗來做事情時，這個工具真的省事很多。</p><h1>How</h1><p>首先我本身是用iTerm2當做目前工作環境的console，而iTerm剛好也支援tmux的指令，所以teamocil就可以用嘍。基本上安裝完teamocil之後，可以在你的home目錄下建立teamocil的設定檔，範例如下：</p><i>.teamocil/my_workspace.yml</i><pre><code class="yaml">windows:
+- name: workspace-01
+  root: /Users/kait/workspace/rails/dev/my_project/
+  layout: main-vertical
+  panes:
+    - rs -p 1234
+    - guard
+    - zs
+- name: workspace-02
+  root: /Users/kait/workspace/rails/dev/my_project/
+  layout: even-horizontal
+  panes:
+    - zc
+    - focus: true</code></pre><p>有了上面的設定檔，當開啟iTerm時，下指令 <code>teamocil my_workspace</code>，這時候iTrem就會做下面的事情：</p><ul><li>開一個新的視窗，將工作目錄切到 /Users/kait/workspace/rails/dev/my_project/ ，分割成左邊一個，右邊上下兩個，共三個面版分別跑 <code>rs -p 1234, guard, zs</code>這三個指令。</li><li>開另一個新的視窗，同樣將工作目錄切到 /Users/kait/workspace/rails/dev/my_project/ ，分割成上下兩個面版，上面跑 <code>zc</code>下面則維持terminal的畫面。</li></ul><p>更多的layout與設定方式可以參考Teamocil的官網。</p><h1>UPDATE</h1><p>如果你的iTerm更新到3.0.0以上的版本，那可能要用brew裝itermocil。指令如下：</p><pre><code class="nohighlight">$ brew update
+$ brew install TomAnthony/brews/itermocil</code></pre><p>請參考 <a href="https://github.com/TomAnthony/itermocil/issues/41" target="_blank">Support iTerm 3.0.0</a></p></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

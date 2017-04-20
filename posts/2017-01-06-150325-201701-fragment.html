@@ -1,0 +1,59 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>2017.01 碎片 | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2017-01-06-150325-201701-fragment";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title 2017.01 碎片</div><div class="meta-data">datetime 2017-01-06 15:03:25</div><div class="meta-data">tags frag</div><div class="meta-data">category coding</div><div class="meta-data">link 201701-fragment</div><div class="meta-data">file 2017-01-06-150325-201701-fragment</div><div class="meta-data">template post</div><div class="meta-data">draft</div><div class="meta-data">end</div><h1>No topic</h1><h2>Links</h2><ul><li><a href="https://github.com/randy-girard/app_perf" target="_blank">AppPerf (Application Performance Monitoring) - 可以看一下它的moniter是怎麼做的</a></li><li><a href="https://quilljs.com/" target="_blank">Quill - 小而巧的網頁文字編輯器</a></li><li><a href="http://www.moundalexis.com/v2/2016/09/06/securing-sshd.html" target="_blank">Locking Down an SSH Server</a></li><li><a href="http://blog.codeclimate.com/blog/2012/10/17/7-ways-to-decompose-fat-activerecord-models/" target="_blank">7 Patterns to Refactor Fat ActiveRecord Models - brynary</a></li><li><a href="https://umaar.com/dev-tips/" target="_blank">screencases for dev tools</a></li><li><a href="https://github.com/trailblazer/reform" target="_blank">trailblazer/reform</a></li></ul><h2>Keywords</h2><ul><li>sequel</li><li>shrine</li><li>axios - Promise based HTTP client for the browser and node.js</li><li>express - nodejs restful server</li><li>elixir</li></ul><h2>Elixir</h2><ul><li>Elixir ~= Ruby + Erlang</li><li>Elixir code -> BESM bytecode -> run on BEAM</li></ul><h3>Erlang</h3><ul><li>functional language</li><li>concurrent + mass</li><li>fault-torrent, soft real time, let it crash</li></ul><h3>Functional</h3><ul><li>Immutable</li></ul><h3>Concurrent</h3><ul><li>lightweight process = thread with layers</li><li>Erlang VM process: 1us up to 2500 processes / 3us per message - very lightweight</li></ul><h3>Fault-torrent</h3><ul><li>two kinds of bugs: 1. easy to reproduce and fixe v.s. 2. difficult to reproduce</li><li>the 2nd bug: let it crash and trace it</li><li>lightweight processes are independent and not affected by others</li></ul><h3>OO vs Functional</h3><ul><li>OO - data and behavior are in the same place(object)</li><li>functional - data and behavor are separated</li></ul><h3>Erlang basic</h3><ul><li>'aaa' = integer array</li><li>:atom = symbol</li><li>%{} = hash</li><li>{} = tuple, fixed size list</li><li>[1, 2] ++ [3, 4] = [1, 2, 3, 4]</li><li>order of type: every thing can be compare</li><li>2 kinds of method: def and lenda</li><li>|> pipe operator - left method's result to the 1st parameters to right method</li><li>|> IO.inspect</li></ul><h3>Pattern matching</h3><ul><li>= is not an assignment, is a function => f(x) = ax + b</li><li>[a, a, b] = [1, 2, 3] Match Error</li><li>[a, a, b] = [1, 1, 3] a: 1, b: 3</li><li>x = 1 => x: 1</li><li>list</li><li>map %{x: x} = %{x: 1, y: 2} => x: 1</li><li>type claim</li></ul><h3>Actor model</h3><ul><li>1 server to 10000 server</li><li>processes are workers or supervisor</li><li>worker = receive given params(include next process id), handle them and send result to next process</li><li>supervisor = know who do what, and handle when someone die</li><li>spawn: to create an process</li></ul><h3>pmap</h3><pre><code class="ruby">defmodule Pmap do
+  def pmap(list, f) do
+    parent = self()
+    pids = Enum.map(list, fn(el) -> spwan(fn -> send(parent, f.(el))end)end)
+    gather(pids)
+  end
+
+  def gather([]), do: []
+  def gather([head|tails]) do
+    recive do
+      {head, return} -> [return | gather(tails)]
+  end
+end</code></pre><h3>mix</h3><ul><li>mix = rails' rake + rails + bundle</li><li>max deps.get = bundle install</li></ul><h3>Doctest</h3><ul><li>implementation + doc + test</li></ul><pre><code class="ruby">defmodule Num do
+  @doc """
+  Demonstrate doctest feature
+  ## Example
+    iex> Num.is_even?(1)
+    true
+  def is_even?(num) do
+    rem(num, 2) == 0
+  end
+end</code></pre><h3>other</h3><ul><li>exs = don't compile to bin file</li><li>ex = compile to bin file</li></ul><h3>Meta-Programming</h3><ul><li>Manipulate AST, directly {:operator, context, args}</li><li>quote do: 1 + 2</li><li>defmocro = more dynamical behavior inside the method</li><li>https://github.com/taiansu/pipe_to</li><li>https://hexdocs.pm/elixir/master/operators.html</li></ul><pre><code class="ruby">defmodule M do
+  defmacro foo({operator, _, args}) do
+    {:-, [], args}
+  end
+end
+
+defmodule M do
+  defmacro foo({operator, _, args}) do
+    quote do
+      unquote(x) - unquote(y)
+    end
+  end
+end</code></pre><h2>ToI</h2><h3>Who</h3><ul><li>lctseng</li></ul><h3>Connection</h3><h4>With browser</h4><ul><li>xvfb</li><li>headless</li></ul><pre><code class="ruby">@browser.driver.execute_async_script</code></pre><h4>action_cable_client</h4><h3>Refactor</h3><ul><li>Connection separated from main program</li><li>Use websocket, but withoug Action Cable</li><li>Use components for Agent, run its own thread and event loop</li><li>Need to define the communication between threads</li><li>Use channel to group Manger and Agent</li></ul><h3>Gems</h3><ul><li>tamashii-agent</li><li>tamashii-manager</li><li>tamashii-common</li></ul><h3>Q&A</h3><ul><li>cache</li><li>auth</li></ul><h2>Phoenix</h2><h3>Performance</h3><ul><li>phoenix showdown</li></ul><h3>mix</h3><ul><li>mix local.hex</li><li>mix archive.install - install a binary/command file</li><li>mix phoenix.gen.html User users name:string age:integer - User(model name), users(table name)</li></ul><h3>World</h3><ul><li>a web app is a function</li><li>input url, session cookie</li><li>output html, json</li><li>url |> Endpoint |> router |> Controller |> Model(*) |> Controller |> View</li><li>pass "conn" through functions</li></ul><h3>Plug</h3><pre><code class="ruby">def some_plug(conn, params) do
+end</code></pre><ul><li>just a function</li><li>like rake</li><li>conn = the current connection information</li><li>params = other parameters</li></ul><h3>View</h3><ul><li>web/views/user_view.ex -> view logic</li><li>web/templates/user.html.eex -> view html</li><li>when compile: eex would be compiled to a string and merge to a function "rander" in .ex file</li></ul><h3>1.3</h3><ul><li>web is moved to lib</li><li>no model</li><li>mix phoenix.xxx => mix.pho.xxx</li></ul><h3>Model</h3><ul><li>schema</li><li>preload => (like includes in rails) to load association</li></ul><h3>Tools</h3><ul><li><observer class="start">- to see all elixir tree</observer></li><li>dialyzer - strong type check</li><li>credo - robocop</li></ul></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

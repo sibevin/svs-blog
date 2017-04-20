@@ -1,0 +1,135 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>Observer Pattern - 觀察者模式 | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2016-07-23-193122-observer-pattern";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title Observer Pattern - 觀察者模式</div><div class="meta-data">datetime 2016-07-23 19:31:22</div><div class="meta-data">tags dp</div><div class="meta-data">category coding</div><div class="meta-data">link observer-pattern</div><div class="meta-data">file 2016-07-23-193122-observer-pattern</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>前言</h1><p>最近讀書會在讀深入淺出設計模式，趁這個機會複習一下設計模式，試著舉出簡單的例子並且用非模式與模式的方式來實作，比較它們的差異與優缺點。</p><h1>範例問題</h1><p>我們有一個訊息轉發系統(MessageDeliver)，它會接收傳入訊息並轉發給其它三個系統：螢幕顯示系統(ScreenDisplay)、列印系統(Printer)與寄信系統(Mailer)。其中每個系統有下列的行為：</p><ul><li>訊息轉發系統(MessageDeliver)有一個 deliver(msg) 的 method 用來接收訊息並做轉發的動作。</li><li>螢幕顯示系統(ScreenDisplay)有一個 display(msg) 的 method 會將訊息顯示在螢幕(The message 'xxx' is displayed on the screen.)。</li><li>列印系統(Printer)有一個 print(msg) 的 method 會將訊息印出(The message 'xxx' is printed.)。</li><li>寄信系統(Mailer)有一個 mail(msg) 的 method 會將訊息用信件寄出(The message 'xxx' is mailed.)。</li></ul><h1>沒有使用模式的實作</h1><pre><code class="ruby">class ScreenDisplay
+  def display(msg)
+    &quot;The message '#{msg}' is displayed on the screen.&quot;
+  end
+end
+
+class Printer
+  def print(msg)
+    &quot;The message '#{msg}' is printed.&quot;
+  end
+end
+
+class Mailer
+  def mail(msg)
+    &quot;The message '#{msg}' is mailed.&quot;
+  end
+end
+
+class MessageDeliver
+  def initialize(screen_display, printer, mailer)
+    @screen_display = screen_display
+    @printer = printer
+    @mailer = mailer
+  end
+
+  def deliver(msg)
+    @screen_display.display(msg)
+    @printer.print(msg)
+    @mailer.mail(msg)
+  end
+end
+
+screen_display = ScreenDisplay.new
+printer = Printer.new
+mailer = Mailer.new
+
+msg_deliver = MessageDeliver.new(screen_display, printer, mailer)
+msg_deliver.deliver('Hello')</code></pre><h2>上面實作的缺點</h2><ul><li>MessageDeliver 無法動態增加或減少轉發的對象，例如：不需要轉發給 Printer 時，必須要更改 MessageDeliver 的 initialize 與 deliver method 。</li></ul><h1>使用模式的實作</h1><pre><code class="ruby">module Observer
+  def update(msg)
+    fail 'You should implement "update" in your Observer-based class'
+  end
+end
+
+class ScreenDisplay
+  include Observer
+
+  def display(msg)
+    &quot;The message '#{msg}' is displayed on the screen.&quot;
+  end
+
+  def update(msg)
+    display(msg)
+  end
+end
+
+class Printer
+  include Observer
+
+  def print(msg)
+    &quot;The message '#{msg}' is printed.&quot;
+  end
+
+  def update(msg)
+    print(msg)
+  end
+end
+
+class Mailer
+  include Observer
+
+  def mail(msg)
+    &quot;The message '#{msg}' is mailed.&quot;
+  end
+
+  def update(msg)
+    mail(msg)
+  end
+end
+
+class MessageDeliver
+  def initialize
+    @observers = []
+  end
+
+  def attach(observer)
+    @observers.push(observer)
+  end
+
+  def deliver(msg)
+    @observers.each do |observer|
+      observer.update(msg)
+    end
+  end
+
+  def detach(observer)
+    @observers.delete(observer)
+  end
+end
+
+screen_display = ScreenDisplay.new
+printer = Printer.new
+mailer = Mailer.new
+msg_deliver = MessageDeliver.new
+
+msg_deliver.attach(screen_display)
+msg_deliver.attach(printer)
+msg_deliver.attach(mailer)
+msg_deliver.deliver('Hello')
+
+msg_deliver.detach(printer)
+msg_deliver.deliver('Hi')</code></pre><h2>上面實作的優點</h2><ul><li>msg_deliver 可以使用 attach 與 detach 來動態增加或移除訊息轉發的系統。</li><li>容易新增一個接收轉發訊息系統，只要它實作 Observer 的界面就可以利用 attach 加到訊息轉發的對象(@observers)。</li></ul><h1>樣式名稱</h1><p>Observer - 觀察者模式</p><h1>目的</h1><p>當主題(subject) class(MessageDeliver)有變動時，需要通知其它的觀察者(observer) class(ScreenDisplay, Printer, Mailer)去做對應的事情時，可以在主題 class中記錄(@observer)有哪些觀察者 class 已經有註冊(attach)，利用 attach 與 detach method 來註冊或移除觀察者，就可以做到變動時的通知，同時也可以動態增減通知的對象。</p><h1>使用時機</h1><p>當某個主題 class 變動時需要通知其它觀察者 class，而且有可能需要動態增減通知的對象。</p></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

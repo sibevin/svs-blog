@@ -1,0 +1,46 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>Simple Enum - 在model中加入enum的功能 | 魔法師的手杖</title><meta content="Simple Enum" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2014-10-24-111726-gem-simple-enum";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title Simple Enum - 在model中加入enum的功能</div><div class="meta-data">description Simple Enum</div><div class="meta-data">datetime 2014-10-24 11:17:26</div><div class="meta-data">tags ruby_gem,rails_model</div><div class="meta-data">category coding</div><div class="meta-data">link gem-simple-enum</div><div class="meta-data">file 2014-10-24-111726-gem-simple-enum</div><div class="meta-data">template post</div><div class="meta-data">website http://lwe.github.io/simple_enum</div><div class="meta-data">end</div><ul><li><a href="http://lwe.github.io/simple_enum" target="_blank">Homepage</a></li><li><a href="https://github.com/lwe/simple_enum" target="_blank">Github</a></li><li><a href="https://rubygems.org/gems/simple_enum" target="_blank">RubyGem</a><code> (simple_enum)</code></li></ul><h1>What</h1><p>在model中加入enum的功能。</p><h1>Why</h1><p>除了enum外，這個gem還提供了一些相對應的method可以使用。另外enum與column名稱的對應也比較簡單明瞭。</p><h1>How</h1><p>摘錄至<a href="https://github.com/lwe/simple_enum/blob/master/README.md" target="_blank">README</a></p><p>在model中加入enum的設定</p><pre><code class="hljs">class User < ActiveRecord::Base
+  as_enum :gender, female: 1, male: 0
+end</code><p>在migration中加入對應的column</p></pre><pre><code class="hljs">class AddGenderColumnToUser < ActiveRecord::Migration
+  def self.up
+    add_column :users, :gender_cd, :integer
+  end
+def self.down
+  remove_column :users, :gender_cd
+end<end></end></code></pre><p>內建有許多的method可以使用</p><pre><code class="hljs">jane = User.new
+jane.gender = :female
+jane.female?   # => true
+jane.male?     # => false
+jane.gender    # => :female
+jane.gender_cd # => 1
+joe = User.new
+joe.male!     # => :male
+joe.gender    # => :male
+joe.gender_cd # => 0
+User.genders                            # => #<SimpleEnum::Enum:0x0....>
+User.genders[:male]                     # => 0
+User.genders.values_at(:male, :female)  # => [0, 1]
+User.females                            # => #<ActiveRecord::Relation:0x0.....> (WHERE gender_cd = 1)</code></pre><p>更多細節的設定可以參考：<a href="https://github.com/lwe/simple_enum/blob/master/README.md#wait-theres-more" target="_blank">README - Wait, there's more!</a></p></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>如何顯示utf8的欄位 | 魔法師的手杖</title><meta content="如何顯示utf8的欄位" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2014-03-04-131015-mysql-utf8-display";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title 如何顯示utf8的欄位</div><div class="meta-data">description 如何顯示utf8的欄位</div><div class="meta-data">tags mysql</div><div class="meta-data">category tools</div><div class="meta-data">datetime 2014-03-04 13:10:15</div><div class="meta-data">template post</div><div class="meta-data">link mysql-utf8-display</div><div class="meta-data">file 2014-03-04-131015-mysql-utf8-display</div><div class="meta-data">end</div><h1>問題</h1><p>用client連進mysql的時候，很常遇到db明明己經設定成utf8，可是透過client看utf8的欄位時，還是出現???的字串。</p><pre><code class="hljs">+----+-----------------+------------+
+| id | name            | name_zh_tw |
++----+-----------------+------------+
+| 1  | taipei-city     | ???        |
+| 2  | kaoh-siung-city | ???        |</code></pre><h1>解法</h1><p>這種情況通常是client characterset沒有設好，設定步驟如下：</p><p>首先，先確定mysql的characterset，在mysql client中下指令<code>status;</code>。這時會發現Db characterset是utf8，但Client characterset卻是latin1，這就會使client無法正確顯示utf8的欄位。</p><pre><code class="hljs">Server characterset: latin1
+Db characterset: utf8
+Client characterset: latin1
+Conn. characterset: latin1</code></pre><p>修改<code>~/.my.cnf</code>(如果沒有這個檔案，請從<code>/etc/mysql/my.cnf</code>複製一份到你的home下面)，在<code>[client]</code>的地方加入以下設定：</p><pre><code class="hljs">[client]
+default-character-set = utf8</code></pre><p>再用指令<code>status;</code>，會發現Client characterset己改成utf8，utf8的欄位也可以正常顯示了。</p><pre><code class="hljs">Server characterset: latin1
+Db characterset: utf8
+Client characterset: utf8
+Conn. characterset: utf8
++----+-----------------+------------+
+| id | name            | name_zh_tw |
++----+-----------------+------------+
+| 1  | taipei-city     | 台北市      |
+| 2  | kaoh-siung-city | 高雄市      |</code></pre></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

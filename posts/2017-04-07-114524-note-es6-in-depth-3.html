@@ -1,0 +1,223 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>ES6 in Depth 閱讀筆記 Part 3 - class, let and const, subclass, modules | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2017-04-07-114524-note-es6-in-depth-3";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title ES6 in Depth 閱讀筆記 Part 3 - class, let and const, subclass, modules</div><div class="meta-data">datetime 2017-04-07 11:45:24</div><div class="meta-data">tags js_es6,note</div><div class="meta-data">category coding</div><div class="meta-data">link note-es6-in-depth-3</div><div class="meta-data">file 2017-04-07-114524-note-es6-in-depth-3</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>前言</h1><p>這是<a href="https://hacks.mozilla.org/category/es6-in-depth/" target="_blank">ES6 In Depth</a>的閱讀筆記，只記錄程式的範例方便語法的查詢，但我強列推薦去讀讀這系列的原始文章，它對於ES6的語法有很深入的介紹，非常值得一讀。</p><h1>Classes</h1><p>傳統使用 prototype 建立物件的方式：</p><pre><code class="js">function Circle(radius) {
+  this.radius = radius;
+  Circle.circlesMade++;
+}
+
+Circle.draw = function draw(circle, canvas) { /* Canvas drawing code */ }
+
+Object.defineProperty(Circle, "circlesMade", {
+    get: function() {
+        return !this._count ? 0 : this._count;
+    },
+
+    set: function(val) {
+        this._count = val;
+    }
+});
+
+Circle.prototype = {
+    area: function area() {
+        return Math.pow(this.radius, 2) * Math.PI;
+    }
+};
+
+Object.defineProperty(Circle.prototype, "radius", {
+    get: function() {
+        return this._radius;
+    },
+
+    set: function(radius) {
+        if (!Number.isInteger(radius))
+            throw new Error("Circle radius must be an integer.");
+        this._radius = radius;
+    }
+});</code></pre><p>在ES6中提供了新的語法來定義物件的屬性，所以上面的例子可以簡化成：</p><pre><code class="js">function Circle(radius) {
+  this.radius = radius;
+  Circle.circlesMade++;
+}
+
+Circle.draw = function draw(circle, canvas) { /* Canvas drawing code */ }
+
+Object.defineProperty(Circle, "circlesMade", {
+    get: function() {
+        return !this._count ? 0 : this._count;
+    },
+
+    set: function(val) {
+        this._count = val;
+    }
+});
+
+Circle.prototype = {
+    area() {
+        return Math.pow(this.radius, 2) * Math.PI;
+    },
+
+    get radius() {
+        return this._radius;
+    },
+    set radius(radius) {
+        if (!Number.isInteger(radius))
+            throw new Error("Circle radius must be an integer.");
+        this._radius = radius;
+    }
+};</code></pre><p>但在ES6有提供了一個更直覺定義物件的方式，就是所謂的 class ，範例如下：</p><pre><code class="js">class Circle {
+  constructor(radius) {
+    this.radius = radius;
+    Circle.circlesMade++;
+  };
+
+  static draw(circle, canvas) {
+    // Canvas drawing code
+  };
+
+  static get circlesMade() {
+    return !this._count ? 0 : this._count;
+  };
+  static set circlesMade(val) {
+    this._count = val;
+  };
+
+  area() {
+    return Math.pow(this.radius, 2) * Math.PI;
+  };
+
+  get radius() {
+    return this._radius;
+  };
+  set radius(radius) {
+    if (!Number.isInteger(radius))
+        throw new Error("Circle radius must be an integer.");
+    this._radius = radius;
+  };
+}</code></pre><p>使用 class 有幾點要注意：</p><ul><li>如果不設 contructor ，則一個空白預設的 contructor(<code>constructor() {}</code>) 會自動被建立。</li><li>contructor 不能是一個 generator function 。</li><li>method 可以動態被加入，但不會出現在物件的屬性中，只有一開始就定義在物件裡的 method 會列入屬性。</li><li>目前 static 與 const 尚未加入到 class 的語法中，可能未來會被加進來。</li></ul><h1>let and const</h1><h2>Let</h2><p>let 是ES6宣告變數的另一種方式，與原本的 var 有一些行為上的不同：</p><ul><li>let 與 var 運作的scope不同， let 不會被內層的scope影響。</li></ul><pre><code class="js">function varTest() {
+  var x = 31;
+  if (true) {
+    var x = 71;  // same variable!
+    console.log(x);  // 71
+  }
+  console.log(x);  // 71
+}
+
+function letTest() {
+  let x = 31;
+  if (true) {
+    let x = 71;  // different variable
+    console.log(x);  // 71
+  }
+  console.log(x);  // 31
+}</code></pre><ul><li>無法定義全域的 let 變數。</li></ul><pre><code class="js">var x = 'global';
+let y = 'global';
+console.log(this.x); // global
+console.log(this.y); // undefined</code></pre><ul><li>無法重複宣告相同名稱的 let 變數，要特別注意的是 switch 裡所有的 case 都是屬於同一個 scope，所以宣告相同的 let 變數也會出錯。</li></ul><pre><code class="js">if (x) {
+  let foo;
+  let foo; // SyntaxError
+}
+
+switch (x) {
+  case 0:
+    let foo;
+    break;
+
+  case 1:
+    let foo; // SyntaxError
+    break;
+}</code></pre><ul><li>不能在宣告 let 變數前使用宣告的變數。</li></ul><pre><code class="js">function do_something() {
+  console.log(foo); // ReferenceError
+  let foo = 2;
+}</code></pre><ul><li>宣告在迴圈裡的 let 變數只能在迴圈內使用，出了迴圈會變成 undefined 。</li></ul><pre><code class="js">for (let i = 0; i<10; i++) {
+  console.log(i); // 0, 1, 2, 3, 4 ... 9
+}
+console.log(i); // i is not defined</code></pre><ul><li>let 變數在迴圈中在每一次iteration都會重新設值(re-bind)，所以每一次iteration裡的變數值會各自獨立。但 var 變數在每一次的iteration會指向相同的值。</li></ul><pre><code class="js">for (var i = 0; i < 5; ++i) {
+  setTimeout(function () {
+    console.log(i); // 5, 5, 5, 5, 5
+  }, 1000);
+}
+
+for (let i = 0; i < 5; ++i) {
+  setTimeout(function () {
+    console.log(i); // 1, 2, 3, 4, 5
+  }, 1000);
+}</code></pre><h2>Const</h2><p>const 即是宣告一個常數，宣告的時候一定要給初始值，而且之後如果出現想更改常數值的程式就會出 SyntaxError 。</p><pre><code class="js">const MAX_CAT_SIZE_KG = 3000;
+MAX_CAT_SIZE_KG = 5000; // SyntaxError
+MAX_CAT_SIZE_KG++; // SyntaxError
+const theFairest; // SyntaxError</code></pre><h1>Subclassing</h1><p>在ES6還沒出來以前，可以使用 Object.create 來模擬繼承的行為：</p><pre><code class="js">var proto = {
+  value: 4,
+  method() { return 14; }
+}
+
+var obj = Object.create(proto);
+obj.value; // 4
+obj.method(); // 14
+
+obj.value = 5;
+obj.value; // 5
+proto.value; // 4</code></pre><p>而在ES6中，有新的 class 語法可以使用，舉個例子：</p><pre><code class="js">class Shape {
+  get color() {
+    return this._color;
+  }
+  set color(c) {
+    this._color = parseColorAsRGB(c);
+    this.markChanged();  // repaint the canvas later
+  }
+}</code></pre><p>如果要讓上面的 Circle class 繼承的 Shape class 的行為，有一種方式是使用 Object.setPrototypeOf ：</p><pre><code class="js">// Hook up the instance properties
+Object.setPrototypeOf(Circle.prototype, Shape.prototype);
+
+// Hook up the static properties
+Object.setPrototypeOf(Circle, Shape);</code></pre><p>不過這種方式顯然有點醜，另一個方式就是使用 extends 的新語法：</p><pre><code class="js">class Circle extends Shape {
+  // As Circle class above
+}</code></pre><p>extends 後面不只可以接一個 class，只要是任何有 prototype 這個屬性的 contructor，都可以使用 extends 來繼承，例如：</p><ul><li>一個 class</li><li>來自繼承體系的 class-like function</li><li>一個 normal function</li><li>一個包含 class 或是 function 的變數</li><li>擁有屬性的 object</li><li>一個函式呼叫</li><li>null - 如果你不想讓 instance 繼承 Object.prototype</li></ul><h2>Super Properties</h2><p>我們可以使用 super 來取得來自 parent class 的值，例如：</p><pre><code class="js">class ScalableCircle extends Circle {
+  get radius() {
+    return this.scalingFactor * super.radius;
+  }
+  set radius() {
+    throw new Error("ScalableCircle radius is constant." +
+                    "Set scaling factor instead.");
+  }
+
+  // Code to handle scalingFactor
+}</code></pre><p>super 也可以用在定義在 object 裡的 method：</p><pre><code class="js">var obj = {
+  toString() {
+    return "MyObject: " + super.toString();
+  }
+}
+
+obj.toString(); // MyObject: [object Object]
+var a = obj.toString;
+a(); // MyObject: [object Object]</code></pre><h2>Subclassing Builtins</h2><pre><code class="js">class VersionedArray extends Array {
+  constructor() {
+    super();
+    this.history = [[]];
+  }
+  commit() {
+    // Save changes to history.
+    this.history.push(this.slice());
+  }
+  revert() {
+    this.splice(0, this.length, this.history[this.history.length - 1]);
+  }
+}</code></pre><p>特別注意的是，即使是來自原本 Array 的 method，例如：Array.prototype.slice()，回傳的也會是 VersionedArray 而非 Array 。</p></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

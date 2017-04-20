@@ -1,0 +1,192 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>Singleton Pattern - 獨體模式 | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2016-08-29-091048-singleton-pattern";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title Singleton Pattern - 獨體模式</div><div class="meta-data">datetime 2016-08-29 09:10:48</div><div class="meta-data">tags dp</div><div class="meta-data">category coding</div><div class="meta-data">link singleton-pattern</div><div class="meta-data">file 2016-08-29-091048-singleton-pattern</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>前言</h1><p>最近讀書會在讀深入淺出設計模式，趁這個機會複習一下設計模式，試著舉出簡單的例子並且用非模式與模式的方式來實作，比較它們的差異與優缺點。</p><h1>範例問題</h1><p>我們有一個 log 輸出系統會將 log 輸出個一個檔案之中，它有下面的功能：</p><ul><li>在一開始的時候要呼叫一個 do_heavy_work 來設定 log 檔案。</li><li>有一個 write(msg) 用來記錄 log。</li><li>會記錄有多少筆 log 被寫入，有一個 count method 用來取得目前的 log 數。</li></ul><h1>沒有使用模式的實作</h1><pre><code class="ruby">class Logger
+  def initialize
+    @counter = 0
+    do_heavy_work
+  end
+
+  def write(msg)
+    @counter += 1
+    p &quot;Write #{msg} to log ...&quot;
+  end
+
+  def count
+    @counter
+  end
+
+  private
+
+  def do_heavy_work
+    p "Do heavy work..."
+  end
+end
+
+logger = Logger.new
+logger.write('Hello')
+logger.write('Hi')
+p logger.count
+
+class A
+  def initialize
+    @logger = Logger.new
+  end
+
+  def say(msg)
+    @logger.write(msg)
+    p msg
+  end
+end
+
+a = A.new
+a.say('Yoooo~~')
+
+p logger.count # 2</code></pre><h2>上面實作的缺點</h2><ul><li>logger.count 的計數錯了，因為在 class A 中的 @logger 被重新建立，造成@counter無法共用。(將 @counter 改成 @@counter 可以解決這個問題。)</li><li>do_heavy_work 在每一次 Logger 被建立的時候就會被呼叫，而上面這個例子因為建立了兩次，所以 do_heavy_work 被呼叫了兩次。</li></ul><h1>使用模式的實作：使用靜態變數儲存單一 instance</h1><pre><code class="ruby">class Logger
+  def self.gen
+    @@instance
+  end
+
+  private_class_method :new
+  def initialize
+    @counter = 0
+    do_heavy_work
+  end
+
+  def write(msg)
+    @counter += 1
+    p &quot;Write #{msg} to log ...&quot;
+  end
+
+  def count
+    @counter
+  end
+
+  private
+
+  def do_heavy_work
+    p "Do heavy work..."
+  end
+
+  @@instance = new
+end
+
+logger = Logger.gen
+logger.write('Hello')
+logger.write('Hi')
+p logger.count
+
+class A
+  def initialize
+    @logger = Logger.gen
+  end
+
+  def say(msg)
+    @logger.write(msg)
+    p msg
+  end
+end
+
+a = A.new
+a.say('Yoooo~~')
+
+p logger.count # 3</code></pre><h2>上面實作的優點</h2><ul><li>在 class 宣告的時候就建立一個 instance，並使用 Logger.gen 取代 Logger.new 確保只會讀取到這個建立的 instance，do_heavy_work 只需要做一次就可以了。</li></ul><h2>上面實作的缺點</h2><ul><li>無論有沒有使用到 Logger，一定會建立 instance，也就是 do_heavy_work 一定會被執行一次。</li></ul><h1>使用模式的實作：lazy-load的版本</h1><pre><code class="ruby">class Logger
+  @@instance = nil
+
+  def self.gen
+    @@instance = @@instance || new
+  end
+
+  private_class_method :new
+  def initialize
+    @counter = 0
+    do_heavy_work
+  end
+
+  def write(msg)
+    @counter += 1
+    p &quot;Write #{msg} to log ...&quot;
+  end
+
+  def count
+    @counter
+  end
+
+  private
+
+  def do_heavy_work
+    p "Do heavy work..."
+  end
+end
+
+logger = Logger.gen
+logger.write('Hello')
+logger.write('Hi')
+p logger.count # 2
+
+class A
+  def initialize
+    @logger = Logger.gen
+  end
+
+  def say(msg)
+    @logger.write(msg)
+    p msg
+  end
+end
+
+a = A.new
+a.say('Yoooo~~')
+
+p logger.count # 3</code></pre><h2>上面實作的優點</h2><ul><li>同樣使用 Logger.gen 取代 Logger.new 確保只會有一個 instance 被產生， do_heavy_work 只需要做一次就可以了。</li><li>只有在使用 Logger 的第一次才會建立 instnace，沒有用到就不會建立，避免不必要的初使化流程。</li></ul><h2>上面實作的缺點</h2><ul><li>在多執行緒的環境會有 race condition 的問題，無法確保只有單一的 instance 會被建立。例如：兩個執行緒同時執行判斷 @@instance 時候，因為都同時判斷為nil，這時候就會同時建立兩個 Logger 的 instance。</li></ul><h1>使用模式的實作：同步的版本</h1><pre><code class="ruby">class Logger
+  @@instance = nil
+
+  def self.gen
+    instance_mutex = Mutex.new
+    instance_mutex.synchronize do
+      @@instance = @@instance || new
+    end
+  end
+
+  private_class_method :new
+  def initialize
+    @counter = 0
+    do_heavy_work
+  end
+
+  def write(msg)
+    @counter += 1
+    p &quot;Write #{msg} to log ...&quot;
+  end
+
+  def count
+    @counter
+  end
+
+  private
+
+  def do_heavy_work
+    p "Do heavy work..."
+  end
+end</code></pre><h2>上面實作的優點</h2><ul><li>同樣有之前實作的優點。</li><li>使用 mutex 確保在多執行緒的環境下只會建立一個單一的 instance。</li></ul><h1>樣式名稱</h1><p>Singleton - 獨體模式</p><h1>目的</h1><p>當某個 class (Logger) 只需要單一 instance 時，使用 private 的 contructor(Logger.new) 來限制 instance 的建立，取而代之的是使用另一個 class method (Logger.gen) 並搭配 class variable(@@instance) 來確保只有唯一個 instance 會被建立。要特別注意的是在多執行緒下的同步問題。</p><h1>使用時機</h1><p>當某個 class 只需要單一 instance，而且在初使化的過程可能會花費較多的資源而希望可以減少初使化的次數。</p><h1>Refs</h1><ul><li><a href="http://dalibornasevic.com/posts/9-ruby-singleton-pattern" target="_blank">Ruby Singleton Pattern - 使用多種不同的方式來實作 singleton pattern</a></li><li><a href="http://c2.com/cgi/wiki?RubySingleton" target="_blank">Ruby Singleton - 一個使用 mutex 實作 singleton pattern 的範例。</a></li><li><a href="http://stackoverflow.com/questions/212407/what-exactly-is-the-singleton-class-in-ruby" target="_blank">SO - What exactly is the singleton class in ruby?</a></li></ul></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>處理rails中的小數 | 魔法師的手杖</title><meta content="處理rails中的小數" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2015-01-04-095343-rails-handle-decimal-number";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title 處理rails中的小數</div><div class="meta-data">description 處理rails中的小數</div><div class="meta-data">datetime 2015-01-04 09:53:43</div><div class="meta-data">tags rails_migration</div><div class="meta-data">category coding</div><div class="meta-data">link rails-handle-decimal-number</div><div class="meta-data">file 2015-01-04-095343-rails-handle-decimal-number</div><div class="meta-data">template post</div><div class="meta-data">end</div><p>要建立一個欄位用來處理小數，我們可以用decimal這個type來儲存，要注意的是decimal有兩個option要設定，一個是<code>:precision</code>用來決定數字要支援多大的位數(括含小數位數)，另一個是<code>:scale</code>用來決定數字的小數位數最多可以有幾位。以下面的例子而言，amount可以儲存的數值範圍就是介於-999.99到999.99之間。</p><pre><code class="hljs">t.decimal :amount, precision: 5, scale: 2</code></pre><p>如果你用的是mysql，在使用decimal而不設定這個兩個值，它預設是<code>precision: 10, scale: 0</code>，也就是沒有小數(囧)。</p><h1>Ref</h1><ul><li><a href="http://torontoprogrammer.ca/2010/05/decimal-numbers-in-rails-and-mysql/" target="_blank">Toronto Programmer Jason Doucette - Decimal numbers in Rails and MySQL</a></li><li><a href="http://apidock.com/rails/ActiveRecord/ConnectionAdapters/TableDefinition/column" target="_blank">apidock - ActiveRecord::ConnectionAdapters::TableDefinition - column</a></li></ul></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

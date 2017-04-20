@@ -1,0 +1,51 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>code school 筆記 - rails4 patterns | 魔法師的手杖</title><meta content="code school 筆記 - rails4 patterns" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2014-11-14-141129-note-rails4-patterns";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title code school 筆記 - rails4 patterns</div><div class="meta-data">description code school 筆記 - rails4 patterns</div><div class="meta-data">datetime 2014-11-14 14:11:29</div><div class="meta-data">tags rails,note_code-school</div><div class="meta-data">category coding</div><div class="meta-data">link note-rails4-patterns</div><div class="meta-data">file 2014-11-14-141129-note-rails4-patterns</div><div class="meta-data">template post</div><div class="meta-data">end</div><p>1. 將邏輯從controller移到model，尤其是需要存取model attribute的運算邏輯，應該封裝在model之中。</p><p>2. 不要將其它model的建立放在model中的callback。放在callback中會讓model之間的關係無法鬆綁，而且當model建立失敗時會產生未預期的行為。比較好的做法是將其它model的建立放在一般的method中，當需要建立時才呼叫。至於callback應該只用在改變model attribute的狀態。</p><p>3. 不是所有的model都需要ActiveRecord，一些運算邏輯不屬於model範疇，例如流程控制或是牽涉到其它model，應該要切出另一個非ActiveRecord(PORO = Plain Old Ruby Object)的class來處理。 = Simple Responsibility Priciple</p><p>4. 不要將model的sql query放在controller中，取而代之的是建立一個model class method或是scope。class method與scope的差異在於當使用多個query chain在一起時，如果其中一個query回傳nil，class method會將<code>IS NULL</code>的條件代入query中，而scope則會跳過結果為nil的query。另外使用scope的好處是它一定會傳回chainable的object，而class method則要小心回傳的object能不能chain。</p><p>6. 可以使用scope merge在model scope中使用另一個model的scope。</p><pre><code class="ruby">class Comment < ActiveRecord
+  belongs_to :post
+  scope :approved, -> { where(approved: true) }
+end
+
+class Post < ActiveRecord
+  has_many :comments
+  scope :with_approved_comments, -> { joins(:comments).merge(Comment.approved) }
+end</code></pre><pre><code class="sql">SELECT "posts".* FROM "posts" INNER JOIN "comments" ON "comments"."post_id" = "post"."id" WHERE ("comments"."approved" = "t")</code></pre><p>另一個scope merge的用處是決定存取相同attribute的scope優先權，當兩個scope chain在一起時，rails4會將兩個scope的結果都放進query中。而rails3則是後chain的scope贏，如果要讓rails4有相同的效果，可以用merge做chain，這時候後merge的scope贏。</p><p>7. rails4在models與controllers下都有concerns的目錄，可以將在多個model或是多個controller中重複用到的code放在concerns中再include進來。</p><p>8. 不應該將使用在view的邏輯運算放在model中，因為model不應該直接控制view。取而代之的是將view的邏輯運算搬到decorator，另外可以使用method_missing與respond_to_missing的技巧將model的method導向decorator。</p><pre><code class="ruby">class PostDecorator
+  attr_reader :post
+
+  def initialize(post)
+    @post = post
+  end
+
+  def is_front_page?
+    post.published_at > 2.days.ago
+  end
+
+  def method_missing(method_name, *args, &block)
+    post.send(method_name, *args, &block)
+  end
+
+  def respond_to_missing?(method_name, include_private = false)
+    post.respond_to?(method_name, include_private) || super
+  end
+end</code></pre><p>相較於view helper，decorator可以限制存取的model，另外decorator是obejct，使用起來更方便直覺。</p><p>9. 當使用rails建立API server時，很常將資料使用json的格式來傳送。但將組json的程式放在controller或是model中並不適合。使用ActiveModelSerializer可以簡化serialize的程式碼，同時還可以自行定義要如何做serialize。</p><p>10. 在model query中使用pluck選取需要的model attribute並組成array，可以避免ActiveRecord object的生成而達到加速的效果。</p><p>11. 使用config.filter_parameters來過濾log中敏感的資料。</p><p>12. 不要在production中使用WEBrick當作web server。</p><p>13. 在Gemfile中宣告ruby的版本。</p><p>14. 使用Procfile來定義起動rails app的流程，類似makefile的作法。</p></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

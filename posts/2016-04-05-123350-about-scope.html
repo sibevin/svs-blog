@@ -1,0 +1,86 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>關於scope的二三事 | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2016-04-05-123350-about-scope";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title 關於scope的二三事</div><div class="meta-data">datetime 2016-04-05 12:33:50</div><div class="meta-data">tags rails_model,note</div><div class="meta-data">category coding</div><div class="meta-data">link about-scope</div><div class="meta-data">file 2016-04-05-123350-about-scope</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>前言</h1><p>這是一篇閱讀筆記，更詳細的內容請參考原文章：<a href="http://blog.plataformatec.com.br/2013/02/active-record-scopes-vs-class-methods/" target="_blank">Active Record scopes vs class methods</a></p><h1>關於scope的語法</h1><pre><code class="ruby">class Post < ActiveRecord::Base
+  scope :published, where(status: 'published')
+  scope :draft, -> { where(status: 'draft') } 
+end</code></pre><p>上面的例子中，第一種寫法在rails4中已經被deprecated，因為它的判斷式會在class第一次被載入的時候就會建立，在某些情況下會造成會錯誤的判斷，例如：</p><pre><code class="ruby">class Post < ActiveRecord::Base
+  scope :published_last_week, where('published_at >= ?', 1.week.ago)
+end</code></pre><p>上面的例子1.week.ago是以class載入的時間為計算點，而非每次呼叫scope的時候去計算一週前的時間。</p><h1>scope與class method的差別</h1><p>scope其實就是class method，但它多了一些功能，第一個是它一定可以chainable，簡單來說就是可以與其它的scope串連使用。class method也可以做的到，但有些情況要自己去加，例如下面的例子：</p><pre><code class="ruby">class Post < ActiveRecord::Base
+  scope :by_status, -> status { where(status: status) if status.present? }
+end
+
+class Post < ActiveRecord::Base
+  def self.by_status(status)
+    if status.present?
+      where(status: status)
+    else
+      <span class="mk-red">all</span>
+    end
+  end
+end</code></pre><p>第二點是scope可以extensible，也就是可以定義某些scope必須要接在特定的scope之後才能用。class method也可以做到類似的事，但也要自己加，例子如下：</p><pre><code class="ruby">class Post < ActiveRecord::Base
+  scope :page, -> num { # some limit + offset logic here for pagination } do
+    def per(num)
+    # more logic here
+    end
+
+    def total_pages
+    # some more here
+    end
+
+    def first_page?
+    # and a bit more
+    end
+
+    def last_page?
+    # and so on
+    end
+  end
+end
+
+class Post < ActiveRecord::Base
+  def self.page(num)
+    scope = # some limit + offset logic here for pagination
+    scope.extend PaginationExtensions
+    scope
+    end
+
+    module PaginationExtensions
+    def per(num)
+      # more logic here
+    end
+
+    def total_pages
+      # some more here
+    end
+
+    def first_page?
+      # and a bit more
+    end
+
+    def last_page?
+      # and so on
+    end
+  end
+end</code></pre></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

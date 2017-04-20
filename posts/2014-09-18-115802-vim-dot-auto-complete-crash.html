@@ -1,0 +1,27 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>vim在使用自動補齊的時候會爆 | 魔法師的手杖</title><meta content="vim在使用自動補齊的時候會爆" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2014-09-18-115802-vim-dot-auto-complete-crash";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title vim在使用自動補齊的時候會爆</div><div class="meta-data">description vim在使用自動補齊的時候會爆</div><div class="meta-data">category tools</div><div class="meta-data">tags vim</div><div class="meta-data">datetime 2014-09-18 11:58:02</div><div class="meta-data">template post</div><div class="meta-data">link vim-dot-auto-complete-crash</div><div class="meta-data">file 2014-09-18-115802-vim-dot-auto-complete-crash</div><div class="meta-data">end</div><p>在使用vim的時候，每當按下.[tab]的使候就會出現下面的錯誤訊息，接著vim就閃退了。</p><pre><code class="hljs">Vim: Caught deadly signal SEGV
+Vim: preserving files...
+Vim: Finished.</code></pre><p>這個問題其實困擾我很久了，於是決定找個時間解決這個問題。尋問G大(keyword: vim autocomplete crash)之後，首先看到這篇<a href="https://github.com/Valloric/YouCompleteMe/issues/151" target="_blank">Vim segfault upon some autocompletion in ruby files</a>。有人提到這其實是rvm造成的問題，當啟動vim的時候，rvm會影響vim中plugin使用ruby的版本。一個簡單的測試方式就是在vim中輸入指令：<code>:ruby a=1</code>(這個指令只是簡單執行一小段ruby的程式碼a=1)，如果vim同樣爆了，那就是ruby版本的問題了。</p><p>測試的解果看來的確是這個問題，於是又有了這篇<a href="https://github.com/carlhuda/janus/wiki/Rvm" target="_blank">github:carlhuda/janus - Using RVM</a>，它提出了解決的方式，就是在執行vim的時候強制unset rvm相關的環境變數。不過這篇提到的兩種方法，我用了還是不行。</p><p>再次受挫之後，看到有人提及vim本身compile的時候ruby的版本也會影響，於是抱著死馬當活馬醫的心情，重新compile了vim，而且還指定使用system的ruby版本來compile。搞了半個小時的時間，終於讓我試出來了，下面是最後的步驟。</p><p><ul><li>刪除原本的vim：<code>brew remove vim</code></li><li>使用系統ruby重新安裝編譯vim：<code>rvm system do brew install vim</code></li><li>在.zshrc中加入設定，強制使用系統ruby來執行vim</li></ul></p><pre><code>alias vim='rvm system do /usr/local/bin/vim $@'</code></pre><h1>UPDATE 2015-08-06</h1><p>因為實在是受不了mac上的vim在打開大檔案的時候，速度變的極度緩慢…最後還是投奔sublime的懷抱(當然是with vim plugin啦，呵呵)。</p></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>筆記 - Web Tech Topic 02 | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2016-08-04-191439-note-web-tech-topic-02";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title 筆記 - Web Tech Topic 02</div><div class="meta-data">datetime 2016-08-04 19:14:39</div><div class="meta-data">tags note</div><div class="meta-data">category coding</div><div class="meta-data">link note-web-tech-topic-02</div><div class="meta-data">file 2016-08-04-191439-note-web-tech-topic-02</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>Rspec</h1><h2>what is feature spec</h2><ul><li>mimic user behavior</li><li>three parts: visit url, input, result</li></ul><h2>feature spec vs request spec</h2><ul><li>feature spec: mvc</li><li>request spec: mvc * n</li></ul><h2>Capybara</h2><ul><li>test email: open_email, current_eamil (capybara-eamil)</li></ul><h2>tools</h2><ul><li>selenium, marionette</li><li>database_cleaner to sync the web behavior</li><li>save_and_open_page</li></ul><h2>tips</h2><ul><li>use real name to create user for testing, easy to find and check</li></ul><h1>Vagrant</h1><h2>commands</h2><ul><li>init ubuntu/trusty64</li><li>up</li><li>status</li><li>ssh</li><li>halt</li><li>reload - reload config and reboot</li></ul><h2>vagrantfile</h2><ul><li>config.vm.box_check_update = false - 不檢查版本</li></ul><h2>provisioning</h2><ul><li>自動化執行指令</li><li>寫在vagrantfile</li><li>config.vm.provision "shell", inline: "nginx -v"</li></ul><h2>打包</h2><ul><li>package --output xxx.box</li><li>box add xxx.box</li></ul></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

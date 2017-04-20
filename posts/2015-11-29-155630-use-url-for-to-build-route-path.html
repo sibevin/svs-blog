@@ -1,0 +1,37 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>使用url_for來建立route路徑 | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2015-11-29-155630-use-url-for-to-build-route-path";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title 使用url_for來建立route路徑</div><div class="meta-data">datetime 2015-11-29 15:56:30</div><div class="meta-data">tags rails</div><div class="meta-data">category coding</div><div class="meta-data">link use-url-for-to-build-route-path</div><div class="meta-data">file 2015-11-29-155630-use-url-for-to-build-route-path</div><div class="meta-data">template post</div><div class="meta-data">end</div><p>如果要用controller與action來建立path，可以用Rails.application.routes.url_helpers.url_for，範例如下：</p><pre><code>Rails.application.routes.url_helpers.url_for {
+  controller: 'admin/accounts',
+  action: 'edit',
+  id: '8x5jg5sevpl0d4bo2raa1',
+  num: '123',
+  only_path: true
+}</code></pre><p>上面範例會生出path如下：</p><pre><code>/admin/accounts/8x5jg5sevpl0d4bo2raa1/edit?num=123</code></pre><p>如果沒有加上<code>only_path: true</code>，則必須要加上<code>host</code>這個參數來指定host的位址。</p><pre><code>Rails.application.routes.url_helpers.url_for {
+  controller: 'admin/accounts',
+  action: 'edit',
+  id: '8x5jg5sevpl0d4bo2raa1',
+  num: '123',
+  host: 'www.example.com'
+}</code></pre><h1>備註</h1><p>當初在找解法的時候花了很多時間，最主要的原因是在rails中有太多叫<code>url_for</code>的method了，搞的我很亂啊。原本我要用<code>ActionView::RoutingUrlFor#url_for</code>，這個method也是view中呼叫url_for預設的method，結果發現它會自動將目前的網址參數也幫你加進去，這樣反而會在某些情況造成No route的error。後來trace了url_for的source<code>(ActionView::RoutingUrlFor#url_for -> ActionDispatch::Routing::UrlFor -> ActionDispatch::Routing::RouteSet)</code>才找到有Rails.application.routes.url_helpers.url_for可以用。</p></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

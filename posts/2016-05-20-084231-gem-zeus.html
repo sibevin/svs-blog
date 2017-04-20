@@ -1,0 +1,38 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>Zeus - 讓開發環境的rails跑的更快 | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2016-05-20-084231-gem-zeus";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title Zeus - 讓開發環境的rails跑的更快</div><div class="meta-data">datetime 2016-05-20 08:42:31</div><div class="meta-data">tags rails,ruby_gem</div><div class="meta-data">category coding</div><div class="meta-data">link gem-zeus</div><div class="meta-data">file 2016-05-20-084231-gem-zeus</div><div class="meta-data">template gem</div><div class="meta-data">website https://github.com/burke/zeus</div><div class="meta-data">end</div><ul><li><a href="https://github.com/burke/zeus" target="_blank">Homepage</a></li><li><a href="https://github.com/burke/zeus" target="_blank">Github</a></li><li><a href="https://rubygems.org/gems/zeus" target="_blank">RubyGem</a><code> (zeus)</code></li></ul><h1>What</h1><p>zeus是rails的preloader，它可以讓rails指令跑的更快。</p><h1>Why</h1><p>時間寶貴，不解釋。</p><h1>How</h1><h2>安裝</h2><p>不建議使用bundle來裝它，因為透過<code>bundle exec</code>反而讓zeus啟動變慢。另外zeus本身就是設計不相依於rails專案，可以讓不同的專案用同一套zeus，所以可以直接下<code>gem install zeus</code>來安裝它。</p><h2>使用</h2><ul><li>1. 在rails專案中下指令<code>zeus start</code>，這時候會顯示zeus啟動的狀態與可以使用的指令。</li><li>2. 開另一個console，就可以用zeus執行各種rails的指令。基本上就是在原本的rails指令前加上zeus，例如：<code>zeus rails s</code>。</li><li>3. 如果要關閉zeus，只要 ctrl + c 就可以了。</li></ul><div class="image-center"><img alt="Zeus啟動的畫面" src="/images/post/20160520092232290-zeus-screenshot.png" /><div class="image-text">Zeus啟動的畫面</div></div><h2>同場加映</h2><ul><li>在 oh-my-zsh 中加入zeus的外掛，就可以使用縮寫下zeus的指令嘍。</li></ul><h2>會遇到的坑</h2><p>首先第一個遇到的問題是無法使用 `zeus test` ，它會出現 `undefined method `configure' for RSpec:Module (NoMethodError)`</p><div class="image-center"><img alt="zeus test 無法使用" src="/images/post/20160520092320358-zeus-test-failed.png" /><div class="image-text">zeus test 無法使用</div></div><pre><code class="nohighlight">/Users/wangkaito/workspace/rails/dev/ukik-gamma2/spec/spec_helper.rb:19:in `<top (required)>': undefined method `configure' for RSpec:Module (NoMethodError)
+from /Users/wangkaito/.rvm/gems/ruby-2.2.3/gems/activesupport-4.2.4/lib/active_support/dependencies.rb:274:in `require'
+from /Users/wangkaito/.rvm/gems/ruby-2.2.3/gems/activesupport-4.2.4/lib/active_support/dependencies.rb:274:in `block in require'
+from /Users/wangkaito/.rvm/gems/ruby-2.2.3/gems/activesupport-4.2.4/lib/active_support/dependencies.rb:240:in `load_dependency'
+from /Users/wangkaito/.rvm/gems/ruby-2.2.3/gems/activesupport-4.2.4/lib/active_support/dependencies.rb:274:in `require'
+from /Users/wangkaito/workspace/rails/dev/ukik-gamma2/spec/rails_helper.rb:6:in `<top (required)>'
+from /Users/wangkaito/.rvm/gems/ruby-2.2.3/gems/activesupport-4.2.4/lib/active_support/dependencies.rb:274:in `require'
+from /Users/wangkaito/.rvm/gems/ruby-2.2.3/gems/activesupport-4.2.4/lib/active_support/dependencies.rb:274:in `block in require'
+from /Users/wangkaito/.rvm/gems/ruby-2.2.3/gems/activesupport-4.2.4/lib/active_support/dependencies.rb:240:in `load_dependency'
+from /Users/wangkaito/.rvm/gems/ruby-2.2.3/gems/activesupport-4.2.4/lib/active_support/dependencies.rb:274:in `require'
+from /Users/wangkaito/.rvm/gems/ruby-2.2.3/gems/zeus-0.15.4/lib/zeus/rails.rb:196:in `test_helper'
+...</code></pre><p>查了一下網路的資料發現因為zeus在啟動時，不會像rails一樣一次把所有用到的gem或是library都載入，所以如果有任何沒有require就使用的library的class或module就會出錯。上面的問題是出在 spec/rails_helper.rb 中的第6行：</p><pre><code class="ruby">require 'spec_helper'
+require 'rspec/rails'</code></pre><p>spec_helper裡有用到RSpec的module，但正真載入rspec的地方是在<code>require 'rspec/rails'</code>，因此就出問題了。解法也很簡單，只要將上面兩行對掉就可以了。</p><pre><code class="ruby">require 'rspec/rails'
+require 'spec_helper'</code></pre><h1>Spring?</h1><p>其實rails預設有一個preloader叫做Spring，也是做類似的事。如果有興趣的話，可以看這篇的比較：<a href=" https://hackhands.com/fast-tests-comparing-zeus-spring-rails-4-1-rspec-3/" target="_blank">Fast Tests: Comparing Zeus With Spring on Rails 4.1 and RSpec 3</a></p></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>Deploy rails到aws | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2015-11-03-152908-deploy-rails-to-aws";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title Deploy rails到aws</div><div class="meta-data">datetime 2015-11-03 15:29:08</div><div class="meta-data">tags rails,rails_deploy</div><div class="meta-data">category coding</div><div class="meta-data">link deploy-rails-to-aws</div><div class="meta-data">file 2015-11-03-152908-deploy-rails-to-aws</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>在AWS開一個EC2</h1><h2>到Amazon Web Services > EC2 > EC2 Dashboard > Launch Instance</h2><h2>建立一個EC2</h2><ul><li>Step1: 選AMI： Amazon Linux AMI 2015.09.1 (HVM), SSD Volume Type</li><li>Step2: 選Instance Type</li><li>Step3: 設定Instance</li><li>Step4: 設定Storage</li><li>Step5: 設定Tag</li><li>Step6: 設定SecurityGroup： Create a new security group > 命名name(例如：test-app-group)，加一個新的rule(HTTP/TCP/80/Anywhere)。</li><li>Create a new key pair > 命名 test_app_key > Download Key Pair</li><li>Review and Launch > Launch</li></ul><h2>設定EC2與Elastic IPs</h2><ul><li>EC2 > Instances > 選取剛剛建立的instance</li><li>下面會出現instance相關的資訊，重要的兩個資訊是 Public DNS 與 Public IP。</li><li>EC2 > Elastic IPs</li><li>Allocate New Address > Allocate</li><li>選取剛剛建立的EIP，Actions > Associate Address > 選取剛剛建立的instance</li><li>回到 Instances，剛剛建立的instance的 Elastic IP 會出現，而 Public IP 也會被改成跟 Elastic IP 一樣，這也是最終連線到這個instance用的對外IP(例如：53.11.132.42)。</li></ul><h2>ssh至EC2</h2><ul><li>到本機端，將剛剛下載的 test_app_key.pem 放到 ~/.ssh</li><li>更改key的存取權限</li></ul><pre><code class="nohighlight">$ chmod 600 ~/.ssh/test_app_key.pem</code></pre><ul><li>連線至EC2</li></ul><pre><code class="nohighlight">$ ssh ec2-user@53.11.132.42 -i ~/.ssh/test_app_key.pem
+The authenticity of host '53.11.132.42 (53.11.132.42)' can't be established.
+RSA key fingerprint is ca:32:e4:cb:3b:dc:51:27:27:9b:c4:d8:39:f0:24:6a.
+Are you sure you want to continue connecting (yes/no)? yes
+
+ __|  __|_  )
+_|  (     /   Amazon Linux AMI
+___|\___|___|
+
+https://aws.amazon.com/amazon-linux-ami/2015.09-release-notes/
+[ec2-user@ip-172-32-26-98 ~]$</code></pre><p>看到上面的畫面表示你已經成功的連線至EC2。</p><h1>建立RDS</h1><h2>到Amazon Web Services > RDS > RDS Dashboard > Launch Instance</h2><h2>建立一個mysql RDS</h2><ul><li>Step1: Select Engine - MySQL > Select</li><li>Step2: Choose database type > Yes/No</li><li>Step3: Specify DB Details > 設定 DB Instance Identifier(instance的名稱，例如：test-app) / Master Username(mysql的管理權限帳號，例如：mysqluser)) / Master Password</li><li>Step4: Configure Advanced Settings > VPC Security Group(可以先選default，之後可以改掉) / Database Name(讓它是空的，之後可以自己建) / Port(mysql連線用的port，例如：5678)</li><li>Launch</li><li>到RDS Dashboard上可以看到DB的instance正在建立，點選instance之後，下方會出現DB的細節，其中Endpoint就是連線的host與port(test-app.jfkwohjdwioj8.us-west-2.rds.amazonaws.com:5678)。</li></ul><h2>設定 Security Group 讓EC2可以連線</h2><ul><li>EC2 > Security Group > Create Security Group</li><li>設定 Security Group name(例如：test-app-db) / Description / VPC(選預設的)</li><li>在 Inbound 加上一個新的設定(Custom TCP Rule/TCP/5678/CustomIP[選EC2 instance所在的security group])</li><li>將新建立RDS的Security Group改成test-app-group</li></ul><h2>在EC2上安裝連線RDS mysql資料庫會用到的package</h2><ul><li>使用ec2-user連線至server。</li><li>安裝mysql會用到的package。</li></ul><pre><code class="nohighlight">$ sudo yum install mysql</code></pre><ul><li>使用mysql連線至RDS，看到下面的畫面就表示連線成功了。</li></ul><pre><code class="nohighlight">$ mysql -P 5678 -h test-app.jfkwohjdwioj8.us-west-2.rds.amazonaws.com -u mysqluser -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 20
+Server version: 5.6.23-log MySQL Community Server (GPL)
+
+Copyright (c) 2000, 2015, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql></code></pre><h2>建立一個連線用的mysql帳號與網站所需要的資料庫</h2><p>理論上mysql的管理帳號不應該拿來做為平常連線之用，所以我們會開另一個帳號並設定比較低的權限。這時候我們要決定幾個東西：連線帳號(例如：test_app_user)、帳號密碼(例如：test_app_pw)與資料庫的名稱(例如：test_app_db)。另外我們也可以順便建立網站所需要的資料庫，雖然也可以用rails的rake db:create來建，不過還要下載repo實在有點麻煩，所以這邊就直接下指令來建db嘍。</p><ul><li>使用mysql連線至RDS。</li><li>建立一個帳號並設定權限。</li></ul><pre><code class="mysql">CREATE USER 'test_app_user'@'%' IDENTIFIED BY 'test_app_pw';
+GRANT ALL PRIVILEGES ON 'test_app_db' . * TO 'test_app_user'@'%';
+FLUSH PRIVILEGES;</code></pre><ul><li>建立資料庫。</li></ul><pre><code class="mysql">CREATE DATABASE IF NOT EXISTS test_app_db DEFAULT CHARACTER SET = 'utf8' DEFAULT COLLATE 'utf8_general_ci';</code></pre><ul><li>登出mysql後，我們可以就使用test_app_user來連線了。</li></ul><pre><code class="nohighlight">$ mysql -P 5678 -h test-app.jfkwohjdwioj8.us-west-2.rds.amazonaws.com -u test_app_user -p</code></pre><h1>設定server</h1><h2>使用ec2-user連線至server，更新 package</h2><pre><code class="nohighlight">$ sudo yum update
+Loaded plugins: priorities, update-motd, upgrade-helper
+No packages marked for update</code></pre><h2>建立一個新user - appuser</h2><p>appuser會具有sudo權限操作server，用來取代root與ec2-user。</p><ul><li>建立一個新user，並設定密碼</li></ul><pre><code class="nohighlight">$ sudo adduser appuser
+$ sudo passwd appuser</code></pre><ul><li>編輯sudo名單，讓appuser擁有sudo權限</li></ul><pre><code class="nohighlight">$ sudo visudo
+# ...
+root    ALL=(ALL)       ALL
+appuser ALL=(ALL)       ALL
+# ...</code></pre><ul><li>重新開機 sudo reboot</li></ul><h2>使用appuser連線至server</h2><p>只要將本地端的 public key 加到 appuser 的 .ssh/authorized_keys 即可。</p><ul><li>在本地端查看 ~/.ssh/id_rsa.pub 檔案</li><li>使用ec2-user線線到server</li><li>切換到appuser</li></ul><pre><code class="nohighlight">$ sudo su - appuser</code></pre><ul><li>建立 .ssh 目錄，將 ~/.ssh/id_rsa.pub 檔案加到 .ssh/authorized_keys 之中。</li><li>更新 .ssh 與 .ssh/authorized_keys 的存取權限。</li></ul><pre><code class="nohighlight">$ chmod 700 .ssh
+$ chmod 600 .ssh/authorized_keys</code></pre><ul><li>回到本機端，就可以使用自己的key以appuser的帳號登入。</li></ul><pre><code class="nohighlight">$ ssh appuser@53.11.132.42 -i ~/.ssh/id_rsa</code></pre><h2>設定ssh，關閉root password登入功能，更改連線的port</h2><ul><li>登入server</li><li>編輯 /etc/ssh/sshd_config，設定下面的設定值</li></ul><pre><code>Port 1234
+PermitRootLogin no
+PasswordAuthentication no
+X11Forwarding no
+AllowUsers appuser</code></pre><p>說明一下：</p><p>Port 1234：更改ssh連線時的port為1234。</p><p>PermitRootLogin no：表示不允許使用root進行登入。</p><p>PasswordAuthentication no：表示不能使用帳號密碼的方式登入。</p><p>X11Forwarding no：不使用X11 Forwarding，因為我們不會用到圖形界面。</p><p>AllowUsers appuser：只允許 appuser 可以ssh連線。</p><ul><li>重讀ssh設定</li></ul><pre><code class="nohighlight">$ sudo /etc/init.d/sshd reload</code></pre><ul><li>更改aws instance的security group設定，到 EC2 > Security Groups > 點選test-app-group > 下面會出現設定細節 > Inbound > Edit > 新增一個rule(Custom TCP Rule/TCP/1234/Anywhere)，接著把SSH這個rule刪掉。</li></ul><ul><li>這時候要連線到server，就只能透過 appuser 這個帳號與port 1234來進行連線。</li></ul><pre><code class="nohighlight">$ ssh appuser@53.11.132.42 -i ~/.ssh/id_rsa -p 1234</code></pre><h2>建立deployuser</h2><p>deployuser是專門用來做deploy用的，與appuser最大的不同是，appuser具有sudo權限，而deployuser則沒有。所以任何安裝的流程，應該是由appuser來做，而deploy是由deployuser來做。</p><ul><li>建立deployuser，並複制appuser的連線設定</li></ul><pre><code class="nohighlight">sudo adduser deployuser
+sudo mkdir /home/deployuser/.ssh
+sudo chown -R deployuser /home/deployuser/.ssh
+sudo chgrp -R deployuser /home/deployuser/.ssh
+sudo chmod -R 700 /home/deployuser/.ssh
+
+sudo cp .ssh/authorized_keys /home/deployuser/.ssh/authorized_keys
+sudo chown deployuser /home/deployuser/.ssh/authorized_keys
+sudo chgrp deployuser /home/deployuser/.ssh/authorized_keys
+
+sudo usermod -a -G deployuser appuser</code></pre><ul><li>將deployuser加到ssh的設定檔，編輯 /etc/ssh/sshd_config，修改下面的設定值</li></ul><pre><code class="nohighlight">AllowUsers appuser deployuser</code></pre><ul><li>重讀ssh設定</li></ul><pre><code class="nohighlight">$ sudo /etc/init.d/sshd reload</code></pre><ul><li>這時候就可以使用deployuser連線到server。</li></ul><pre><code class="nohighlight">$ ssh deployuser@53.11.132.42 -i ~/.ssh/id_rsa -p 1234</code></pre><h1>安裝rvm與ruby</h1><h2>安裝rvm</h2><p>rvm的功能是用來切換ruby的版本，在日後要升級ruby時會省事很多。另外我們會使用multi-user的模式來安裝，也就是rvm是安裝在系統之下，所有的使用者用的都是同一套rvm。要注意的是，執行一般的rvm指令時不需要sudo權限，但如果要安裝ruby，就必須要有sudo權限。</p><ul><li>執行rvm安裝指令，第一次執行會失敗，它會提示要加入GPG signature</li></ul><pre><code class="nohighlight">$ \curl -sSL https://get.rvm.io | sudo bash -s stable
+[sudo] password for appuser:
+Downloading https://github.com/rvm/rvm/archive/1.26.11.tar.gz
+Downloading https://github.com/rvm/rvm/releases/download/1.26.11/1.26.11.tar.gz.asc
+gpg: directory `/root/.gnupg' created
+gpg: new configuration file `/root/.gnupg/gpg.conf' created
+gpg: WARNING: options in `/root/.gnupg/gpg.conf' are not yet active during this run
+gpg: keyring `/root/.gnupg/pubring.gpg' created
+gpg: Signature made Mon 30 Mar 2015 09:52:13 PM UTC using RSA key ID BF04FF17
+gpg: Can't check signature: No public key
+Warning, RVM 1.26.0 introduces signed releases and automated check of signatures when GPG software found.
+Assuming you trust Michal Papis import the mpapis public key (downloading the signatures).
+
+GPG signature verification failed for '/usr/local/rvm/archives/rvm-1.26.11.tgz' - 'https://github.com/rvm/rvm/releases/download/1.26.11/1.26.11.tar.gz.asc'!
+try downloading the signatures:
+
+    sudo gpg2 --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+
+or if it fails:
+
+    command curl -sSL https://rvm.io/mpapis.asc | sudo gpg2 --import -
+
+the key can be compared with:
+
+    https://rvm.io/mpapis.asc
+    https://keybase.io/mpapis</code></pre><ul><li>加入GPG signature</li></ul><pre><code class="nohighlight">$ sudo gpg2 --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+gpg: keyring `/root/.gnupg/secring.gpg' created
+gpg: requesting key D39DC0E3 from hkp server keys.gnupg.net
+gpg: /root/.gnupg/trustdb.gpg: trustdb created
+gpg: key D39DC0E3: public key "Michal Papis (RVM signing) &lt;mpapis@gmail.com>" imported
+gpg: no ultimately trusted keys found
+gpg: Total number processed: 1
+gpg:               imported: 1  (RSA: 1)</code></pre><ul><li>執行rvm安裝指令</li></ul><pre><code class="nohighlight">$ \curl -sSL https://get.rvm.io | sudo bash -s stable
+Downloading https://github.com/rvm/rvm/archive/1.26.11.tar.gz
+Downloading https://github.com/rvm/rvm/releases/download/1.26.11/1.26.11.tar.gz.asc
+gpg: Signature made Mon 30 Mar 2015 09:52:13 PM UTC using RSA key ID BF04FF17
+gpg: Good signature from "Michal Papis (RVM signing) &lt;mpapis@gmail.com>" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 409B 6B17 96C2 7546 2A17  0311 3804 BB82 D39D C0E3
+     Subkey fingerprint: 62C9 E5F4 DA30 0D94 AC36  166B E206 C29F BF04 FF17
+GPG verified '/usr/local/rvm/archives/rvm-1.26.11.tgz'
+Creating group 'rvm'
+
+Installing RVM to /usr/local/rvm/
+Installation of RVM in /usr/local/rvm/ is almost complete:
+
+  * First you need to add all users that will be using rvm to 'rvm' group,
+    and logout - login again, anyone using rvm will be operating with `umask u=rwx,g=rwx,o=rx`.
+
+  * To start using RVM you need to run `source /etc/profile.d/rvm.sh`
+    in all your open shell windows, in rare cases you need to reopen all shell windows.
+
+# appuser,
+#
+#   Thank you for using RVM!
+#   We sincerely hope that RVM helps to make your life easier and more enjoyable!!!
+#
+# ~Wayne, Michal & team.
+
+In case of problems: http://rvm.io/help and https://twitter.com/rvm_io</code></pre><ul><li>將appuser加到rvm的group，讓appuser可以執行rvm get等相關的指令。</li></ul><pre><code class="nohighlight">sudo usermod -a -G rvm appuser</code></pre><ul><li>登出再登入後，就可以使用rvm的指令。</li></ul><pre><code class="nohighlight">$ rvm -v
+rvm 1.26.11 (latest) by Wayne E. Seguin &lt;wayneeseguin@gmail.com>, Michal Papis &lt;mpapis@gmail.com> [https://rvm.io/]</code></pre><h2>安裝ruby</h2><ul><li>取得最新的rvm與ruby列表</li></ul><pre><code class="nohighlight">$ rvmsudo rvm get stable
+Downloading https://get.rvm.io
+Downloading https://raw.githubusercontent.com/wayneeseguin/rvm/master/binscripts/rvm-installer.asc
+Verifying /usr/local/rvm/archives/rvm-installer.asc
+gpg: Signature made Tue 14 Apr 2015 12:05:41 AM UTC using RSA key ID BF04FF17
+gpg: Good signature from "Michal Papis (RVM signing) &lt;mpapis@gmail.com>" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 409B 6B17 96C2 7546 2A17  0311 3804 BB82 D39D C0E3
+     Subkey fingerprint: 62C9 E5F4 DA30 0D94 AC36  166B E206 C29F BF04 FF17
+GPG verified '/usr/local/rvm/archives/rvm-installer'
+Downloading https://github.com/rvm/rvm/archive/1.26.11.tar.gz
+Downloading https://github.com/rvm/rvm/releases/download/1.26.11/1.26.11.tar.gz.asc
+gpg: Signature made Mon 30 Mar 2015 09:52:13 PM UTC using RSA key ID BF04FF17
+gpg: Good signature from "Michal Papis (RVM signing) &lt;mpapis@gmail.com>" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 409B 6B17 96C2 7546 2A17  0311 3804 BB82 D39D C0E3
+     Subkey fingerprint: 62C9 E5F4 DA30 0D94 AC36  166B E206 C29F BF04 FF17
+GPG verified '/usr/local/rvm/archives/rvm-1.26.11.tgz'
+
+Upgrading the RVM installation in /usr/local/rvm/
+Upgrade of RVM in /usr/local/rvm/ is complete.
+
+# appuser,
+#
+#   Thank you for using RVM!
+#   We sincerely hope that RVM helps to make your life easier and more enjoyable!!!
+#
+# ~Wayne, Michal & team.
+
+In case of problems: http://rvm.io/help and https://twitter.com/rvm_io
+
+Upgrade Notes:
+
+  * No new notes to display.
+
+RVM reloaded!</code></pre><ul><li>使用rvm安裝ruby 2.2.3</li></ul><pre><code class="nohighlight">$ rvmsudo rvm install 2.2.3
+Searching for binary rubies, this might take some time.
+No binary rubies available for: amazon/2015.09/x86_64/ruby-2.2.3.
+Continuing with compilation. Please read 'rvm help mount' to get more information on binary rubies.
+Checking requirements for amazon.
+Installing requirements for amazon.
+Installing required packages: patch, libyaml-devel, glibc-headers, autoconf, gcc-c++, glibc-devel, patch, readline-devel, zlib-devel, libffi-devel, openssl-devel, automake, libtool, bison, sqlite-devel........................
+Requirements installation successful.
+Installing Ruby from source to: /usr/local/rvm/rubies/ruby-2.2.3, this may take a while depending on your cpu(s)...
+ruby-2.2.3 - #downloading ruby-2.2.3, this may take a while depending on your connection...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 12.7M  100 12.7M    0     0  8096k      0  0:00:01  0:00:01 --:--:-- 8092k
+No checksum for downloaded archive, recording checksum in user configuration.
+ruby-2.2.3 - #extracting ruby-2.2.3 to /usr/local/rvm/src/ruby-2.2.3....
+ruby-2.2.3 - #configuring.........................................................
+ruby-2.2.3 - #post-configuration..
+ruby-2.2.3 - #compiling...............................................................................
+ruby-2.2.3 - #installing.............................
+ruby-2.2.3 - #making binaries executable..
+ruby-2.2.3 - #downloading rubygems-2.4.8
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  437k  100  437k    0     0   706k      0 --:--:-- --:--:-- --:--:--  707k
+No checksum for downloaded archive, recording checksum in user configuration.
+ruby-2.2.3 - #extracting rubygems-2.4.8....
+ruby-2.2.3 - #removing old rubygems.........
+ruby-2.2.3 - #installing rubygems-2.4.8......................
+ruby-2.2.3 - #gemset created /usr/local/rvm/gems/ruby-2.2.3@global
+ruby-2.2.3 - #importing gemset /usr/local/rvm/gemsets/global.gems...............................................
+ruby-2.2.3 - #generating global wrappers........
+ruby-2.2.3 - #gemset created /usr/local/rvm/gems/ruby-2.2.3
+ruby-2.2.3 - #importing gemsetfile /usr/local/rvm/gemsets/default.gems evaluated to empty gem list
+ruby-2.2.3 - #generating default wrappers........
+ruby-2.2.3 - #adjusting #shebangs for (gem irb erb ri rdoc testrb rake).
+Install of ruby-2.2.3 - #complete
+Ruby was built without documentation, to build it run: rvm docs generate-ri</code></pre><ul><li>查看ruby版本</li></ul><pre><code class="nohighlight">$ rvm ls
+
+rvm rubies
+
+   ruby-2.2.3 [ x86_64 ]
+
+# Default ruby not set. Try 'rvm alias create default &lt;ruby&gt;'.
+# => - current
+# =* - current && default
+#  * - default</code></pre><ul><li>設定預設ruby的版本至2.2.3</li></ul><pre><code class="nohighlight">$ rvm use 2.2.3 --default
+Using /usr/local/rvm/gems/ruby-2.2.3</code></pre><ul><li>安裝bundler</li></ul><pre><code class="nohighlight">$ gem install bundler --no-ri --no-rdoc
+Fetching: bundler-1.10.6.gem (100%)
+Successfully installed bundler-1.10.6
+1 gem installed</code></pre><h1>設定放置網頁的目錄與安裝nginx</h1><ul><li>使用appuser登入到server</li><li>建立放置網頁的目錄(/opt/www/test-app)，並設定目錄只有deployuser的帳號或群組可以讀寫這個目錄的權限。</li></ul><pre><code class="nohighlight">$ sudo mkdir -p /opt/www/test-app
+$ sudo chown -R deployuser /opt/www/test-app
+$ sudo chgrp -R deployuser /opt/www/test-app
+$ sudo chmod -R 775 /opt/www/test-app</code></pre><ul><li>安裝nginx</li></ul><pre><code class="nohighlight">sudo yum install nginx</code></pre><ul><li>設定nginx</li></ul><pre><code class="nohighlight">$ sudo mkdir /etc/nginx/sites-available
+$ sudo mkdir /etc/nginx/sites-enabled</code></pre><p>上面的動作會在/etc/nginx建兩個目錄，這麼做的目的是我們想將不同的網站設定檔分開，將網站相關的設定檔放在sites-available之下，如果要上線，就建一個link到sites-enabled。</p><ul><li>編輯/etc/nginx/nginx.conf，在http的block中include /etc/nginx/sites-enabled這個目錄。</li></ul><p><i>/etc/nginx/nginx.conf</i></p><pre><code class="nohighlight">http {
+  # ...
+  include /etc/nginx/sites-enabled/*;
+  # ...
+}</code></pre><ul><li>在/etc/nginx/sites-available中建立一個test_app的設定檔</li></ul><p><i>/etc/nginx/sites-available/test_app</i></p><pre><code class="nohighlight">upstream unicorn_test_app {
+server unix:/tmp/unicorn.test_app.sock fail_timeout=0;
+}
+
+server {
+listen 80 default deferred;
+server_name test-app.com;
+root /opt/www/test-app/current/public;
+
+location ~ ^/assets/ {
+gzip_static on;
+expires max;
+add_header Cache-Control public;
+}
+
+try_files $uri/index.html $uri @unicorn;
+location @unicorn {
+proxy_set_header Host $http_host;  
+proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+proxy_redirect off;
+proxy_pass http://unicorn_test_app;
+}
+
+error_page 500 502 503 504 /500.html;
+client_max_body_size 4G;
+keepalive_timeout 10;
+}</code></pre><ul><li>建立link到site-enabled來啟動test_app</li></ul><pre><code class="nohighlight">$ sudo ln -s /etc/nginx/sites-available/test_app /etc/nginx/sites-enabled/test_app</code></pre><ul><li>重啟nginx</li></ul><pre><code class="nohighlight">$ sudo service nginx start</code></pre><h2>安裝nodejs與npm</h2><p>真見鬼了，yum的nodejs版本也太舊了吧(0.10.36，現在5.0.0都要出了耶)，只好硬的頭皮自己裝了。還好有這篇可以參考：<a href="http://iconof.com/blog/how-to-install-setup-node-js-on-amazon-aws-ec2-complete-guide/#installNode" target="_blank">How to install & setup Node.js on Amazon EC2 – complete guide</a></p><ul><li>使用appuser登入server。</li><li>安裝需要用到的package。</li></ul><pre><code class="nohighlight">$ sudo yum install gcc-c++ make openssl-devel</code></pre><ul><li>下載nodejs的原始檔、編譯並安裝它。</li></ul><pre><code class="nohighlight">mkdir temp
+cd temp
+wget https://nodejs.org/dist/v4.2.2/node-v4.2.2.tar.gz
+tar -xf node-v4.2.2.tar.gz
+cd node-v4.2.2
+./configure
+make
+sudo make install</code></pre><ul><li>安裝完之後登出再登入，就有node與npm可以用了。</li></ul><pre><code class="nohighlight">$ node -v
+v4.2.2
+$ npm -v
+2.14.7</code></pre><h2>安裝其它會用到的package</h2><p>這裡就跟據你的需求安裝需要的package，如果少安裝了，在deploy做bundle install的時候就會出錯，到時候再回來安裝也可以。這邊只記錄我自已有用到的package</p><ul><li>ImageMagick - 用來處理圖片檔案</li></ul><h2>在/opt/www/test-app中加入deploy會用到的檔案</h2><p>secrets.yml與database.yml是rails中最重要的兩個設定檔，理論上這兩個檔案都不應該commit到repo中。在做production deploy的時候會從/opt/www/test-app/shared/config的目錄中複製(精確來說是建立link)到實際運作的app目錄中，所以在deploy之前，我們要先在server上對應的目錄下手動建立這兩個檔案。</p><ul><li>使用deployuser登入server。</li><li>建立/opt/www/test-app/shared/config目錄，並將production的secrets.yml與database.yml加進去。這裡的database.yml應該會長的像下面這個樣子</li></ul><pre><code class="nohighlight">production:
+  adapter: mysql2
+  encoding: utf8
+  pool: 5
+  host: test-app.jfkwohjdwioj8.us-west-2.rds.amazonaws.com
+  port: 5678
+  database: test_app_db
+  username: test_app_user
+  password: test_app_pw</code></pre><h1>在rails app中設定deploy</h1><h2>安裝deploy用的gem</h2><p>因為我們是用nginx + unicorn，所以unicorn是一定要裝的。另外我們是用capistrano來做deploy，所以一些相關的gem也要加進來，不過會放在development的group中。</p><pre><code class="nohighlight"># ...
+gem 'unicorn'
+# ...
+group :development do
+  # ...
+  gem 'capistrano-rails'
+  gem 'capistrano-rvm'
+  gem 'capistrano-npm'
+  gem 'capistrano3-unicorn'
+  # ...
+end</code></pre><h2>設定capistrano</h2><p>capistrano是專門做deploy的工具，基本上它的設定檔決定了整個deploy的流程。下面是一個範例：</p><p><i>config/deploy.rb</i></p><pre><code class="nohighlight"># config valid only for current version of Capistrano
+lock '3.4.0'
+
+set :application, 'app'
+set :repo_url, '[your repo]'
+set :user, 'deployuser'
+set :rails_env, 'production'
+set :assets_roles, [:app]
+set :npm_roles, [:app]
+set :unicorn_roles, [:app]
+
+set :ssh_options, { forward_agent: true, port: 1234 }
+set :deploy_to, '/opt/www/test-app'
+
+set :linked_files, fetch(:linked_files, []).push('config/database.yml', 'config/secrets.yml')
+set :linked_dirs, fetch(:linked_dirs, []).push('log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'vendor/bundle', 'public/system')
+
+set :npm_flags, '--silent --no-spin'
+
+namespace :deploy do
+  after :restart, :clear_cache do
+    on roles(:app), in: :groups, limit: 3, wait: 10 do
+      # Here we can do anything such as:
+      # within release_path do
+      #   execute :rake, 'cache:clear'
+      # end
+    end
+  end
+  task :restart_unicorn do
+    invoke 'unicorn:reload'
+  end
+  after :publishing, :restart_unicorn
+end</code></pre><p><i>config/deploy/production.rb</i></p><pre><code class="nohighlight">role :app, %w{53.11.132.42}
+role :web,  %w{53.11.132.42}
+role :db,  %w{53.11.132.42}</code></pre><h2>設定unicorn</h2><p>unicorn是連接web server與rails app的rack http server。有了capistrano3-unicorn，我們可以在config/unicorn/[environment].rb中加上unicorn的設定。</p><p><i>config/unicorn/production.rb</i></p><pre><code class="nohighlight">root = "/opt/www/test-app/current"
+working_directory rootpid &quot;#{root}/tmp/pids/unicorn.pid&quot;
+stderr_path &quot;#{root}/log/unicorn.log&quot;
+stdout_path &quot;#{root}/log/unicorn.log&quot;
+listen &quot;/tmp/unicorn.test_app.sock&quot;
+worker_processes 1
+timeout 30</code></pre><h2>開始deploy</h2><ul><li>cap production deploy</li><li>Good Luck</li></ul></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

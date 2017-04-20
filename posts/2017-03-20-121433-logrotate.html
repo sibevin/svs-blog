@@ -1,0 +1,30 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>Logrotate - 處理log rotation的好用工具 | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2017-03-20-121433-logrotate";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title Logrotate - 處理log rotation的好用工具</div><div class="meta-data">datetime 2017-03-20 12:14:33</div><div class="meta-data">tags linux,ops</div><div class="meta-data">category tools</div><div class="meta-data">link logrotate</div><div class="meta-data">file 2017-03-20-121433-logrotate</div><div class="meta-data">template post</div><div class="meta-data">end</div><p>最近在處理公司production的log rotation，找了一下資料，發現linux本身就有一個很好用的工具 logrotate ，這裡就來做一個簡單的介紹。</p><h2>What</h2><p>logrotate 是linux提供的一個工具專門用來做log rotation，它會由cron job定期去執行對應的設定檔來做rotation。預設的設定檔是放在/etc/logrotate.conf，如果是自訂義的設定檔則會放在/etc/logrotate.d/下。</p><h2>How</h2><p>下面是一個設定檔的範例：</p><i>/etc/logrotate.d/rails</i><pre><code class="nginx">/var/www/ukik/shared/log/*.log {
+  weekly
+  size=100M
+  rotate 10
+  create 0664 appuser appuser
+}</code></pre><p>參數說明：</p><ul><li>第一行指定了哪些檔案要做rotation，路徑後面接大括號放相關的設定。</li><li><code>weekly</code>指每週定期做rotation。</li><li><code>size=100M</code>每100M做一次rotation，如果 weekly 與 size 這兩個設定都有加，表示如果檔案不到100M便不會生成rotation。</li><li><code>rotate 10</code>要保留幾次rotation。</li><li><code>create 0664 appuser appuser</code>rotation log建立時的檔案權限與所屬的使用者/群組。</li></ul><p>除了上面提到的設定，其實 logrotate 還有非常多的功能可以做調整，細節與使用方式可以參考 man logrotate 。</p><h2>Refs</h2><ul><li><a href="https://linux.die.net/man/8/logrotate" target="_blank">logrotate(8) - Linux man page</a></li><li><a href="http://linux.vbird.org/linux_basic/0570syslog.php#rotate" target="_blank">鳥哥的 Linux 私房菜 - 18.3 登錄檔的輪替(logrotate)</a></li></ul></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

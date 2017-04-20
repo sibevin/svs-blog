@@ -1,0 +1,70 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>在rails中使用grape來建立API | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2015-10-01-165320-create-api-with-grape-in-rails";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title 在rails中使用grape來建立API</div><div class="meta-data">datetime 2015-10-01 16:53:20</div><div class="meta-data">tags rails,grape</div><div class="meta-data">category coding</div><div class="meta-data">link create-api-with-grape-in-rails</div><div class="meta-data">file 2015-10-01-165320-create-api-with-grape-in-rails</div><div class="meta-data">template post</div><div class="meta-data">end</div><div class="image-center image-plane"><img alt="Rails x Grape" src="/images/post/20151003100759887-rails-x-grape.png" /></div><h1>什麼是grape？</h1><p><a href="https://github.com/ruby-grape/grape" target="_blank">grape</a>是一個用來建立API的framework，它有下面的優點：</p><ul><li>採用自己獨特的DSL來簡化建立API的流程。</li><li>雖然我們也可以使用controller來建立API，但controller在啟動時會載入許多module，而其中有很多module在實作API上其實是用不到的。相較於rails的controller，使用輕量化的grape所建立的API在使用上會更有效率。</li><li>內建的API版本機制與模組化的設計讓我們更容易管理維護API。</li><li>支援swagger文件自動生成。</li></ul><h1>Grape on Rails</h1><p>grape的一個好處是可以在rails中使用。設定的步驟如下：</p><ul><li>在Gemfile中加入<code>grape</code>的gem。</li></ul><p><i>Gemfile</i></p><pre><code>gem 'grape'</code></pre><ul><li>在config/application.rb中設定儲放Api相關檔案的目錄，目前我們設定在<code>app/api</code>之下。</li></ul><p><i>config/application.rb</i></p><pre><code>module MyApp
+  class Application < Rails::Application
+    # ...
+    # Support grape API
+    config.paths.add File.join('app', 'api'), glob: File.join('**', '*.rb')
+    config.autoload_paths += Dir[Rails.root.join('app')]
+    # ...
+  end
+end</code></pre><ul><li>建立一個測試用的API。</li></ul><p><i>app/api/test.rb</i></p><pre><code>module Api
+  class Test < Grape::API
+    get :ping do
+      { data: "pong" }
+    end
+  end
+end</code></pre><ul><li>在routes中掛載api的路徑。</li></ul><p><i>config/routes.rb</i></p><pre><code>Rails.application.routes.draw do
+  # ...
+  mount Api::Test => '/'
+  # ...
+end</code></pre><ul><li>重新啟動rails server，在網址列輸入<code>localhost:3000/ping</code>就可以呼叫API了。</li></ul><h1>使用swagger自動生成API文件</h1><p>使用grape的另一個好處是它可以自動生成swagger的API文件，所以只要API寫好了，API文件就寫好了。除此之外，還可以整合swagger-ui直接將API文件掛載在rails的routes下，超級方便的啊。下面是設定的步驟：</p><ul><li>在Gemfile中加入<code>grape-swagger</code>與<code>grape-swagger-rails</code>，基本上我們會將這兩個gem放在development的group下，因為production用不到。</li></ul><p><i>Gemfile</i></p><pre><code>group :development do
+  gem 'grape-swagger'
+  gem 'grape-swagger-rails'
+end</code></pre><ul><li>API最上層的class加入<code>add_swagger_documentation</code>，讓grape可以自動生成swagger doc。</li></ul><p><i>app/api/test.rb</i></p><pre><code>module Api
+  class Test < Grape::API
+    get :ping do
+      { data: "pong" }
+    end
+
+    if Rails.env.development?
+      add_swagger_documentation(
+        mount_path: 'api/swagger_doc',
+        hide_format: true,
+        hide_documentation_path: true
+      )
+    end
+  end
+end</code></pre><p>更多有關grape-swagger的設定選項可以參考<a href="https://github.com/ruby-grape/grape-swagger" target="_blank">grape-swagger的文件</a>。</p><ul><li>在initializer中加入一個新檔案用來初使化grape-swagger-rails。 </li></ul><p><i>config/initializers/grape_swagger_rails.rb</i></p><pre><code>if Rails.env.development?
+  GrapeSwaggerRails.options.url = "api/swagger_doc"
+  GrapeSwaggerRails.options.app_name = 'My App'
+  GrapeSwaggerRails.options.app_url = '/'
+end</code></pre><ul><li>在routes中掛載api文件的路徑。</li></ul><p><i>config/routes.rb</i></p><pre><code>Rails.application.routes.draw do
+  # ...
+  if Rails.env.development?
+    mount GrapeSwaggerRails::Engine => '/apidoc'
+  end
+  # ...
+end</code></pre><ul><li>重新啟動rails server，在網址列輸入<code>localhost:3000/apidoc</code>就可以看到由swagger-ui生成的API文件了。</li></ul><div class="image-center"><img alt="Swagger UI" src="/images/post/20151002084548772-swagger-ui.png" /><div class="image-text">Swagger UI</div></div><h1>小結</h1><p>在這裡我們介紹了怎麼在rails中使用grape，有空再跟大家分享怎麼使用grape來建立API(這才是重點啊)。</p><h1>Refs</h1><ul><li><a href="http://www.ruby-grape.org/" target="_blank">http://www.ruby-grape.org/</a>- Grape官方網站，有很多範例、相關的文件與資源。</li><li><a href="https://github.com/ruby-grape/grape-on-rails" target="_blank">https://github.com/ruby-grape/grape-on-rails</a>- Grape官方的rails範例。</li></ul></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

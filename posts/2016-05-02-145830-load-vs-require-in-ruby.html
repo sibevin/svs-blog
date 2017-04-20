@@ -1,0 +1,48 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>ruby的load與require是差在什麼地方？ | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2016-05-02-145830-load-vs-require-in-ruby";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title ruby的load與require是差在什麼地方？</div><div class="meta-data">datetime 2016-05-02 14:58:30</div><div class="meta-data">tags ruby</div><div class="meta-data">category coding</div><div class="meta-data">link load-vs-require-in-ruby</div><div class="meta-data">file 2016-05-02-145830-load-vs-require-in-ruby</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>Load</h1><p>首先我們先建立三個檔案a.rb, b.rb, c.rb如下：</p><i>a.rb</i><pre><code class="ruby">A = "A constant in a.rb"
+p &quot;Print A = '#{A}' in a.rb&quot;</code></pre><i>b.rb</i><pre><code class="ruby">A = "A constant in b.rb"
+p &quot;Print A = '#{A}' in b.rb&quot;</code></pre><p>如果在c.rb裡同時load a.rb與b.rb兩個檔案：</p><i>c.rb</i><pre><code class="ruby"><span class="mk-blue">load("a.rb")</span>
+<span class="mk-red">load("b.rb")</span>
+p &quot;Print A = '#{A}' in c.rb&quot;
+<span class="mk-green">load("b.rb")</span></code></pre><p>則會出現下面的結果：</p><pre><code class="nohighlight"><span class="mk-blue">"Print A = 'A constant in file a.rb' in a.rb"</span>
+<span class="mk-red">b.rb:1: warning: already initialized constant A</span>
+<span class="mk-red">a.rb:1: warning: previous definition of A was here</span>
+<span class="mk-red">"Print A = 'A constant in file b.rb' in b.rb"</span>
+"Print A = '<span class="mk-red">A constant in file b.rb</span>' in c.rb"
+<span class="mk-green">b.rb:1: warning: already initialized constant A</span>
+<span class="mk-green">b.rb:1: warning: previous definition of A was here</span>
+<span class="mk-green">"Print A = 'A constant in file b.rb' in b.rb"</span></code></pre><p>由此可知，使用load有下面特性：</p><ul><li>被load的檔案會被執行(print有被執行)。</li><li>如果load的兩個檔案裡有相同的constant，則會出現警告，而且會以最後載入的constant為主。</li><li>如果重複load相同的檔案，則檔案會被重複執行。</li></ul><p>如果不想將b.rb裡的constant載入到c.rb中，則可以在load後面加上true：</p><i>c.rb</i><pre><code class="ruby"><span class="mk-blue">load("a.rb")</span>
+<span class="mk-red">load("b.rb", true)</span>
+p &quot;Print A = '#{A}' in c.rb&quot;</code></pre><pre><code class="nohighlight"><span class="mk-blue">"Print A = 'A constant in file a.rb' in a.rb"</span>
+<span class="mk-red">"Print A = 'A constant in file b.rb' in b.rb"</span>
+"Print A = '<span class="mk-blue">A constant in file a.rb</span>' in c.rb"</code></pre><p>上面執行的結果就只會讀到a.rb的A，但b.rb的程式碼仍會執行。</p><h1>Require</h1><p>如果將c.rb改成require如下：</p><pre><code class="ruby"><span class="mk-blue">require("./a")</span>
+<span class="mk-red">require("./b")</span>
+p &quot;Print A = '#{A}' in c.rb&quot;
+<span class="mk-green">require("./b")</span></code></pre><p>則結果會變成：</p><pre><code class="nohighlight"><span class="mk-blue">"Print A = 'A constant in file a.rb' in a.rb"</span>
+<span class="mk-red">/Users/kait/temp/b.rb:1: warning: already initialized constant A</span>
+<span class="mk-red">/Users/kait/temp/a.rb:1: warning: previous definition of A was here</span>
+<span class="mk-red">"Print A = 'A constant in file b.rb' in b.rb"</span>
+"Print A = '<span class="mk-blue">A constant in file b.rb</span>' in c.rb"</code></pre><p>由此可知，require與load的差別在於</p><ul><li>require需要指定絕對路徑(更精確來說，如果不指定絕對路徑，則預設會去找$LOAD_PATH目錄裡有沒有指定的檔案，範例是將a.rb, b.rb, c.rb放在同一個目錄下，而./並不在預設的$LOAD_PATH，所以不加./會找不到)</li><li>require可以省略檔案的副檔名.rb，但load則是一定要加.rb，不然會找不到檔案。</li><li>如果require兩次相同的檔案，則檔案只會載入並執行第一次，之後的不會重複載入執行，load則每次都會載入執行。</li></ul></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

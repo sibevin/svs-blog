@@ -1,0 +1,25 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>讓Atom支援自動排版 | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2016-05-27-103132-support-auto-format-in-atom";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title 讓Atom支援自動排版</div><div class="meta-data">datetime 2016-05-27 10:31:32</div><div class="meta-data">tags atom,ruby</div><div class="meta-data">category tools</div><div class="meta-data">link support-auto-format-in-atom</div><div class="meta-data">file 2016-05-27-103132-support-auto-format-in-atom</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>前言</h1><p>我一直自認為在寫程式的時候都會注意一下格式這種東西，不過當跑過rubocop出現了4千多個的警告的時候，就瞬間被打臉了(且而還打了4千多下)。昨天參加新手村聚會的時候，被人問到Atom有沒有自動排版的功能，於是我就花點時間試了一下，結果還蠻不錯的，就留給大家做參考嘍。</p><h1>安裝atom-beautify</h1><p>首先安裝 <a href="https://atom.io/packages/atom-beautify" target="_blank">atom-beautify</a>這個package，安裝完可以打開這個package的設定：</p><div class="image-center"><a href="/images/post/20160527105628715-atom-beautify-ruby-options.png"><img alt="Atom Beautify - Ruby" src="/images/post/20160527105628715-atom-beautify-ruby-options.png" /></a></div><p>Default Beautifier是Rubocop，如果想要在存檔的時候自動作beautify，就把Beautify On Save打鉤。Indent size記得設成2。</p><h1>使用</h1><p>如果有鉤Beautify On Save，那存檔時就會自動做，你也可以下快捷鍵ctrl+alt+b直接跑。</p><h1>設定</h1><p>如果Beautifier是Rubocop，那可以在專案下建立一個.rubocop.yml的檔案，針對格式的部分做更詳細的調整，調整的方式可以參考 <a href="https://github.com/bbatsov/rubocop/blob/master/config/default.yml" target="_blank">Rubocop的文件</a>。</p></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

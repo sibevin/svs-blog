@@ -1,0 +1,88 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>Ruby的case語法 | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2016-06-15-083828-ruby-case-switch";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title Ruby的case語法</div><div class="meta-data">datetime 2016-06-15 08:38:28</div><div class="meta-data">tags ruby</div><div class="meta-data">category coding</div><div class="meta-data">link ruby-case-switch</div><div class="meta-data">file 2016-06-15-083828-ruby-case-switch</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>寫法</h1><p>根據 <a href="https://github.com/bbatsov/ruby-style-guide" target="_blank">Ruby Style Guide</a>，建議的寫法是 <code>case</code>與 <code>when</code>是在同一層：</p><pre><code class="ruby">case
+when song.name == 'Misty'
+  puts 'Not again!'
+when song.duration > 120
+  puts 'Too long!'
+when Time.now.hour > 21
+  puts "It's too late"
+else
+  song.play
+end</code></pre><p>如果case前面有接變數，則對齊等號或是縮排一層：</p><pre><code class="ruby">kind = case year
+       when 1850..1889 then 'Blues'
+       when 1890..1909 then 'Ragtime'
+       when 1910..1929 then 'New Orleans Jazz'
+       when 1930..1939 then 'Swing'
+       when 1940..1950 then 'Bebop'
+       else 'Jazz'
+       end
+
+kind = case year
+  when 1850..1889 then 'Blues'
+  when 1890..1909 then 'Ragtime'
+  when 1910..1929 then 'New Orleans Jazz'
+  when 1930..1939 then 'Swing'
+  when 1940..1950 then 'Bebop'
+  else 'Jazz'
+  end</code></pre><p>由上面的例子也可以看出來<code>then</code>只有在一行的時候使用，如果是判斷條件完要執行多行的程式，則不寫 <code>then</code>。</p><h1>判斷式</h1><p>除了一般的boolean判斷，when後面可以接的東西比你像想的還多…</p><pre><code class="ruby">case
+when a == 5
+  # 一般的boolean運算式。
+when 'a', 'b'
+  # 可接多的值。
+when *['a', 'b']
+  # 接多個值可以用這個方式寫成一個Array。
+when 1..10
+  # 可接一個Range
+when /^[a-z]{3}/
+  # 可接Regex。
+when MyClass, MySubClass
+  # 可接class，這時會判斷傳進來的物件是不是這個class的instance
+else
+  # 如果上面都沒有符合的，跑這裡。
+end</code></pre><p>實際上when是採用 <code>===</code>做為判斷的，所以你可以在你自己的class實作 <code>===</code>的運算式method，那就可以在case中使用了。例如：</p><pre><code class="ruby">class A
+  attr_accessor :name
+
+  def initialize(name)
+    @name = name
+  end
+
+  def ===(given_a)
+    name == given_a.name
+  end
+end
+
+a = A.new('Kevin')
+b = A.new('Kait')
+c = A.new('Kevin')
+
+case a
+when b
+  puts 'Has the same name with b.'
+when c
+  puts 'Has the same name with c.' # The result
+else
+  puts 'Has the same name with nobody.'
+end</code></pre><h1>Refs  </h1><ul><li><a href="http://www.skorks.com/2009/08/how-a-ruby-case-statement-works-and-what-you-can-do-with-it/" target="_blank">How A Ruby Case Statement Works And What You Can Do With It</a></li></ul></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

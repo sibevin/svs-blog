@@ -1,0 +1,184 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>Composite Pattern - 合成模式 | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2016-12-02-161444-composite-pattern";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title Composite Pattern - 合成模式</div><div class="meta-data">datetime 2016-12-02 16:14:44</div><div class="meta-data">tags dp</div><div class="meta-data">category coding</div><div class="meta-data">link composite-pattern</div><div class="meta-data">file 2016-12-02-161444-composite-pattern</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>前言</h1><p>最近讀書會在讀深入淺出設計模式，趁這個機會複習一下設計模式，試著舉出簡單的例子並且用非模式與模式的方式來實作，比較它們的差異與優缺點。</p><h1>範例問題</h1><p>我們要實作一個繪圖軟體，其中支援的圖形有點(Point)、線(Line)與圓(Circle)，而這三個圖形都實作了 Drawable 這個 module，也就是每個圖形都會支援移動(move)與繪圖(draw)的功能。</p><pre><code class="ruby">module Drawable
+  def draw
+    fail 'You should implement "draw" method.'
+  end
+
+  def move(delta_x, delta_y)
+    fail 'You should implement "move" method.'
+  end
+end
+
+class Point
+  include Drawable
+
+  def initialize(x, y)
+    @x = x
+    @y = y
+  end
+
+  def draw
+    &quot;A point on (#{@x}, #{@y}).&quot;
+  end
+
+  def move(delta_x, delta_y)
+    @x = @x + delta_x
+    @y = @y + delta_y
+  end
+end
+
+class Line
+  include Drawable
+
+  def initialize(x1, y1, x2, y2)
+    @x1 = x1
+    @y1 = y1
+    @x2 = x2
+    @y2 = y2
+  end
+
+  def draw
+    &quot;A line from (#{@x1}, #{@y1}) to (#{@x2}, #{@y2}).&quot;
+  end
+
+  def move(delta_x, delta_y)
+    @x1 = @x1 + delta_x
+    @y1 = @y1 + delta_y
+    @x2 = @x2 + delta_x
+    @y2 = @y2 + delta_y
+  end
+end
+
+class Circle
+  include Drawable
+
+  def initialize(x, y, r)
+    @x = x
+    @y = y
+    @r = r
+  end
+
+  def draw
+    &quot;A circle with the center at (#{@x}, #{@y}) and #{@r} redius.&quot;
+  end
+
+  def move(delta_x, delta_y)
+    @x = @x + delta_x
+    @y = @y + delta_y
+  end
+end
+
+p1 = Point.new(1, 1)
+l1 = Line.new(1, 2, 3, 4)
+c1 = Circle.new(5, 5, 3)
+
+p c1.draw # A circle with the center at (5, 5) and 3 redius.
+c1.move(5,5)
+p c1.draw # A circle with the center at (10, 10) and 3 redius.</code></pre><p>現在要實作群組(Group)的功能，一個群組可以包含多的圖形，同時也可以包含其它的群組。當群組移動/繪圖時，它所包含的圖形與群組也必須跟著移動/繪圖。</p><h1>沒有使用模式的實作</h1><pre><code class="ruby">class Group
+  def initialize(shapes)
+    @shapes = shapes
+  end
+
+  def draw_all
+    draws = []
+    @shapes.each do |shape|
+      if shape.is_a?(Drawable)
+        draws << shape.draw
+      end
+      if shape.is_a?(Group)
+        draws << shape.draw_all
+      end
+    end
+    draws.join(' ')
+  end
+
+  def move_all(delta_x, delta_y)
+    @shapes.each do |shape|
+      if shape.is_a?(Drawable)
+        shape.move(delta_x, delta_y)
+      end
+      if shape.is_a?(Group)
+        shape.move_all(delta_x, delta_y)
+      end
+    end
+  end
+end
+
+p1 = Point.new(1,1)
+l1 = Line.new(1,2,3,4)
+c1 = Circle.new(5,5,3)
+
+g1 = Group.new([p1, l1, c1])
+
+p g1.draw_all # A point on (1, 1). A line from (1, 2) to (3, 4). A circle with the center at (5, 5) and 3 redius.
+
+g1.move_all(5,5)
+
+p g1.draw_all # A point on (6, 6). A line from (6, 7) to (8, 9). A circle with the center at (10, 10) and 3 redius.
+
+p2 = Point.new(100,100)
+g2 = Group.new([p2, g1])
+
+p g2.draw_all # A point on (100, 100). A point on (6, 6). A line from (6, 7) to (8, 9). A circle with the center at (10, 10) and 3 redius.
+
+g2.move_all(10,20)
+
+p g2.draw_all # A point on (110, 120). A point on (16, 26). A line from (16, 27) to (18, 29). A circle with the center at (20, 30) and 3 redius.</code></pre><h2>上面實作的缺點</h2><ul><li>在處理移動與繪圖的動作都要區分是一般的Drawable還是Group。只要Drawable被修改了，例如多了一個刪除(delete)的功能，則必須記得Group也要加上相同的修改。</li></ul><h1>使用模式的實作</h1><p>其實從上面的例子很明顯可以看的出來，刻意區分一般的Drawable與Group並不是一個好的做法，相反的因為Group也有move與draw的method，所以可以把Group視做一個Drawable，這時候處理Group就像處理一般的Drawable一樣，行為可以一致。另外Group的move與draw method的實作，則是直接呼叫它所包含的Drawable對應的move與draw，也就是委派(delegate)method給它底下的Drawable。</p><pre><code class="ruby">class Group
+  include Drawable
+
+  def initialize(shapes)
+    @shapes = shapes
+  end
+
+  def draw
+    @shapes.map(&:draw).join(' ')
+  end
+
+  def move(delta_x, delta_y)
+    @shapes.each { |shape| shape.move(delta_x, delta_y) }
+  end
+end
+
+p1 = Point.new(1,1)
+l1 = Line.new(1,2,3,4)
+c1 = Circle.new(5,5,3)
+
+g1 = Group.new([p1, l1, c1])
+
+p g1.draw # A point on (1, 1). A line from (1, 2) to (3, 4). A circle with the center at (5, 5) and 3 redius.
+
+g1.move(5,5)
+
+p g1.draw # A point on (6, 6). A line from (6, 7) to (8, 9). A circle with the center at (10, 10) and 3 redius.
+
+p2 = Point.new(100,100)
+g2 = Group.new([p2, g1])
+
+p g2.draw # A point on (100, 100). A point on (6, 6). A line from (6, 7) to (8, 9). A circle with the center at (10, 10) and 3 redius.
+
+g2.move(10,20)
+
+p g2.draw # A point on (110, 120). A point on (16, 26). A line from (16, 27) to (18, 29). A circle with the center at (20, 30) and 3 redius.</code></pre><h2>上面實作的優點</h2><ul><li>將Group視做一種Drawable，則在操作Group與一般的Drawable可以用一樣的方式處理。</li></ul><h2>上面實作的缺點</h2><ul><li>因為Group實作了Drawable，這表示Group的行為必須要與Drawable一樣，如果有差異就無法使用這個模式。</li></ul><h1>樣式名稱</h1><p>Composite Pattern - 合成模式</p><h1>目的</h1><p>當處理由個體 Leaf(Point, Line, Circle) 組成的群組 Composite(Group)時，將其視做一種個體並實作與個體一致的界面 Component(Drawable)，這樣就可以使用相同的方式 operation(move, draw)來處理個體與群組。</p><h1>使用時機</h1><ul><li>當我們要同時處理個體與個體所組成的群組，而群組中除了包含多個個體之外，也可以包含其它的群組而有多層槽狀結構。</li><li>群組與個體有相同的行為。</li></ul></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

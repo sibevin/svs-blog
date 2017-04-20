@@ -1,0 +1,59 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>不關聯到資料庫的model | 魔法師的手杖</title><meta content="不關聯到資料庫的model" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2014-11-24-123948-rails-non-active-record-model";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title 不關聯到資料庫的model</div><div class="meta-data">description 不關聯到資料庫的model</div><div class="meta-data">datetime 2014-11-24 12:39:48</div><div class="meta-data">tags rails_model</div><div class="meta-data">category coding</div><div class="meta-data">link rails-non-active-record-model</div><div class="meta-data">file 2014-11-24-123948-rails-non-active-record-model</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>問題</h1><p>最近處理一些使用simple form的頁面遇到了一個問題。有一個頁面有兩個email input的欄位，要使用者輸入兩次email，rails這邊要做email格式與email確認的檢查。我們知道如果要讓simple form支援錯誤顯示，則simple_form必須要跟一個model做關連，但以這個例子而言，這個model只有兩個attribute - email與email_confirmation，很明顯不會跟database有關係，但又要支援model的validation，所以要想辦法做一個不關聯到資料庫的model。</p><h1>解法</h1><p>下面是一個範例：</p><pre><code class="ruby">class ExtraauthMail
+  include ActiveModel::Validations
+  include ActiveModel::Conversion
+  extend ActiveModel::Naming
+  extend ActiveModel::Translation
+
+  attr_accessor :email, :email_confirmation
+  attr_reader   :errors
+
+  validates :email, presence: true,
+                    confirmation: true,
+                    format: { with: /\A[-a-z0-9_+\.]+\@([-a-z0-9]+\.)+[a-z0-9]{2,4}\z/i }
+  validates :email_confirmation, presence: true
+  validate :check_duplicated_email
+
+  def initialize(params = {})
+    @email = params[:email]
+    @email_confirmation = params[:email_confirmation]
+    @errors = ActiveModel::Errors.new(self)
+  end
+
+  def check_duplicated_email
+    if @email.present? && User.where(email: @email).take
+      @errors.add(:email, I18n.t("activemodel.errors.models.extraauth_mail.duplicated"))
+    end
+  end
+end</code></pre><p>在網路上有許多類似的topic，例如在code school中的rails4 pattern也有提到怎麼做這種model。不過在實際上還是會遇到很多坑，在這裡記錄一下：</p><ul><li>如果要支援validation，除了要加上<code>include ActiveModel::Validations</code>之外，記得還要加<code>attr_reader :errors</code>，並且在initialize中初始化它。</li><li>理論上支援confiramtion的validation，應該不用自已加<code>attr_accessor :email_confirmation</code>，但實際測試還是要加，不然confirmation會失效。</li><li>預設的translation路徑需要改變，從activerecord變成activemodel。</li></ul><pre><code class="yaml">zh-TW:
+  activemodel:
+    errors:
+      models:
+        extraauth_mail:
+          blank: "請輸入您的email。"
+          confirmation: "您的email不一致。"
+          invalid: "您的email格式不正確。"
+          duplicated: "您輸入的email已經註冊過了。"</code></pre></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

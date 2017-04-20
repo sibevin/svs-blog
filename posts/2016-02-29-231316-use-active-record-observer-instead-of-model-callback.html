@@ -1,0 +1,42 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>用ActiveRecord::Observer取代model的callback | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2016-02-29-231316-use-active-record-observer-instead-of-model-callback";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title 用ActiveRecord::Observer取代model的callback</div><div class="meta-data">datetime 2016-02-29 23:13:16</div><div class="meta-data">tags rails,rails_model,test</div><div class="meta-data">category coding</div><div class="meta-data">link use-active-record-observer-instead-of-model-callback</div><div class="meta-data">file 2016-02-29-231316-use-active-record-observer-instead-of-model-callback</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>model的callback有什麼不好嗎？</h1><p>使用model callback最大的缺點就是在測試model時，callback沒辦法關掉。每次做model的save或是destroy時，callback都會被trigger。為了避免callback內的程式被執行，勢必要用stub的方式去處理callback內的程式，這顯然是個糟糕的做法。另一個缺點就是callback有種違反單一責任設計的味道。</p><h1>ActiveRecord::Observer</h1><p>ActiveRecord::Observer是將model callback從model切出來放到叫做observer的class中。使用的方式與callback極度類似，官方文件( <a href="https://github.com/rails/rails-observers" target="_blank">https://github.com/rails/rails-observers</a>)有詳細的說明，這裡就不再重述。使用上要注意幾點：</p><ul><li>如果是rails3，oberver是內建在rails裡，但rails4之後被切出來放在rails-observers的gem中，所以在使用時記得要加到Gemfile中。</li><li>記得要在config/application.rb中加入observer的設定，不然它不會動作。</li></ul><h1>在測試中使用observer</h1><p>ActiveRecord::Observer與callback極度類似，那它的好處在哪裡呢？其實最大的好處就是可以在測試中關掉它。作法是這樣的，在spec/rails_helper.rb中加入下面的設定，將observer先全部關掉。</p><pre><code class="ruby">RSpec.configure do |config|
+# ...
+  config.before(:example) do
+    # Disable all active record observers by default
+    ActiveRecord::Base.observers.disable :all
+  end
+# ...
+end</code></pre><p>等需要測試observer時，再打開它。</p><pre><code class="ruby">require 'rails_helper'
+
+RSpec.describe CourseObserver, type: :model do
+  describe "after_save" do
+    it "should do something after save" do
+      ActiveRecord::Base.observers.enable :course_observer do
+        # ... the course observer is working here ...
+      end
+    end
+  end
+end</code></pre><h1>Refs</h1><ul><li><a href="http://samuelmullen.com/2013/05/the-problem-with-rails-callbacks/" target="_blank">The Problem with Rails Callbacks</a></li><li><a href="http://blog.crowdint.com/2013/04/23/fun-with-activerecord-observer.html" target="_blank">Fun with ActiveRecord::Observer</a></li></ul></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

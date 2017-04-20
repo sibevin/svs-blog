@@ -1,0 +1,25 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>在window上安裝rails會遇到的坑 | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2015-10-16-084455-some-traps-when-installing-rails-on-win";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title 在window上安裝rails會遇到的坑</div><div class="meta-data">datetime 2015-10-16 08:44:55</div><div class="meta-data">tags rails</div><div class="meta-data">category coding</div><div class="meta-data">link some-traps-when-installing-rails-on-win</div><div class="meta-data">file 2015-10-16-084455-some-traps-when-installing-rails-on-win</div><div class="meta-data">template post</div><div class="meta-data">end</div><p>最近跑去當rails體驗營的助教，用的是<a href="http://zh-tw.railsbridge.org/docs/" target="_blank">Rails Bridge</a>的教材。因為大部分來參加的人帶的筆電應該都是window的作業系統，所以在上課之前，先在我自己的surface上跑了一下rails的安裝流程。下面是遇到的坑：</p><h1>bundle install</h1><h2>問題</h2><p>在第一次跑<code>bundle install</code>時出現 <code>SSL_connect returned=1 errno=0 state=SSLv3 read server certificate B: certificate verify failed </code>的問題。</p><h2>解法</h2><ul><li>到這<a href="https://github.com/rubygems/rubygems/releases/tag/v2.2.3" target="_blank">https://github.com/rubygems/rubygems/releases/tag/v2.2.3</a>下載 rubygems-update-2.2.3.gem</li><li>安裝下載的gem：</li></ul><pre><code>gem install --local C:\rubygems-update-1.8.30.gem</code></pre><ul><li>執行 update_rubygems</li></ul><pre><code>update_rubygems --no-ri --no-rdoc</code></pre><ul><li>移除 update_rubygems gem</li></ul><pre><code>gem uninstall rubygems-update -x</code></pre><h2>參考</h2><a href="https://gist.github.com/luislavena/f064211759ee0f806c88" target="_blank">https://gist.github.com/luislavena/f064211759ee0f806c88</a><h1>heroku</h1><h2>問題</h2><p>在第一次執行heroku指令時遇到<code>Encoding::InvalidByteSequenceError</code>。 </p><h2>解法</h2><p>修改 <code>[heroku的安裝路徑]/bin/heroku.bat </code>的最後一行啟動ruby的地方，將<code>@ruby.exe "%~dpn0" %*</code>改成<code>@ruby.exe -Eutf-8 "%~dpn0" %*</code>。</p><h2>參考</h2><a href="http://stackoverflow.com/questions/33029991/heroku-comannd-always-fails" target="_blank">SO - Heroku comannd always fails</a></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

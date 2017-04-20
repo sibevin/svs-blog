@@ -1,0 +1,83 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>ruby處理unique物件 | 魔法師的手杖</title><meta content="ruby處理unique物件" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2014-12-04-105914-ruby-check-unique-use-set-instead-of-array";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title ruby處理unique物件</div><div class="meta-data">description ruby處理unique物件</div><div class="meta-data">datetime 2014-12-04 10:59:14</div><div class="meta-data">tags ruby</div><div class="meta-data">category coding</div><div class="meta-data">link ruby-check-unique-use-set-instead-of-array</div><div class="meta-data">file 2014-12-04-105914-ruby-check-unique-use-set-instead-of-array</div><div class="meta-data">template post</div><div class="meta-data">end</div><p>要建立一連串unique的字串，直覺上可以用array將建立過的字串存起來，再用<code>include?</code>來判斷新產生的字串有沒有被建立過：</p><pre><code class="ruby">n = 10000
+created_tokens = []
+while created_tokens.size < n
+  token = RandomToken.gen(10)
+  if created_tokens.include?(token)
+    next
+  else
+    created_tokens << token
+  end
+end
+results = created_tokens</code></pre><p>不過這個方法速度會非常的慢。有一個技巧是使用hash的key一定是unique的特性來判斷，程式如下：</p><pre><code class="ruby">n = 10000
+created_tokens_hash = {}
+while created_tokens_hash.size < n
+  token = RandomToken.gen(10)
+  created_tokens_hash[token] = true
+end
+results = created_tokens_hash.keys</code></pre><p>這速度很明顯的大幅提升，不過用hash看起來就像是用hack的方式感覺不是很乾淨，尤其是不會用到的value塞什麼都怪怪的。最好的做法就是用set了：</p><pre><code class="ruby">n = 10000
+created_tokens_set = Set.new
+while created_tokens_set.size < n
+  token = RandomToken.gen(10)
+  created_tokens_set << token
+end
+results = created_tokens_set.to_a</code></pre><p>效能測試如下：</p><pre><code class="ruby">require 'benchmark'
+require 'set'
+require 'random_token'
+n = 10000
+Benchmark.bm(7) do |x|
+  x.report("array:") do
+    created_tokens = []
+    while created_tokens.size < n
+      token = RandomToken.gen(10)
+      if created_tokens.include?(token)
+        next
+      else
+        created_tokens << token
+      end
+    end
+    results = created_tokens
+  end
+  x.report("hash:") do
+    created_tokens_hash = {}
+    while created_tokens_hash.size < n
+      token = RandomToken.gen(10)
+      created_tokens_hash[token] = true
+    end
+    results = created_tokens_hash.keys
+  end
+  x.report("set:") do
+    created_tokens_set = Set.new
+    while created_tokens_set.size < n
+      token = RandomToken.gen(10)
+      created_tokens_set << token
+    end
+    results = created_tokens_set.to_a
+  end
+end</code></pre><pre><code class="nohighlight">              user     system      total        real
+array:    8.860000   0.050000   8.910000 (  9.112402)
+hash:     2.030000   0.010000   2.040000 (  2.062945)
+set:      2.000000   0.000000   2.000000 (  2.037125)</code></pre></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

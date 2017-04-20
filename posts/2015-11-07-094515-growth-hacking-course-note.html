@@ -1,0 +1,25 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>GH上課筆記 | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2015-11-07-094515-growth-hacking-course-note";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title GH上課筆記</div><div class="meta-data">datetime 2015-11-07 09:45:15</div><div class="meta-data">tags gh,note</div><div class="meta-data">category life</div><div class="meta-data">link growth-hacking-course-note</div><div class="meta-data">file 2015-11-07-094515-growth-hacking-course-note</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>Landing Page</h1><ul><li>why，粉紅色的幻想</li><li>正向語氣，不要問句，不要罵使用者，不要用負面用語，強調優點</li><li>解決使用者的問題</li><li>call action</li></ul><h1>Onboarding</h1><ul><li>churn：卡住，不知道怎麼下一步，沒有找到想要的</li><li>stay：習慣(省力)、安心</li><li>消除疑慮：客服、準備FAQ</li><li>馬上得到好處(value)：安排小task建立成就感</li><li>優惠</li><li>養成使用者的習慣，不要一直推新東西</li></ul><h1>Mail Template</h1><ul><li>Signup（介紹你是誰，以及客服的聯絡管道，FAQ）</li><li>Welcome（活動、產品的簡單說明與 Best Practices ）</li><li>Engage Immediately（設計你的 re-engagement 以及 viral growth 方案，提示好處、優惠活動、加入粉絲團，養成使用者的習慣，不要推新東西）</li><li>Ask for feedbacks（提供救命稻草，解決使用者問題，如果發現使用者一直沒有購買，客訴前三名）</li><li>Ask for referral (分享5-10次)</li></ul><h1>Net Promoter Score</h1><ul><li>你會不會把這個服務推給其它人？</li><li>打分數 並 寫原因</li><li>30 50 70</li><li>10 - 9：referral、再消費 / 7 - 8：修正意見 / 6：差一點的TA / 5 - 1：refund，一定要問出問題</li></ul></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>Metaprogramming Ruby 2 - ch5 - Class Definitions | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2016-12-02-201143-mr2-ch5-class-definitions";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title Metaprogramming Ruby 2 - ch5 - Class Definitions</div><div class="meta-data">datetime 2016-12-02 20:11:43</div><div class="meta-data">tags mp,book_mr2,note,ruby</div><div class="meta-data">category coding</div><div class="meta-data">link mr2-ch5-class-definitions</div><div class="meta-data">file 2016-12-02-201143-mr2-ch5-class-definitions</div><div class="meta-data">template post</div><div class="meta-data">draft</div><div class="meta-data">end</div><h1>前言</h1><p>這是 Metaprogramming Ruby 2 的閱讀筆記，只會記錄我覺得重要的地方。如果你想要了解完整的內容或是想讓Ruby程式做一些神奇的事，強烈推薦去讀讀這本書。</p><h1>Class Definitions Demystified</h1><h2>Inside Class Definitions</h2><p>ruby宣告class的區塊其實是可以執行程式的，當程式執行到這個宣告的時候就會執行裡面的程式。</p><pre><code class="ruby">class A
+  puts 'Yoooo'
+end</code></pre><p>class宣告的區域甚至還會回傳最後一行執行的結果：</p><pre><code class="ruby">result = class A
+  self
+end
+
+p result # A</code></pre><p>上面的程式class A最後是回傳執行self的結果，有趣的是在class區塊中的self竟然是回傳A本身。</p><h2>The Current Class</h2><p>self是回傳目前程式區塊所在的instance，我們稱做<span class="mk-blue">Current Object(Instance)</span>。在一般class內的instance method中，self即是呼叫這個method的instance；而在class的宣告區塊中，self則是回傳class A本身。其實class A也是一個Class的instance，所以並沒有矛盾的地方。</p><p>另一個要區分的概念是<span class="mk-blue">Current Class</span>。在ruby中並沒有一個method可以得到Current Class，不過可以從程式碼來看出目前的Current Class到底是誰：</p><ul><li>如果是top-level，Current Class就是Object。</li><li>如果是在一個method中，則method中的self，它的class就是Current Class。</li><li>當你使用class或是module關鍵字做reopen的動作時，Current Class就是你做reopen的class或是module。</li></ul><p>Current Class在定義method時非常的重要，因為當你定義一個method的時候，其實就是對Current Class建立一個屬於它的instance method。</p><h3>class_eval</h3><p>有時候我們想在某個class中動態建立一個method，其中一個方式就是使用Open Class的技巧：</p><pre><code class="ruby">class A
+  def say
+    'Hi'
+  end
+end</code></pre><p>但Open Class有一個缺點是一定要知道Class的名稱(也就是上面的 class A 這一行)。這會大大限制Open Class的使用，因為有時候我們要動態新增method的對象可能是存在一個變數中，可能會變動的。這時候就要用到class_eval了，上面的動作可以用下面的方式重寫：</p><pre><code class="ruby">A.class_eval do
+  def say
+    'Hi'
+  end
+end</code></pre><p>我們甚至可以把動態加method的過程寫成一個method：</p><pre><code class="ruby">def add_say_hi_method(target_class)
+  target_class.class_eval do
+    def say
+      'Hi'
+    end
+  end
+end
+
+add_say_hi_method(String)
+
+'a'.say # 'Hi'</code></pre><p>使用class_eval的另一個好處是它是一個<span class="mk-blue">Flat Scope</span>，另外跟instance_eval一樣也有一個處理變數傳遞的class_exec可以使用，細節請參見第四章。</p><h2>Class Instance Variables</h2><p>我們可以在class中宣告一個instance variable，如下所示：</p><pre><code class="ruby">class A
+  @var = 1
+end</code></pre><p>但要注意的是，它就只是一個在A(要記得A是Class的一個instance)中的一個 instance variable，而它也有A可以使用。</p><h1>Quiz: Class Taboo</h1><h1>Singleton Methods</h1><h1>Singleton Classes</h1><h1>Quiz: Module Trouble</h1><h1>Method Wrappers</h1><h1>Quiz: Broken Math Wrap-Up</h1></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

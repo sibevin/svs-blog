@@ -1,0 +1,33 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>Sub Cipher - 使用取代加密法(Substitution cipher)對字串進行加解密 | 魔法師的手杖</title><meta content="Sub Cipher - 使用取代加密法(Substitution cipher)對字串進行加解密" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2014-10-18-114913-gem-sub-cipher";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title Sub Cipher - 使用取代加密法(Substitution cipher)對字串進行加解密</div><div class="meta-data">description Sub Cipher - 使用取代加密法(Substitution cipher)對字串進行加解密</div><div class="meta-data">datetime 2014-10-18 11:49:13</div><div class="meta-data">tags ruby_gem,work</div><div class="meta-data">category coding</div><div class="meta-data">link gem-sub-cipher</div><div class="meta-data">file 2014-10-18-114913-gem-sub-cipher</div><div class="meta-data">template post</div><div class="meta-data">website https://github.com/sibevin/sub_cipher</div><div class="meta-data">end</div><ul><li><a href="https://github.com/sibevin/sub_cipher" target="_blank">Github</a></li><li><a href="https://rubygems.org/gems/sub_cipher" target="_blank">RubyGem</a><code> (sub_cipher)</code></li></ul><h1>What</h1><p>使用取代加密法(Substitution cipher)對字串進行加解密。</p><h1>Why</h1><p>大部分的相關的gem只有做到簡易替換方式的加密，另外在定義字母對應的時候也沒有看到一個比較好用的方式，所以決定自己做一個。</p><h1>How</h1><p>基本使用方式如下：</p><pre><code class="hljs">sc = SubCipher.gen
+sc.encode("Here is a secret.")
+# "Wyky gn q nyakyr."
+sc.decode("Wyky gn q nyakyr.")
+# "Here is a secret."
+sc.seed
+# "abcdefghijklmnopqrstuvwxyz"
+sc.map
+# "qeahyftwgpjixodzbknrlscvum"</code></pre><p><code>SubCipher.gen</code>會使用預設的參數(也就是英文字母)建立一個SubCipherObject，接著可以用<code>encode</code>與<code>decode</code>來進行加解密。注意的是同一個字母但不同大小寫會對應到同一個字母，例如：如果a對應到b，那表示A會對應到B。<code>seed</code>與<code>map</code>則是用來表示字母的對應情況，以上面的例子來說就是將<code>abcdefghijklmnopqrstuvwxyz</code>對應到<code>qeahyftwgpjixodzbknrlscvum</code>。</p><p>另外<code>SubCipher.gen</code>也提供了一些參數可以自定義要加解密的字母(<code>seed</code>)與如何做字母對應(<code>map, keep_case</code>)。詳細的使用方式請參考<a href="https://github.com/sibevin/sub_cipher/blob/master/README.md#options" target="_blank">README - Options</a>。</p><h1>心得</h1><p>想要做一個簡單的加解密方法讓存在資料庫的敏感資料可以做個轉換，不要單純以明碼的方式做儲存。另外覺得自己太久沒有寫ruby了，所以就順便練習一下。</p></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

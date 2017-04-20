@@ -1,0 +1,140 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>ES6 in Depth 閱讀筆記 Part 2 - destructuring, arrow functions, symbols, collections, generators, proxies | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2017-04-05-125832-note-es6-in-depth-2";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title ES6 in Depth 閱讀筆記 Part 2 - destructuring, arrow functions, symbols, collections, generators, proxies</div><div class="meta-data">datetime 2017-04-05 12:58:32</div><div class="meta-data">tags js_es6,note</div><div class="meta-data">category coding</div><div class="meta-data">link note-es6-in-depth-2</div><div class="meta-data">file 2017-04-05-125832-note-es6-in-depth-2</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>前言</h1><p>這是<a href="https://hacks.mozilla.org/category/es6-in-depth/" target="_blank">ES6 In Depth</a>的閱讀筆記，只記錄程式的範例方便語法的查詢，但我強列推薦去讀讀這系列的原始文章，它對於ES6的語法有很深入的介紹，非常值得一讀。</p><h1>Destructuring</h1><p>ES6提供另一種 assignment 的方式，就是所謂的 destructuring，方式如下：</p><pre><code class="js">[first, second, third] = someArray;</code></pre><p>上面的程式碼相當於：</p><pre><code class="js">first = someArray[0];
+second = someArray[1];
+third = someArray[2];</code></pre><p>上面的例子是當 first, second, third 這三個變數存在的時候，如果想在 assignment 的時候順便宣告變數，則可以在前面加上 var, let 或 const。</p><h2>Destructuring arrays and iterables</h2><p>當 destructuring 的對象是一個 array 或是 iterable 時，會有下面的特性：</p><ul><li>支援槽狀結構。</li></ul><pre><code class="js">var [foo, [[bar], baz]] = [1, [[2], 3]];
+console.log(foo); // 1
+console.log(bar); // 2
+console.log(baz); // 3</code></pre><ul><li>可以省略不需要的值。</li></ul><pre><code class="js">var [,,third] = ["foo", "bar", "baz"];
+console.log(third); //"baz"</code></pre><ul><li>有 rest 的效果。</li></ul><pre><code class="js">var [head, ...tail] = [1, 2, 3, 4];
+console.log(tail); // [2, 3, 4]</code></pre><ul><li>如果是空的 array 或是槽狀結構不正確，則得到的值是 undefined 。</li><li>支援 iterable 的物件，例如：</li></ul><pre><code class="js">function* fibs() {
+  var a = 0;
+  var b = 1;
+  while (true) {
+    yield a;
+    [a, b] = [b, a + b];
+  }
+}
+
+var [first, second, third, fourth, fifth, sixth] = fibs();
+console.log(sixth); // 5</code></pre><ul><li>可以設定預設值。</li></ul><pre><code class="js">var [missing = true] = [];
+console.log(missing); // true</code></pre><h2>Destructuring objects</h2><p>Destructuring object 的使用方式與 array 類似：</p><pre><code class="js">var robotA = { name: "Bender", height: 120 };
+var nameA, heightA;
+{ name: nameA, height: heightA } = robotA;</code></pre><p>如果將變數名稱取的跟 key 的名稱一樣，則可以使用下面的縮寫方式：</p><pre><code class="js">var robotA = { name: "Bender", height: 120 };
+var name, height;
+{ name, height } = robotA;</code></pre><p>要特別注意的是如果使用上面的縮寫，但沒有宣告變數時，會出現 Syntax error 。如果要避免這個情況發生，可以用()將表示式包起來，如下所示：</p><pre><code class="js">({ name, height } = robotA);</code></pre><p>當 destructuring 的對象是一個 object 時，會有下面的特性：</p><ul><li>同樣支援槽狀結構。</li></ul><pre><code class="js">var complicatedObj = {
+  arrayProp: [
+    "Zapp",
+    { second: "Brannigan" }
+  ]
+};
+
+var { arrayProp: [first, { second }] } = complicatedObj;
+console.log(first); // "Zapp"
+console.log(second); // "Brannigan"</code></pre><ul><li>如果是空的 object 或是槽狀結構不正確，則得到的值是 undefined 。</li><li>同樣可以設定預設值：</li></ul><pre><code class="js">var { message: msg = "Something went wrong" } = {};
+console.log(msg); // "Something went wrong"
+
+var { x = 3 } = {};
+console.log(x); // 3</code></pre><h2>Destructuring values that are not an object, array, or iterable</h2><p>如果 destructuring 的對象不是 array 或 object，則要特別注意：</p><ul><li>destructuring null 或是 undefined 時，會出現 TypeError 。</li><li>destructuring string, numbers(包含NaN), booleans 時，會出現 undefined 。</li></ul><h2>Practical applications of destructuring</h2><p>destructuring 的使用情境</p><ul><li>定義函數的參數列，例如：<code>function removeBreakpoint({ url, line, column }) { ... }</code>。</li><li>用來做為設定值的預設值，例如：</li></ul><pre><code class="js">jQuery.ajax = function (url, {
+  async = true,
+  beforeSend = noop,
+  cache = true,
+  complete = noop,
+  crossDomain = false,
+  global = true,
+  // ... more config
+}) {
+  // ... do stuff
+};</code></pre><ul><li>支援ES6的新增型態 Map 的 for-of，例如：</li></ul><pre><code class="js">var map = new Map();
+map.set(window, "the global");
+map.set(document, "the document");
+
+for (var [key, value] of map) {
+  console.log(key + " is " + value);
+}
+
+for (var [key] of map) {
+  // ...
+}
+
+for (var [,value] of map) {
+  // ...
+}</code></pre><ul><li>讓函式可以回傳多個值，例如：</li></ul><pre><code class="js">function returnMultipleValues() {
+  return [1, 2];
+}
+var [foo, bar] = returnMultipleValues();
+
+function returnMultipleValues() {
+  return {
+    foo: 1,
+    bar: 2
+  };
+}
+var { foo, bar } = returnMultipleValues();</code></pre><ul><li>支援 CommonJS 的 module import，例如：<code>const { SourceMapConsumer, SourceNode } = require("source-map");</code></li></ul><h1>Arrow functions</h1><h2>A new arrow in your quiver(箭袋)</h2><p>ES6提供了新的方式寫匿名函式，例如：</p><pre><code class="js">// ES5
+var selected = allJobs.filter(function (job) {
+  return job.isSelected();
+});
+
+// ES6
+var selected = allJobs.filter(job => job.isSelected());</code></pre><p>多個參數也可以：</p><pre><code class="js">// ES5
+var total = values.reduce(function (a, b) {
+  return a + b;
+}, 0);
+
+// ES6
+var total = values.reduce((a, b) => a + b, 0);</code></pre><p>多行的函式也可以：</p><pre><code class="js">// ES5
+$("#confetti-btn").click(function (event) {
+  playTrumpet();
+  fireConfettiCannon();
+});
+
+// ES6
+$("#confetti-btn").click(event => {
+  playTrumpet();
+  fireConfettiCannon();
+});</code></pre><p>但要特別注意的是如果對應的是要回傳一個空物件，要用括號包起來，不然會被判斷成一個函式回傳 undefined。</p><pre><code class="js">// create a new empty object for each puppy to play with
+var chewToys = puppies.map(puppy => {});   // BUG!
+var chewToys = puppies.map(puppy => ({})); // ok</code></pre><h2>What’s this?</h2><p>arrow function 與一般的 function 一個很重要的差別在於 arrow function 沒有自己的 this，在 arrow function 裡的 this 會直接繼承函式外部的 this。舉個例子，一般的 function 要使用外部的 this 時，通常需要做下面的手法：</p><pre><code class="js">{
+  ...
+  addAll: function addAll(pieces) {
+    var self = this;
+    _.each(pieces, function (piece) {
+      self.add(piece);
+    });
+  },
+  ...
+}</code></pre><p>但如果改成 arrow function，就可以更簡化：</p><pre><code class="js">{
+  ...
+  addAll: function addAll(pieces) {
+    _.each(pieces, piece => this.add(piece));
+  },
+  ...
+}</code></pre><p>ES6一個值得注意的特性是，即使是一般的 function，如果是做為 object 的 method (例如上面例子中的addAll(pieces))而被呼叫時，function 裡的 this 會是對應呼叫這個 method 的 caller 。所以上面例子，在 addAll 裡的 this 即是代表 object 本身(而不是undefined)。另外在ES6中，這類的 method function 可以進一步簡寫成下面這個樣子：</p><pre><code class="js">{
+  ...
+  addAll(pieces) {
+    _.each(pieces, piece => this.add(piece));
+  },
+  ...
+}</code></pre><h1>Symbols</h1><h1>Collections</h1><h1>Generators, continued</h1><h1>Proxies</h1></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

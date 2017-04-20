@@ -1,0 +1,189 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>ruby的refinement | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2016-05-02-163010-refinement-in-ruby";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title ruby的refinement</div><div class="meta-data">datetime 2016-05-02 16:30:10</div><div class="meta-data">tags ruby</div><div class="meta-data">category coding</div><div class="meta-data">link refinement-in-ruby</div><div class="meta-data">file 2016-05-02-163010-refinement-in-ruby</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>What</h1><p>Refinement是ruby 2.0的新功能，它想解決monkey-patching會覆寫原本class的method造成的問題，簡言之，它是一個有限度的monkey-patching。</p><h1>Why</h1><p>先看一個monkey-patching的例子：</p><pre><code class="ruby">class A
+  def say_hi
+    "Hi~"
+  end
+end
+
+a_outside = A.new
+p a_outside.say_hi # Hi~
+
+class A # Open class A to redefine say_hi
+  def say_hi
+    "Hello!!"
+  end
+end
+
+p a_outside.say_hi # Hello!!
+
+module B
+  a_in_b = A.new
+  p a_in_b.say_hi # Hello!!
+end
+
+module C
+  a_in_c = A.new
+  p a_in_c.say_hi # Hello!!
+end</code></pre><p>上面的class A原本定義了say_hi會回傳 "Hi~"，之後我們reopen A重新定義say_hi回傳 "Hello!!"，結果發現之後的程式只要是a的instance，它們的say_hi都被覆寫掉了，也就是會強迫後面程式一定要用改寫過後的定義。這就是monkey-patching的一個缺點，我們沒有辦法只讓在module B中的a_in_b使用改過的say_hi，而外層的a_outside與在module C裡的a_in_c仍保持原始定義的say_hi。不過這個問題有了refinement之後就可以解決了，範例如下：</p><pre><code class="ruby">class A
+  def say_hi
+    "Hi~"
+  end
+end
+
+a_outside = A.new
+p a_outside.say_hi # Hi~
+
+module SayHiRefinement
+  refine A do
+    def say_hi
+      "Hello!!"
+    end
+  end
+end
+
+p a_outside.say_hi # Hi~
+
+module B
+  using SayHiRefinement
+  a_in_b = A.new
+  p a_in_b.say_hi # Hello!!
+end
+
+module C
+  a_in_c = A.new
+  p a_in_c.say_hi # Hi~
+end</code></pre><p>使用的方式就是我們在module SayHiRefinement中refine A的say_hi，如果在B中想要使用改寫過的定義，那只要在B中 <code>using SayHiRefinement</code>，這個時候在B的scope中，say_hi就會被改寫，一旦出了B的scope，則say_hi就會變成原本的定義。</p><h1>How</h1><p>Refinement有幾個特性：</p><h2>只有using之後的scope才會有refine的效果</h2><p>這個特性與reopen是一樣的。</p><pre><code class="ruby">class A
+  def say_hi
+    "Hi~"
+  end
+end
+
+module SayHiRefinement
+  refine A do
+    def say_hi
+      "Hello!!"
+    end
+  end
+end
+
+a = A.new
+p a.say_hi # Hi~
+
+using SayHiRefinement
+
+p a.say_hi # Hello!!</code></pre><p>這個特性有時候會搞死人，例如下面的範例：</p><pre><code class="ruby">class A
+  def say_hi
+    "Hi~"
+  end
+
+  def call_say_hi
+    say_hi
+  end
+end
+
+module SayHiRefinement
+  refine A do
+    def say_hi
+      "Hello!!"
+    end
+  end
+end
+
+using SayHiRefinement
+
+a = A.new
+p a.say_hi # Hello!!
+p a.call_say_hi # Hi~</code></pre><p>say_hi會被改寫，但call_say_hi中的say_hi不會，原因是雖然呼叫call_say_hi的時間點在using之後，可是定義call_say_hi的時間點卻是在using之前，所以call_say_hi仍會使用原本say_hi的定義。結論是如果使用refinement，要特別小心method的呼叫。</p><h2>如果一個class被refine，則reopened class也會被refine</h2><p>簡言之，refine的效力比reopen還大。</p><pre><code class="ruby">class A
+  def say_hi
+    "Hi~"
+  end
+end
+
+module SayHiRefinement
+  refine A do
+    def say_hi
+      "Hello!!"
+    end
+  end
+end
+
+class A # reopen class A
+  def say_hi
+    "Heeeee"
+  end
+end
+
+module B
+  using SayHiRefinement
+  a = A.new
+  p a.say_hi # Hello!!
+end</code></pre><h2>refine的效果只限using所在的scope，一旦離開scope效果就會消失，即使之後reopen也一樣</h2><pre><code class="ruby">class A
+  def say_hi
+    "Hi~"
+  end
+end
+
+module SayHiRefinement
+  refine A do
+    def say_hi
+      "Hello!!"
+    end
+  end
+end
+
+module B
+  using SayHiRefinement
+  a = A.new
+  p a.say_hi # Hello!!
+end
+
+module B # reopen B without using SayHiRefinement
+  a = A.new
+  p a.say_hi # Hi~
+end</code></pre><h2>refine的效果只限using所在的class，subclass不會有refine的效果</h2><pre><code class="ruby">class A
+  def say_hi
+    "Hi~"
+  end
+end
+
+module SayHiRefinement
+  refine A do
+    def say_hi
+      "Hello!!"
+    end
+  end
+end
+
+class B
+  using SayHiRefinement
+  a = A.new
+  p a.say_hi # Hello!!
+end
+
+class C < B # inherit from B without using SayHiRefinement
+  a = A.new
+  p a.say_hi # Hi~
+end</code></pre><h2>Method lookup會優先找refine裡prepend與include的module</h2><p>如果refinement被使用，則method lookup的順序為：</p><ul><li>refine內prepend的module</li><li>refine定義的method</li><li>refine內include的module</li><li>class內prepend的module</li><li>class定義的method</li><li>class內include的module</li></ul><h1>關於refinement的八掛</h1><p>refinement是ruby 2.0的時候被提出來的新功能，ruby社群原本提出的refinement的版本其實功能很強，只是在release 2.0的時候，refinement在某些極端的使用情況仍有未定義的行為出現，matz最後決定只上部分功能的refinement。雖然網路上有幾篇文章提到了許多refinement的其它功能，但目前ruby有支援的功能還是依照官方提出來的文件為主。下面是一些相關的連結，有興趣的話可以去看看：</p><ul><li><a href="http://ruby-doc.org/core-2.3.0/doc/syntax/refinements_rdoc.html" target="_blank">Ruby Doc - Refinements</a>- ruby refinement的官方文件</li><li><a href="https://bugs.ruby-lang.org/issues/4085" target="_blank">Ruby issue - refinement的討論串</a>- 這裡有很詳細的討論有關refinement的功能細節，以及最後決定要release的版本</li><li><a href="http://timelessrepo.com/refinements-in-ruby" target="_blank">Refinements in Ruby</a>- 這篇提到了原本社群提出的refinement會有的功能，但實際上裡面有很多功能不會在ruby中出現。</li></ul></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

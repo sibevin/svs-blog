@@ -1,0 +1,58 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>處理rails中文slug | 魔法師的手杖</title><meta content="處理rails中文slug" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2015-01-13-092638-rails-handle-chinese-slug";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title 處理rails中文slug</div><div class="meta-data">description 處理rails中文slug</div><div class="meta-data">datetime 2015-01-13 09:26:38</div><div class="meta-data">tags rails</div><div class="meta-data">category coding</div><div class="meta-data">link rails-handle-chinese-slug</div><div class="meta-data">file 2015-01-13-092638-rails-handle-chinese-slug</div><div class="meta-data">template post</div><div class="meta-data">end</div><h2>使用friendly_id支援slug</h2><p>1. 在migration中加入一個slug的col。</p><pre><code class="hljs">class CreateBlogPosts < ActiveRecord::Migration
+  def change
+    create_table :blog_posts do |t|
+      # ...
+      t.string :title
+      t.string :slug, null: false
+      # ...
+    end
+    add_index :blog_posts, :slug, unique: true
+  end
+end</code></pre><p>2. 在model中設定friendly_id。friendly_id會在model被建立的時候將一個指定的欄位(以這個例子而言就是title)轉成網址用的slug並存在slug這個欄位中。</p><pre><code class="hljs">class BlogPost < ActiveRecord::Base
+  extend FriendlyId
+  friendly_id :title, use: :slugged
+  # ...
+end</code></pre><p>3. 在controller中如果要用<code>params[:id]</code>找對應的record，要記得加上friendly。</p><pre><code>class BlogPostsController < ApplicationController
+  before_action :set_blog_post, only: [:show, :edit, :update, :destroy]
+  # ...
+  private
+  def set_blog_post
+    @blog_post = BlogPost.friendly.find(params[:id])
+  end
+end</code></pre><p>目前friendly_id只能支援英文的slug，如果有中文字就會被強迫變成-，這時候就要用babosa了。</p><h2>加上babosa支援中文slug</h2><p>在model中override<code>normalize_friendly_id</code>。</p><pre><code>class BlogPost < ActiveRecord::Base
+  extend FriendlyId
+  friendly_id :title, use: :slugged
+  # ...
+  def normalize_friendly_id(input)
+    input.to_s.to_slug.normalize.to_s
+  end
+  # ...
+  private
+  def gen_ubid
+    self.ubid = RandomToken.gen(64)
+  end
+end</code></pre><h1>Refs</h1><ul><li><a href="http://blog.roachking.net/blog/2014/01/17/babosa-friendly-id-solve-chinese-problems/" target="_blank">使用 Babosa 配合 Friendly_id 解決中文網址問題 - by 蟑螂窩</a></li></ul></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

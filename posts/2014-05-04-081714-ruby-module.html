@@ -1,0 +1,169 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>ruby module的用法 | 魔法師的手杖</title><meta content="ruby module的用法" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2014-05-04-081714-ruby-module";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title ruby module的用法</div><div class="meta-data">description ruby module的用法</div><div class="meta-data">datetime 2014-05-04 08:17:14</div><div class="meta-data">tags ruby</div><div class="meta-data">category coding</div><div class="meta-data">link ruby-module</div><div class="meta-data">file 2014-05-04-081714-ruby-module</div><div class="meta-data">template post</div><div class="meta-data">end</div><p>module與class最大的差別就是module沒有繼承概念，也就是沒有子module，另外module也不能產生instance。那module可以用來做什麼呢？</p><h1>用途1：做為namespace</h1><p>我們可以定義一些類似的class method(也就是用self.定義的method)到同一個module中，要使用這些method只能透過module來呼叫。</p><pre><code class="hljs">module A
+  A_CONST = 1
+  def self.a_method
+    p 'a_method'
+  end
+
+  class << self
+    def b1_method
+      p 'b1_method'
+    end
+
+    def b2_method
+      p 'b2_method'
+    end
+  end
+
+  def self.c_method
+    a_method
+  end
+
+  def self.d_method
+    p 'd_method'
+  end
+  private_class_method :d_method
+
+  def self.e_method
+    d_method
+  end
+
+  def f_method
+    f_method
+  end
+end
+
+p A::A_CONST # *1
+A.a_method   # *2
+A.b1_method  # *3
+A.b2_method  # *3
+A.c_method   # *4
+#A.d_method  # *5 # private method `d_method' called for A:Module (NoMethodError)
+A.e_method   # *6
+#A.f_method  # *7 # undefined method `f_method' for A:Module (NoMethodError)</code></pre><ul><li>1. 可以在module中定義常數，用`::`來取用。</li><li>2. 可以在module中定義class method(也就是`self.`的方式定義method)，用`.`來呼叫。</li><li>3. 另一種宣告class method的方式，這樣不用定義每一個method時都要指定`self.`。</li><li>4. 在module中可以直接呼叫它的class method。</li><li>5. 可以使用`private_class_method`讓class method變成private，這時候這個method就不能從module的外部呼叫。</li><li>6. 可以用implicit的方式在module內呼叫private class method。</li><li>7. 不能直接呼叫module內定義的instance method。</li></ul><h1>用途2：mixin</h1><p>mixin的meta-programming一個重要的技巧，也就是在不修改原本class的定義的原則下，新增或是改變class的method。</p><h2>Include</h2><p>第一種mixin的方法是在class中include module來加入新的method(注意這裡就不是class method而是一般的instance method)：</p><pre><code class="hljs">class A
+  def a_method
+    p 'a_method'
+  end
+end
+
+module B
+  def b_method
+    p 'b_method'
+  end
+end
+
+p A.ancestors # [A, Object, Kernel, BasicObject] # *1
+
+class A
+  include B
+end
+
+p A.ancestors # [A, B, Object, Kernel, BasicObject] # *2
+a = A.new
+a.a_method # "a_method"
+a.b_method # "b_method" # *3</code></pre><ul><li>1. 在還沒include module B之前，<code>A.ancestors</code>的結果為<code>[A, Object, Kernel, BasicObject]</code>。</li><li>2. 在reopen class A並將module B include到A之中後，<code>A.ancestors</code>的結果為<code>[A, B, Object, Kernel, BasicObject]</code>。</li><li>3. include B之後，A就可以呼叫module B的method。</li></ul><p>你可以include多個module，當module之中有相同名稱的method時，後include會蓋掉前include的method：</p><pre><code class="hljs">class A
+  def a_method
+    p 'a_method'
+  end
+end
+
+module B
+  def b_method
+    p 'b_method_in_B'
+  end
+end
+
+module C
+  def b_method
+    p 'b_method_in_C'
+  end
+end
+
+p A.ancestors # [A, Object, Kernel, BasicObject]
+
+class A
+  include B
+  include C
+end
+
+p A.ancestors # [A, C, B, Object, Kernel, BasicObject] # *1
+a = A.new
+a.a_method # "a_method"
+a.b_method # "b_method_in_C" # *2</code></pre><ul><li>1. 在reopen class A並將module B與module C include到A之中後，<code>A.ancestors</code>的結果為<code>[A, C, B, Object, Kernel, BasicObject]</code>，如果有相同名稱的method同時存在在不同的module，會根據ancestors的結果，左邊會蓋掉右邊的method，也就是C會蓋掉B的method。</li><li>2. 因為module C是後include，所以<code>a.b_method</code>會呼叫module C的<code>b_method</code>。</li></ul><p>可是使用include會遇到一個問題，也就是如果想要override的是class的method，用include的方式會失敗：</p><pre><code class="hljs">class A
+  def a_method
+    p 'a_method_in_A'
+  end
+end
+
+module B
+  def a_method
+    p 'a_method_in_B'
+  end
+end
+
+class A
+  include B
+end
+
+p A.ancestors # [A, B, Object, Kernel, BasicObject] # *1
+a = A.new
+a.a_method # "a_method_in_A" # *2</code></pre><ul><li>1. 在reopen class A並將module B include到A之中後，<code>A.ancestors</code>的結果為<code>[A, B, Object, Kernel, BasicObject]</code>。用include的方式，被include的module都會在原本class的右邊，也就是include的module是無法蓋掉原本class相同名稱的method。</li><li>2. <code>a.a_method</code>最後還是會呼叫定義在class A的<code>a_method</code>。</li></ul><h2>Prepend</h2><p>為了解決上面的問題，在ruby 2.0之後導入了另一種mixin module的方式，叫作prepend。下面的例子只將include改成prepend，但就可以達到利用module來修改class的method。</p><pre><code class="hljs">class A
+  def a_method
+    p 'a_method_in_A'
+  end
+end
+
+module B
+  def a_method
+    p 'a_method_in_B'
+  end
+end
+
+class A
+  prepend B
+end
+
+p A.ancestors # [B, A, Object, Kernel, BasicObject] # *1
+a = A.new
+a.a_method # "a_method_in_B" # *2</code></pre><ul><li>1. 在reopen class A並將module B prepend到A之中後，<code>A.ancestors</code>的結果為<code>[B, A, Object, Kernel, BasicObject]</code>。用prepend的方式，被pprepend的module都會在原本class的左邊，也就是prepend的module會蓋掉原本class相同名稱的method。</li><li>2. <code>a.a_method</code>最後會呼叫定義在module B的<code>a_method</code>。</li></ul><p>最後，你可以在module中的method加上public, protected與private這些visiablity(預設是public)，當module被mixin到class中，就相當於將public, protected與private的method加入到class中。</p><pre><code class="hljs">module B
+  public
+
+  def public_method
+    p 'public_method'
+  end
+
+  protected
+
+  def protected_method
+    p 'protected_method'
+  end
+
+  private
+
+  def private_method
+    p 'private_method'
+  end
+end</code></pre></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

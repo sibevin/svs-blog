@@ -1,0 +1,83 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>閱讀筆記 - JavaScript Functional Programming 指南 | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2016-12-31-212142-note-javascript-functional-programming-guide";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title 閱讀筆記 - JavaScript Functional Programming 指南</div><div class="meta-data">datetime 2016-12-31 21:21:42</div><div class="meta-data">tags fp,note</div><div class="meta-data">category coding</div><div class="meta-data">link note-javascript-functional-programming-guide</div><div class="meta-data">file 2016-12-31-212142-note-javascript-functional-programming-guide</div><div class="meta-data">template post</div><div class="meta-data">draft</div><div class="meta-data">end</div><h1>前言</h1><p>聽說FP很大力，應該來了解一下。</p><h1>Refs</h1><ul><li><a href="https://www.gitbook.com/book/jigsawye/mostly-adequate-guide/details" target="_blank">JavaScript Functional Programming 指南</a></li></ul><h1>第1章:我們在做什麼？</h1><h2>介紹</h2><h2>一個簡單例子</h2><p>作者在這裡舉了一個例子說明OO與FP在實作上的差異，與OO有可能帶來的問題。以計算鳥群的數量做為例子：</p><i>書上OO的版本</i><pre><code class="ruby">class Flock
+  attr_reader :size
+  def initialize(size)
+    @size = size
+  end
+
+  def conjoin(flock)
+    @size = @size + flock.size
+    self
+  end
+
+  def breed(flock)
+    @size = @size * flock.size
+    self
+  end
+end
+
+flock_a = Flock.new(4)
+flock_b = Flock.new(2)
+flock_c = Flock.new(0)
+
+p flock_a.conjoin(flock_c).breed(flock_b).conjoin(flock_a.breed(flock_b)).size # 32</code></pre><p>上面計算的結果是錯的，因為第二個flock_a的數量已經被改掉了，所以會是錯的結果。但如果是用FP寫的話：</p><i>FP的範例</i><pre><code class="ruby">def conjoin(size1, size2)
+  size1 + size2
+end
+
+def breed(size1, size2)
+  size1 * size2
+end
+
+flock_a = 4
+flock_b = 2
+flock_c = 0
+
+p conjoin(breed(flock_b, conjoin(flock_a, flock_c)), breed(flock_a, flock_b)) # 16</code></pre><p>計算的結果就是正確的，而且程式比較簡潔易懂。其實 conjoin 與 breed 就相當於數學上的 + 與 * 。因為function的運作滿足下面的規則：</p><ul><li>結合率（associative）<code>add(add(x, y), z) === add(x, add(y, z))</code></li><li>交換律（commutative）<code>add(x, y) === add(y, x)</code></li><li>同一律（identity）<code>add(x, 0) === x</code></li><li>分配綠（distributive）<code>multiply(x, add(y,z)) === add(multiply(x, y), multiply(x, z))</code></li></ul><p>所以上面的程式又可以更簡化成：</p><pre><code class="ruby">p breed(flock_a, conjoin(flock_b, flock_b)) # 16</code></pre><p>補充：這個範例我覺得是故意的(作者也有提到啦)，因為基本上OO的範例是錯誤的使用方式，如果要正確的數字，也就是在計算的時候不能改變物件裡的個數，那可以寫成下面這個樣子：</p><pre><code class="ruby">class Flock
+  attr_reader :size
+  def initialize(size)
+    @size = size
+  end
+
+  def conjoin(flock)
+    Flock.new(@size + flock.size)
+  end
+
+  def breed(flock)
+    Flock.new(@size * flock.size)
+  end
+end
+
+flock_a = Flock.new(4)
+flock_b = Flock.new(2)
+flock_c = Flock.new(0)
+
+p flock_a.conjoin(flock_c).breed(flock_b).conjoin(flock_a.breed(flock_b)).size # 16</code></pre><h1>第2章:一等公民的函數</h1><h2>快速概覽</h2><p>function is first class：指的是function就是與一般的variable一樣操作。作者提到了javascript function就具有這樣的特性，所以某些使用function封裝的語法根本就是多餘的寫法，例如：</p><pre><code class="javascript">var say_hi = function(name) {
+  return 'Hi, ' + name;
+};
+
+var say_again = function(name) {
+  return say_hi(name);
+};</code></pre><p>say_again中的function(name)其實是多餘的，應該要寫成：</p><pre><code class="javascript">var say_again = say_hi;</code></pre><h2>為何鍾愛一等公民</h2><h1>第3章:純函數的好處</h1><h2>再次強調“純”</h2><h2>副作用可能包括...</h2><h2>八年級數學</h2><h2>追求“純”的理由</h2><h2>總結</h2><h1>第4章:柯里化（curry）</h1><h2>不可或缺的curry</h2><h2>不僅僅是雙關語／咖哩</h2><h2>總結</h2><h1>第5章:代碼組合（compose）</h1><h2>函數飼養</h2><h2>pointfree</h2><h2>debug</h2><h2>範疇學</h2><h2>總結</h2><h1>第6章:示例應用</h1><h2>聲明式代碼</h2><h2>一個函數式的flickr</h2><h2>有原則的重構</h2><h2>總結</h2><h1>第7章: Hindley-Milner類型簽名</h1><h2>初識類型</h2><h2>神秘的傳奇故事</h2><h2>縮小可能性範圍</h2><h2>自由定理</h2><h2>總結</h2><h1>第8章:特百惠</h1><h2>強大的容器</h2><h2>第一個functor</h2><h2>薛定諤的Maybe</h2><h2>“純”錯誤處理</h2><h2>王老先生有作用...</h2><h2>異步任務</h2><h2>一點理論</h2><h2>總結</h2><h1>第9章: Monad</h1><h2>pointed functor</h2><h2>混合比喻</h2><h2>chain函數</h2><h2>理論</h2><h2>總結</h2><h1>第10章: Applicative Functor</h1><h2>應用applicative functor</h2><h2>瓶中之船</h2><h2>協調與激勵</h2><h2>lift</h2><h2>免費開瓶器</h2><h2>定律</h2><h2>總結</h2></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

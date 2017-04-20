@@ -1,0 +1,106 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>在rails中使用Bootstrap4 | 魔法師的手杖</title><meta content="Kait's Blog - 分享自己寫程式的筆記" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2015-10-23-092812-use-bootstrap-4-on-rails";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title 在rails中使用Bootstrap4</div><div class="meta-data">datetime 2015-10-23 09:28:12</div><div class="meta-data">tags rails,bootstrap,sass</div><div class="meta-data">category coding</div><div class="meta-data">link use-bootstrap-4-on-rails</div><div class="meta-data">file 2015-10-23-092812-use-bootstrap-4-on-rails</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>在rails中安裝Bootstrap4</h1><p>Bootstrap4還是alpha的階段，不過因為bootstrap4用sass全面改寫，這表示我們可以開始用mixin做一些神奇的事，所以就忍不住想先試試看。目前Bootstrap4還沒正式release，支援bootstrap的gem似乎都還沒開始使用4的版本，所以要用只能自己裝啦。自己裝其實也很簡單，只要借助rails-assets，基本上設定一下就可以用了，步驟如下：</p><h2>在Gemfile中用rails-assets安裝bootstrap 4.0.0.alpha</h2><p><i>Gemfile</i></p><pre class="ruby"><code>source 'https://rails-assets.org' do
+  gem 'rails-assets-bootstrap', '4.0.0.alpha'
+end</code></pre><h2>在applicaiton.css與application.js中加入bootstrap</h2><p><i>app/assets/stylesheets/application.css</i></p><pre class="css"><code>*= require bootstrap</code></pre><p><i>app/assets/javascripts/application.js</i></p><pre class="js"><code>//= require bootstrap</code></pre><p>這樣就完成了。</p><h1>在自己寫的sass中使用bootstrap的mixin</h1><p>Bootstrap4最大的好處是用sass寫的，因此我們就可以使用bootstrap原生的mixin。用法也很簡單，只要在想用mixin的地方import bootstrap的mixin就可以了。要注意的是除了bootstrap/mixins外，有時候必須同時將boostrap/variables也import才可以正常運作。下面是一個例子：</p><p><i>app/assets/stylesheets/sass/partials/_btn.sass</i></p><pre class="sass"><code>@import "sass/variables/colors"
+@import "bootstrap/variables"
+@import "bootstrap/mixins"
+
+.btn-main
+  @include button-variant($c_white, $c_fg_d, $c_fg_d)
+.btn-facebook
+  @include button-variant($c_white, $c_facebook, $c_facebook)</code></pre><p>另一個好用的mixin就是responsive utilities(可以參考文件：<a href="http://v4-alpha.getbootstrap.com/layout/responsive-utilities/" target="_blank">Layout - Responsive utilities</a>)，有了這個就可以使用bootstrap原生的breakpoint做RWD的變化。</p><p><i>app/assets/stylesheets/sass/views/layouts/_single.sass</i></p><pre class="sass"><code>@import "sass/variables/sizes"
+@import "bootstrap/variables"
+@import "bootstrap/mixins"
+
+.single
+  section.main
+    padding-bottom: $footer_h
+  footer
+    position: fixed
+    bottom: 0px
+    right: 0px
+    left: 0px
+    z-index: $zindex-navbar
+  @include media-breakpoint-up(md)
+    header
+      position: fixed
+      right: 0px
+      left: 0px
+      top: 0px
+      z-index: $zindex-navbar
+    section.main 
+      padding-top: $header_h
+      min-height: $desktop_min_h
+    footer
+      position: static</code></pre><h1>複寫bootstrap的變數</h1><p>好吧，使用bootstrap最大的壞處就是那<span style="color:rgba(102,175,233,1);">可怕的藍光</span>，想要改掉bootstrap原始的設定值，就需要複寫bootstrap的variables這個mixin。這意味著我們不能直接使用原本的bootstrap，而需要一些trick來做到客製化的boostrap。</p><h2>在application.css中改使用我們客製化的boostrap</h2><p>將原本的<code>*= require bootstrap</code>改成我們自己的boostrap<code>*= require sass/owb/bootstrap</code>。sass/owb/boostrap這個路徑可以自己定，就看你要把客製化的boostrap放哪裡。</p><p><i>app/assets/stylesheets/application.css</i></p><pre class="css"><code> *= require sass/owb/bootstrap</code></pre><h2>建立客製化的bootstrap</h2><p>將<code>rails-assets-bootstrap-4.0.0.alpha</code>gem下的<code>app/assets/stylesheets/bootstrap/_variables.scss</code>與<code>app/assets/stylesheets/bootstrap/bootstrap.scss</code>複製到app/assets/stylesheets/sass/owb之下，修改boostrap.scss這個檔案，讓它去import我們自己的_variables，但其它的mixin仍然是用bootstrap原本的。</p><p><i>app/assets/stylesheets/sass/owb/bootstrap.css.sass</i></p><pre class="sass"><code>// Core variables and mixins
+@import "variables"
+@import "bootstrap/mixins"
+
+// // Reset and dependencies
+@import "bootstrap/normalize"
+@import "bootstrap/print"
+
+// Core CSS
+@import "bootstrap/reboot"
+@import "bootstrap/type"
+@import "bootstrap/images"
+@import "bootstrap/code"
+@import "bootstrap/grid"
+@import "bootstrap/tables"
+@import "bootstrap/forms"
+@import "bootstrap/buttons"
+
+// // Components
+@import "bootstrap/animation"
+@import "bootstrap/dropdown"
+@import "bootstrap/button-group"
+@import "bootstrap/input-group"
+@import "bootstrap/custom-forms"
+@import "bootstrap/nav"
+@import "bootstrap/navbar"
+@import "bootstrap/card"
+@import "bootstrap/breadcrumb"
+@import "bootstrap/pagination"
+@import "bootstrap/pager"
+@import "bootstrap/labels"
+@import "bootstrap/jumbotron"
+@import "bootstrap/alert"
+@import "bootstrap/progress"
+@import "bootstrap/media"
+@import "bootstrap/list-group"
+@import "bootstrap/responsive-embed"
+@import "bootstrap/close"
+
+// Components w/ JavaScript
+@import "bootstrap/modal"
+@import "bootstrap/tooltip"
+@import "bootstrap/popover"
+@import "bootstrap/carousel"
+
+// Utility classes
+@import "bootstrap/utilities"
+@import "bootstrap/utilities-spacing"
+@import "bootstrap/utilities-responsive"</code></pre><p>這時候我們就可以改app/assets/stylesheets/sass/owb/_variables.scss改<span style="color:rgba(102,175,233,1);">可怕的藍光</span>改掉嘍。</p><p><i>app/assets/stylesheets/sass/owb/_variables.scss</i></p><pre class="sass"><code>$input-box-shadow-focus:         rgba(102,175,233,.6) !default;</code></pre><h1>小結</h1><p>快快出正式版吧。</p><h1>Refs</h1><ul><li><a href="http://v4-alpha.getbootstrap.com/getting-started/introduction/" target="_blank">Bootstrap 4 官方文件</a></li></ul></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

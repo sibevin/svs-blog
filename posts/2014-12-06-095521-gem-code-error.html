@@ -1,0 +1,67 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>Code Error - 標準的StandardError加上了錯誤代碼來管理錯誤情況 | 魔法師的手杖</title><meta content="Code Error" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2014-12-06-095521-gem-code-error";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title Code Error - 標準的StandardError加上了錯誤代碼來管理錯誤情況</div><div class="meta-data">description Code Error</div><div class="meta-data">datetime 2014-12-06 09:55:21</div><div class="meta-data">tags ruby_gem,work</div><div class="meta-data">category coding</div><div class="meta-data">link gem-code-error</div><div class="meta-data">file 2014-12-06-095521-gem-code-error</div><div class="meta-data">template gem</div><div class="meta-data">website https://github.com/sibevin/code_error</div><div class="meta-data">end</div><ul><li><a href="https://github.com/sibevin/code_error" target="_blank">Homepage</a></li><li><a href="https://github.com/sibevin/code_error" target="_blank">Github</a></li><li><a href="https://rubygems.org/gems/code_error" target="_blank">RubyGem</a><code> (code_error)</code></li></ul><h1>What</h1><p>它一個標準的StandardError，但加上了錯誤代碼(code)來管理一系列錯誤情況的功能。</p><h1>Why</h1><p>錯誤的情況有很多種，通常都需要能根據不同情況來進行不同的處理，單一個StandardError很難做這點。CodeError則是基於StandardError多了下面的特點：</p><ul><li>所有的錯誤情況都定義在同一個class中，方便管理與參考。</li><li>只要在raise一個帶有錯誤代碼的CodeError，就可以使用對應的錯誤訊息與狀態。</li><li>高度客制化與彈性的設計，可以自行定義預設的錯誤訊息與狀態。</li></ul><h1>How</h1><p>1. 定義一個class繼承CodeError::Base，在class中定義錯誤代碼。</p><pre><code class="ruby">class MyError < CodeError::Base
+  error_codes({
+    purchase_info_incorrect: {
+      status: :failed,
+      msg: 'Purchase information format is incorrect.'
+    },
+    device_info_incorrect: {
+      status: :failed,
+      msg: 'Device information format is incorrect.'
+    },
+    unknown_store: {
+      status: :failed,
+      msg: 'Unknown store.'
+    },
+    duplicated_request: {
+      status: :duplicated,
+      msg: 'A duplicated IAP request is sent.'
+    },
+    resend_iap: {
+      status: :retry,
+      msg: 'Client should send the IAP request again.'
+    }
+  })
+end</code></pre><p>2. 在raise錯誤時加上錯誤代碼。</p><pre><code class="ruby">raise MyError.gen(:purchase_info_incorrect)</code></pre><p>3. rescue，接著就可以根據錯誤情況來處理它。</p><pre><code class="ruby">begin
+  #...
+  raise MyError.gen(:purchase_info_incorrect)
+  #...
+rescue MyError => e
+  raise e if e.internal?
+  msg = e.msg
+  code = e.code
+  info = e.info
+  data = e.data
+  case(e.status)
+  when :failed
+    #...
+  when :duplicated
+    #...
+  else
+    #...
+  end
+  #...
+end</code></pre><h1>心得</h1><p>一直覺得用StandardError來處理多種錯誤的情況有點不太夠用，用繼承體系做出多的Error似乎又太麻煩，而且不好管理，於是就試著做個可以儲存狀態的Error。只是對於ruby的dsl還不是很熟，想要做出方便好用的使用方式(就是可以在class中設定變數)倒是花了一段時間。</p></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>rails讓多選單中的value使用slug來取代id | 魔法師的手杖</title><meta content="rails讓多選單中的value使用slug來取代id" name="description" /><link href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css" rel="stylesheet" /><link href="/css/application.css" rel="stylesheet" /><script crossorigin="anonymous" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" src="https://code.jquery.com/jquery-2.2.4.min.js"></script><script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"></script><script src="/js/consts/metadata.js"></script><script src="/js/vendor/md5.min.js"></script><script src="/js/vendor/contents.js"></script><script src="/js/vendor/emojify.min.js"></script><script type="text/javascript">var FILE = "2015-01-15-102500-rails-form-multi-select-with-slug-instead-of-id";
+hljs.initHighlightingOnLoad();</script></head><body><div id="app"><div class="post layout" v-bind:class="{'lo-toc-on': tocTb.isTab('on')}"><div class="lo-page lo-simple"><div class="pt-header" id="app"><div class="pt-title">{{ currentPost.title }}</div><div class="pt-datetime">{{ currentPost.datetime }}</div><div class="pt-info"><div class="pt-tags"><div class="tag-area"><div class="tag" v-bind:style="{ background: tagMap[tag].color }" v-for="tag in currentPost.tags"><a class="tag-link" v-bind:href="'/tag?t=' + tag">{{ tagMap[tag].name }}</a></div></div></div><div class="pt-category"><div class="category-icon"><a v-bind:href="'/category/' + currentPost.category"><div v-bind:class="'ca-icon-' + currentPost.category"></div></a></div></div></div></div><div class="pt-content"><div class="meta-data">title rails讓多選單中的value使用slug來取代id</div><div class="meta-data">description rails讓多選單中的value使用slug來取代id</div><div class="meta-data">datetime 2015-01-15 10:25:00</div><div class="meta-data">tags rails</div><div class="meta-data">category coding</div><div class="meta-data">link rails-form-multi-select-with-slug-instead-of-id</div><div class="meta-data">file 2015-01-15-102500-rails-form-multi-select-with-slug-instead-of-id</div><div class="meta-data">template post</div><div class="meta-data">end</div><h1>原本使用id的版本</h1><p>一個user有很多courses，在user model中可能長的像這個樣子：</p><pre><code class="ruby">class User < ActiveRecord::Base
+  # ...
+  has_many :user_courses_maps
+  has_many :courses, through: :user_course_maps
+  # ...
+end</code></pre><p>而在user的edit頁面中，使用simple form的association可以直接生成對應的多選單：</p><pre><code class="html"><%= f.associate :courses, collection: @user.courses.select("courses.id, courses.name")
+                          label_method: :name, value_method: :id %></code></pre><p>生成的html如下：</p><pre><code class="html">&lt;span class=&quot;checkbox&quot;&gt;
+  &lt;label for=&quot;user_course_ids_1&quot; name=&quot;user[course_ids]&quot;&gt;
+  &lt;input class=&quot;check_boxes optional&quot; id=&quot;user_course_ids_1&quot; name=&quot;user[course_ids][]&quot; type=&quot;checkbox&quot; value=&quot;1&quot;&gt;
+  課程名稱001
+  &lt;/label&gt;
+&lt;/span&gt;
+&lt;span class=&quot;checkbox&quot;&gt;
+  &lt;label for=&quot;user_course_ids_2&quot; name=&quot;user[course_ids]&quot;&gt;
+  &lt;input class=&quot;check_boxes optional&quot; id=&quot;user_course_ids_1&quot; name=&quot;user[course_ids][]&quot; type=&quot;checkbox&quot; value=&quot;2&quot;&gt;
+  課程名稱002
+  &lt;/label&gt;
+&lt;/span&gt;</code></pre><p>顯然將id直接拿來用並不是個安全的做法，而在課程model中原本就有用slug來取代id在url上的顯示，所以會想將slug也用在courses的選單裡。</p><h1>修改後使用slug的版本</h1><p>技巧是在user model中加上virtual attribute<code>course_slugs</code>，在form中不直接用courses而是用course_slugs來做關聯。接著在user model中建立<code>course_slugs=</code>這個method，我們在form中設定course_slugs得到的是課程slug的array，當user儲存時，就會在method<code>course_slugs=</code>中轉成課程id的array並指定給<code>course_ids</code>。</p><pre><code class="hljs">class User < ActiveRecord::Base
+  # ...
+  has_many :user_courses_maps
+  has_many :courses, through: :user_course_maps
+  # ...
+  attr_reader :course_slugs
+  # ...
+  def course_slugs=(slugs)
+    self.course_ids = Course.where(slug: slugs).pluck(:id)
+  end
+  # ...
+end</code></pre><p>在form中就不使用courses，而是使用course_slugs來取代。要注意的是為了讓預設值也可以work，必須要加上checked這個option。</p><pre><code class="hljs"><%= f.input :course_slugs, collection: Course.select("courses.slug, courses.name")
+                           label_method: :name, value_method: :slug,
+                           checked: @user.courses.pluck(:slug) %></code></pre></div></div><div class="lo-ctrl-panel lo-simple"><div class="ctrl-panel"><div class="lo-toc"><div class="toc"></div></div><div class="cp-menu"><div class="cp-first"></div><div class="cp-middle cp-mu-btn"><a href="/"><img src="/images/header/trademark_50x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/paper_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/tags"><img src="/images/menu/tags_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/categories"><img src="/images/menu/category_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a v-on:click="tocTb.switch('on')"><img src="/images/menu/toc_48x.svg" /></a></div><div class="cp-middle cp-mu-btn"><a href="/posts"><img src="/images/menu/search_48x.svg" /></a></div><div class="cp-last"></div></div></div></div></div></div><script type="text/javascript">$(function () {
+  // TOC
+  try {
+    var contents,
+        articleId;
+    articleId = function (articleName, element) {
+      return md5(articleName + element.previousSibling.innerText + element.nextSibling.innerText);
+    };
+    contents = gajus
+      .Contents({articleId: articleId});
+    $('.toc').append(contents.list());
+  } catch(e) {
+  }
+  // emoji
+  emojify.setConfig({
+    ignore_emoticons: true,
+    img_dir: '/images/emoji',
+    blacklist: {
+      elements: ['script', 'textarea', 'pre', 'code'],
+      classes: ['no-emojify']
+    }
+  });
+  emojify.run();
+});</script><script src="/js/post.js"></script></body></html>
