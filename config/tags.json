@@ -23,6 +23,7 @@
     "color": "#007f00"
   },
   "js": {
+    "name": "JavaScript",
     "color": "#efc100"
   },
   "angularjs": {
@@ -167,5 +168,21 @@
   "rx": {
     "name": "ReactiveX",
     "color": "#a0147b"
+  },
+  "vue": {
+    "name": "Vue.js",
+    "color": "#42b983"
+  },
+  "nodejs": {
+    "name": "Node.js",
+    "color": "#43853d"
+  },
+  "opensrc": {
+    "name": "Open Source",
+    "color": "#2d4574"
+  },
+  "web": {
+    "name": "網頁開發",
+    "color": "#5d55b1"
   }
 }
