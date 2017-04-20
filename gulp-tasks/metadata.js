@@ -101,7 +101,7 @@ var addTag = function(tagData, tag) {
 
 var buildTagConst = function(chunk, enc, cb) {
   console.log('build_tag', String(chunk.contents))
-  var tags = String(chunk.contents).slice(0, -2).replace(/[\r\n]/g, '').split(',')
+  var tags = String(chunk.contents).slice(0, -1).replace(/[\r\n]/g, '').split(',')
   console.log('tags', tags)
   var tagData = JSON.parse(fs.readFileSync('./config/tags.json', 'utf8'))
   console.log('tagData', tagData)
