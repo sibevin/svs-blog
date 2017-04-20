@@ -16,6 +16,7 @@ gulp.task('clean', tasks.clean);
 gulp.task('default', ['build-slm', 'copy-static', 'sass', 'metadata', 'webpack']);
 gulp.task('build-slm', ['slm-index', 'slm-views', 'slm-posts']);
 gulp.task('copy-static', ['static-favicon', 'static-image', 'static-js']);
+gulp.task('build', ['build-slm', 'copy-static', 'sass', 'metadata']);
 
 gulp.task('watch', function(){
   gulp.watch('src/index.slm', ['slm-index']);
