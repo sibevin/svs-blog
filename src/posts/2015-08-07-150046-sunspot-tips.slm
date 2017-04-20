@@ -97,3 +97,17 @@ pre
           remove_instance_variable(:@marked_for_auto_removal)
         end
       end
+
+h1 暫時關掉更新model時自動做的reindex
+pre
+  code.ruby
+    | Sunspot.session = Sunspot::Rails::StubSessionProxy.new(Sunspot.session)
+      #
+      # ... 這裡寫你想執行的程式，但不會觸發reindex
+      #
+      Sunspot.session = Sunspot.session.original_session
+h2 Ref
+ul
+  li
+    a href="http://stackoverflow.com/a/14179201" target="_blank"
+      | SO -Can I instruct Solr (Sunspot) to skip reindexing for a block of code?
