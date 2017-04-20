@@ -1,0 +1,206 @@
+.meta-data title 我常用的Atom Package
+.meta-data datetime 2015-11-18 08:28:04
+.meta-data tags atom,vim
+.meta-data category tools
+.meta-data link my-atom-package-list
+.meta-data file 2015-11-18-082804-my-atom-package-list
+.meta-data template post
+.meta-data end
+
+h1 前言
+
+p 使用Atom一個很大的好處就是有豐富的package資源可以使用，你想要什麼功能基本上都有類似的package可以幫你做到，如果沒有就自己寫一個吧。下面是我目前常用的package，就留給大家做參考嘍。
+
+h1 Vim
+
+p 好吧，我是vim系的，所以如果沒有支援vim模式的編輯器我是不會用它的。Atom當然不用說，一定有package可以用的啦。
+
+h2 vim-mode-plus
+ul
+  li
+    a href="https://atom.io/packages/vim-mode-plus" target="_blank"
+      | Package
+  li What - 在Atom中開啟vim模式，它是官方vim-mode的加強版。
+  li Why - 它比官方版的vim-mode多了很多騷包的功能，例如數字與flash提示，另外它也內建vim-mode-visual-block，超實用。
+  li How - 請參考它的快捷鍵文件。
+  li How - 官方預設把一些設定關掉了，可是打開它會很好用，例如：Incremental Search、Show Hover Search Count。
+  li How - gsc瞬改surround的字元。vii瞬選同一層indent的程式碼。選取模式+cmdD模式 = 無敵分身模式。
+ul
+  li 另外它的flash預設是藍色實在有點太閃了，所以我也改了它的顏色。
+p 
+  i
+    | ~/.atom/styles.less
+pre
+  code
+    | atom-text-editor::shadow {
+        .vim-mode-plus-flash .region {
+          background-color: #555;
+        }
+      }
+
+h2 ex-mode
+ul
+  li
+    a href="https://atom.io/packages/ex-mode" target="_blank"
+      | Package
+  li What - 讓vim-mode有command-line mode
+  li Why - 沒辦法，存檔已經習慣按:w了
+  li How - 目前只支援官方vim-mode，如果要支援vim-mode-plus，要自己加快捷鍵。
+p 
+  i 
+    | ~/.atom/keymap.cson
+pre
+  code
+    | 'atom-text-editor.vim-mode-plus:not(.insert-mode)':
+        ':': 'ex-mode:open'
+
+h2 relative-numbers
+ul
+  li
+    a href="https://atom.io/packages/relative-numbers" target="_blank"
+      | Package
+  li What - 在normal mode的時候顯示游標所在的相對行數，在insert mode切回一般行數。
+  li Why - 還在辛苦的算要跳到第幾行嗎？只能說這個package真TM的太神奇了。
+        
+h2 clipboard-plus
+ul
+  li
+    a href="https://atom.io/packages/clipboard-plus" target="_blank"
+      | Package
+  li What - 用來儲存你的clipboard歷史資訊。
+  li How - 同樣的如果要支援vim-mode-plus，快捷鍵要自己加。
+p 
+  i 
+    | ~/.atom/keymap.cson
+pre
+  code
+    | '.platform-darwin atom-text-editor.vim-mode-plus':
+        'ctrl-;': 'clipboard-plus:toggle'
+
+h1 提高寫程式效率的好用工具
+
+p 寫程式專用的編輯器最重要的三個功能就是效率、效率、效率。
+
+h2 project-manager
+ul
+  li
+    a href="https://atom.io/packages/project-manager" target="_blank"
+      | Package
+  li What - 專案管理
+  li Why - 可以針對專案做客製化的設定，還可以將不同的路徑放在同一個專案下重新定義搜尋路徑。
+  li How - ctrl+cmd+p開啟專案列表，ctrl+p模糊搜尋專案中的路徑與檔案。
+  li How - 編輯你的projects.cson來新增或管理專案，下面是一個範例。
+p 
+  i
+    | ~/.atom/projects.cson
+pre
+  code
+    | scs:
+        title: "scs-blog"
+        paths: [
+          "/Users/sibevin/workspace/scs/dev/scs-blog",
+          "/Users/sibevin/workspace/scs/dev/scs-blog-post"
+        ]
+        settings:
+          editor:
+            preferredLineLength: 120
+            softWrap: true
+            softWrapAtPreferredLineLength: true
+
+h2 advanced-open-file
+ul
+  li
+    a href="https://atom.io/packages/advanced-open-file" target="_blank"
+      | Package
+  li What - 快速的開啟或新增檔案
+  li Why - 不用滑鼠就可以建立一個新的檔案。
+  li How - opt+cmd+o開啟專案路徑，接著只要輸入新檔案的路徑與檔名就會開一個新的檔案。
+
+h2 ruby-test
+ul
+  li
+    a href="https://atom.io/packages/ruby-test" target="_blank"
+      | Package
+  li What - 用快捷鍵就可以在編輯測試檔的同時跑測試。
+  li Why - TDD不可缺少的東西。
+  li How - ctrl+cmd+y跑所有的測試，ctrl+cmd+t跑目前編輯的測試檔，ctrl+cmd+r跑目前游標所在的測試(超級好用)，ctrl+cmd+e跑前一個跑過的測試，ctrl+cmd+x開啟/關閉測試視窗。
+  li How - 可以客製化執行測試的指令。
+  
+h2 script
+ul
+  li
+    a href="https://atom.io/packages/script" target="_blank"
+      | Package
+  li What - 在Atom執行程式。
+  li Why - 如果只是想跑一下程式，不用切到console就可以執行，懶人專用。 
+  li How - cmd+i執行目前的檔案。
+  li How - 某些程式語言(例如ruby)，可以先將程式碼選起來，再按cmd+i就只會跑選取的程式碼，超酷的。
+  
+h2 merge-conflicts
+ul
+  li
+    a href="https://atom.io/packages/merge-conflicts" target="_blank"
+      | Package
+  li What - 當發生merge conflict的時候，幫你找出所有的conflict並協助編輯取代程式。
+  li Why - 幫你省時的工具。
+
+h2 jumpy
+ul
+  li
+    a href="https://atom.io/packages/jumpy" target="_blank"
+      | Package
+  li What - 在Atom中開啟傳送門，讓你在程式碼裡瞬間移動。
+  li Why - 你可以跟其它人炫耀。
+  li How - 按一下 shift+Enter 之後，再按顯示的兩個字，就會跳過去啦。
+  
+h2 atom-beautify
+ul
+  li
+    a href="https://atom.io/packages/atom-beautify" target="_blank"
+      | Package
+  li What - 幫你做程式的自動排版(auto-format)。
+  li Why - 才不會被rubocop打臉。
+  li 
+    | How - 
+    a href="/posts/2016-05-27-103132-support-auto-format-in-atom" target="_blank"
+      | 請參考這篇
+      
+h1 顯示
+
+p 不得不承認，Atom的界面就是一整個華麗到不行，下面幾個package又把華麗的層次提高到另一個境界。
+
+h2 pigments
+ul
+  li
+    a href="https://atom.io/packages/pigments" target="_blank"
+      | Package
+  li What - 在程式碼裡顯示顏色，而且還幫你做css的顏色管理。
+  li Why - 你的Atom突然從黑白變成彩色。
+  li How - 裝了之後，css裡所有的色碼都會用對應的顏色highlight。另一個好用的功能是當你把色碼用scss的變數儲存起來，在使用變數的時候會列出對應變數的顏色(超級好用)。
+  
+h2 minimap
+ul
+  li
+    a href="https://atom.io/packages/pigments" target="_blank"
+      | Package
+  li What - 顯示小地圖。
+  li Why - 讓你在程式碼裡不會迷路。
+
+h2 file-icons
+ul
+  li
+    a href="https://atom.io/packages/file-icons" target="_blank"
+      | Package
+  li What - 讓你擁有酷炫的file tree。
+  li Why - 你可以跟其它人炫耀。
+  li How - 它還支援自訂icon，請參考官方說明。
+
+
+h1 Snippet
+
+p 
+  | Snippet就是程式碼的快捷鍵，例如打 hm 幫你生成 has_many 之類的。不過還是一句話，裝了就要去了解有哪些snippet，不然不知道就是不會用。
+
+h2 css-snippets
+h2 rails-snippets
+h2 language-ruby-on-rails

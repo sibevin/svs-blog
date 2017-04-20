@@ -1,0 +1,607 @@
+.meta-data title Metaprogramming Ruby 2 - ch4 - Blocks
+.meta-data datetime 2016-06-19 12:39:21
+.meta-data tags mp,book_mr2,note,ruby
+.meta-data category coding
+.meta-data link mr2-ch4-blocks
+.meta-data file 2016-06-19-123921-mr2-ch4-blocks
+.meta-data template post
+.meta-data end
+
+h1 前言
+
+p 這是 Metaprogramming Ruby 2 的閱讀筆記，只會記錄我覺得重要的地方。如果你想要了解完整的內容或是想讓Ruby程式做一些神奇的事，強烈推薦去讀讀這本書。
+
+h1 The Day of the Blocks
+h2 Today’s Roadmap
+h2 The Basics of Blocks
+pre
+  code.ruby
+    | def say(who, word)
+        if block_given?
+    = "\n" + '    "#{who}: #{yield(word)}"' + "\n"
+    |   else
+    = "\n" + '    "#{who}: #{word}"' + "\n"
+    |   end
+      end
+    = "\n\n" + 'p say(\'A\', \'Hi\') { |w| "#{w}~~~" }' + "\n"
+    | p say('B', 'Hi')
+
+h1 Quiz: Ruby#
+h2 The using Keyword
+h2 The Challenge
+h2 Quiz Solution
+
+h1 Blocks Are Closures
+
+p 當程式在執行的的時候，可能需要一些所謂的執行環境 environment ，例如：local variables、instance variables、self…等，這些又稱做 bindings 。當一個 block 要準備執行的時候，實際上就是包含了一段程式碼與一整組 bindings 。
+
+pre
+  code.ruby
+    | a = "a in the top"
+
+      def say(word)
+        a = "a in the method" # 1
+        p a # a in the method
+        yield(word)
+        p a # a in the method
+      end
+
+      p a # a in the top
+
+      say('Hi') do |w|
+        a = "a in the block" # 2
+        b = "b in the block" # 3
+    = "\n" + '  p "#{w}, #{a}, #{b}"  # Hi, a in the block, b in the block' + "\n"
+    | end
+
+      p a # a in the block # 4
+      p b # undefined local variable or method `b' for main:Object (NameError) # 5
+
+p 由上面的範例可以看到變數與block之間scope的變化
+
+ul
+  li # 1：是 say 的區域變數，與外面的a沒有關係，另外在yield的前後a都沒被改變，所以yield所在的scope不會被block影響。
+  li # 2：是 block 裡定義的a，這時候它會改掉外層的a(從#4可以看出來)，也就是外層的a已經變成a in the block。
+  li # 3：是 block 裡定義的區域變數，當離開block之後就無法使用(從#5可以看出來)。
+
+p block 有改掉所在 scope 的特性，所以我們稱 block 是一個 closure 。
+
+h2 Scope
+p
+  | 當程式執行到一半進行中斷時，目前所看到的一切即稱做 scope ，例如：bindings、local variables、目前所在的object(也就是所謂的self)與對應的instance variables與methods，另外還有目前已經定義的constants與global variables。
+h3 Changing Scope
+
+pre
+  code.ruby
+    | v1 = 1
+
+      p local_variables # [:v1, :a] # 1
+
+      class A
+
+        v2 = 2
+        p local_variables # [:v2] # 2
+
+        def say
+          v3 = 3
+          p local_variables #[:v3] # 3
+        end
+
+        p local_variables # [:v2] # 4
+      end
+
+      p local_variables # [:v1, :a] # 5
+
+      a = A.new
+      a.say
+
+      p local_variables # [:v1, :a] # 6
+p
+  | 上面的執行結果會是：
+pre
+  code.nohighlight
+    | [:v1, :a] # 1 top-level scope 這個結果還蠻讓我驚訝的，我以為只會有[:v1]…
+      [:v2]     # 2 class A scope
+      [:v2]     # 4 class A scope
+      [:v1, :a] # 5 top-level scope
+      [:v3]     # 3 method say scope
+      [:v1, :a] # 6 top-level scope
+p
+  | 可以從上面的結果看到scope的轉換。在Ruby中，內層的scope無法取得外層scope的變數，也就是說隨著scope的切換，bindings也會跟著被切換，不過不是所有的bindings都會更新，例如在某個物件的method中呼叫另一個相同物件的method，則對應的instance variable並不會更新，相對於local variable，local variables在scope每次切換時都會更新。另外要注意的是method scope在method被呼叫的時候會被建立，當method執行完時，method scope也會跟著結束，所以當再次呼叫相同的method時，method scope會被重新建立，因此新舊的method scope彼此之間的變數是沒有關聯的。
+
+h2 Global Variables and Top-Level Instance Variables
+
+p
+  | Global variables是任何的scope都可以存取的變數，就是因為它在任何地方都可以被存取，所以會讓程式變得難以理解與維護(因為你不知道這個變數到底被誰改了，或是在什麼時候被改)。而如果有需要，你可以用Top-level instance variables來取代global variable。
+pre
+  code.ruby
+    | $v_global = 1
+      @v_instance = 1
+
+      def say
+        $v_global += 1
+        @v_instance += 1
+      end
+
+      p $v_global # 1
+      p @v_instance # 1
+
+      say
+
+      p $v_global # 2
+      p @v_instance # 2
+
+      class A
+        def talk
+          $v_global += 1
+          # @v_instance += 1 # undefined method `+' for nil:NilClass (NoMethodError)
+          p $v_global # 3
+          p @v_instance # nil
+        end
+      end
+
+      a = A.new
+      a.talk
+
+      p $v_global # 3
+      p @v_instance # 2
+p
+  | 上面的例子可以看的出來，top-level instance variable在切換到class scope的時候也會被切換成class的instance variable，也就是在talk這個method中讀到的@v_instance不是top-level的instance variable，而是class A的instance variable。所以相較於global variable，top-level instance variable會比較安全(雖然還是建議少用啦)。
+
+h2 Scope Gates
+
+p
+  | 有幾個地方會進行scope的切換：
+ul
+  li Class definitions
+  li Module definitions
+  li Methods
+p
+  | 而這些對應的keyword：class、module與def，我們稱做 Scope Gate 。另外class, module與method切換scope的時機點也不太一樣，class或module會在進入definition的地方就會立刻切換到class或module的scope，而method scope只有在這個method被呼叫的時候才會切換到method scope。
+
+p
+  | 切換scope的時候，對應的bindings也會跟著切換，那如果要在不同的scope之間共享變數，這就是block的範疇了。
+
+h2 Flattening the Scope
+
+pre
+  code.ruby
+    | v1 = 1
+
+      class A
+    = "\n" + '  p "#{v1}" # undefined local variable or method `v1\' for A:Class (NameError)' + "\n"
+    |   def say
+    = "\n" + '    p "#{v1}" # undefined local variable or method `v1\' for #&lt;A:0x007fd3ed07ab98> (NameError)' + "\n"
+    |   end
+      end
+
+      a = A.new
+      a.say
+p
+  | 我們想要在class與method中使用top-level的local variable v1，上面的寫法因為scope的關係而無法做到。這時候我們可以改成下面的寫法：
+pre
+  code.ruby
+    | v1 = 1
+      A = Class.new do
+    = "\n" + '  p "#{v1}"' + "\n"
+    |   define_method(:say) do
+    = "\n" + '    p "#{v1}"' + "\n"
+    |   end
+      end
+
+      a = A.new
+      a.say
+p
+  | 因為block並不是 Scope Gate，所以class的宣告改成
+  code
+    | Class.new
+  | 的方式來宣告，而method的定義則是使用 Dynamical Method 的方式，也就是使用
+  code
+    | define_method
+  | 的方式來宣告，那麼就可以做到變數的共享了。這個技巧通常稱做 nested lexical scopes(lexical意思是「詞彙上的」，也就是說它雖然看起來像是scope，但實際上卻不是)，又稱為 flattening the scope，簡稱為
+  span.mk-blue
+    | Flat Scope
+  | 。
+
+h3 Sharing the Scope
+p
+  | 有了 Flat Scope，我們就可以使用scope的特性控制變數可以變數看到的範圍。例如下面這個例子：
+pre
+  code.ruby
+    | def setup_counter
+        counter = 0
+
+        Kernel.send(:define_method, :add_count) do |size = 1|
+          counter += size
+        end
+
+        Kernel.send(:define_method, :get_count) do
+          counter
+        end
+      end
+
+      setup_counter
+
+      p get_count
+      add_count
+      add_count(5)
+      p get_count
+p
+  | counter 這個 local variable 因為 scope 的關係只有 setup_counter 才看的到，而又使用 Flat Scope 的方式在 Kernel 中塞了兩個 method 可以看的到 counter ，所以唯一可以存取 counter 的方式就只有使用 add_count 與 get_count 。這個技巧又稱做
+  span.mk-blue
+    | Sharing Scope
+  | 。
+
+h2 Closures Wrap-Up
+
+h1 instance_eval()
+
+pre
+  code.ruby
+    | class A
+        def initialize
+          @word = 'Hi'
+        end
+
+        def say
+          @word
+        end
+
+        private
+
+        def murmur
+          'Mmm...'
+        end
+      end
+
+      a = A.new
+      p a.say
+
+      a.instance_eval do
+        @word = 'Hello'
+        p murmur
+      end
+
+      p a.say
+pre
+  code.nohighlight
+    | "Hi"
+      "Mmm..."
+      "Hello"
+p
+  | BasicObject#instance_eval 相當於在 class 中開一個 block，其中的 self(scope 中預設的 receiver) 即是對應的 class。這意味著在這個 block 中可以存取 class 的 instance variable 與 private method。因為這個 block 可以直接存取 class 內的 bindings，所以又稱這個 block 為
+  span.mk-blue
+    | Context Probe
+  | 。
+
+h2 Breaking Encapsulation
+p
+  | 由上面的程式碼可以發現 Context Probe 根本就是封裝的破壞者(原文還用了 wreak havoc on encapsulation! 這樣的文字啊，笑)，不過有時候需要存取 class 內部的資訊時(例如要做一個類似pry的功能)，封裝反而會成為阻礙，這時候 Context Probe 就是一條捷徑。
+
+h2 instance_exec
+
+pre
+  code.ruby
+    | class A
+        def initialize
+          @a = 'aaa'
+        end
+      end
+
+      class B
+        def say
+          @b = 'bbb'
+          A.new.instance_eval do
+    = "\n" + '      "@a = #{@a}, @b = #{@b}"' + "\n"
+    |     end
+        end
+      end
+
+      b = B.new
+      p b.say # "@a = aaa, @b = "
+p
+  | 從上面的例子發現我們想在 A.new.instance_eval 中同時儲存 B 的 instance variable @b 是做不到的，因為在 block 中已經切成 class A 的 scope，class A 中並沒有 @b 這個 instance variable，所以當然讀不到 @b 的值，這時候我們可以改用 BasicObject#instance_exec，它可以利用參數的方式將值傳入到 block 中。
+
+pre
+  code.ruby
+    | class A
+        def initialize
+          @a = 'aaa'
+        end
+      end
+
+      class B
+        def say
+          @b = 'bbb'
+          A.new.instance_exec(@b) do |b|
+    = "\n" + '      "@a = #{@a}, @b = #{b}"' + "\n"
+    |     end
+        end
+      end
+
+      b = B.new
+      p b.say # "@a = aaa, @b = bbb"
+
+h3 The Padrino Example
+
+p
+  | 這裡舉了 Padrino 測試使用 instance_eval 的例子，為了方便測試而直接使用 instance_eval 更改 instance variable 的值。就如同作者這裡提到的，封裝在 ruby 中與其它的功能一樣都可以有彈性的使用或者忽略，而寫程式的人必須要做出選擇。
+
+h2 Clean Rooms
+
+p
+  | 有時候我們會建立一些 class 是專門給 instance_eval 來使用，我們稱做
+  span.mk-blue
+    | Clean Room
+  | 。理論上，Clean Room 中不會包含任何的 instance variable 與 method，而是完全靠 Context Probe 將程式碼寫入到 Clean Room 中。作者提到可以有一些 method 是為了方便使用而加上去的，但建議還是不要，因為有可能外部傳入相同名稱的 method 而造成影響。而 Clean Room 最好的候選者就是 BasicObject，因為它同時也是一個 Blank Slate (也就是包含最少 method 的物件)。
+
+pre
+  code.ruby
+    | class A &lt; BasicObject
+      end
+
+      a = A.new
+      # p a.say # undefined method `say' for #&lt;A:0x007f8665876110> (NoMethodError)
+
+      a.instance_eval do
+        def say
+          'Hello'
+        end
+      end
+
+      p a.say
+
+h1 Callable Objects
+p
+  | Block只是所謂可被呼叫物件(Callable Object)的其中一種，可呼叫物件就是將程式碼暫存起來，而等過一段時間之後再來呼叫(package code first, call it later)，也就是可以先定義要執行的程式碼而不用立刻呼叫它。在ruby中至少有三種可被呼叫的物件：
+ul
+  li proc 即是轉成物件型式的 block。
+  li lambda 同樣是轉成物件型式的 block，但使用上與 proc 有些許的不同。
+  li method 就是 method。
+
+h2 Proc Objects
+
+p
+  | 因為 block 不是物件，所以沒辦法做到暫存之後再呼叫的需求。在ruby中可以使用 Proc 來將 block 物件化，方式如下：
+pre
+  code.ruby
+    | add_one = Proc.new { |x| x + 1 }
+      p add_one.call(1) # 2
+p
+  | 上面的程式碼先使用 Proc.new 建立一個 add_one 的 proc，這個時候 add_one 儲存了 block { |x| x + 1 }，我們可以使用 call 這個 method來執行 block 的程式。將程式碼暫存起來，而等過一段時間之後再來呼叫的技巧稱做
+  span.mk-blue Deferred Evaluation
+  | 。除了上面這個方式可以建立 Proc，還有下面這幾種建立 Proc 的方法：
+pre
+  code.ruby
+    | add_one = lambda { |x| x + 1 }
+      p add_one.call(1) # 2
+
+      add_one = -> (x) { x + 1 }
+      p add_one.call(1) # 2
+p
+  | 上面這兩個寫法做的事是一樣的。
+
+h3 The & Operator
+
+p
+  | 如果我們要在某個 method 裡使用 block，通常都是使用 yield 的方式來使用，不過在某些情況下 yield 是沒辦法處理的。例如：
+ul
+  li 要將傳進來的 block 再次傳給另一個 method 或是另一個 block 中。
+  li 要將傳進來的 block 轉成 proc。
+p
+  | 這兩種情況都是因為使用 yield 就像把 block 視做一個沒有名字的 method 來處理，而上面的情況是要指定這個 block 做一些事情，所以我們要給傳進來的 block 一個名字，方式就是使用 & 這個 operator。方式如下：
+
+i 這是原本使用 yield 的寫法：
+pre
+  code.ruby
+    | def do_math(a, b)
+        yield(a, b)
+      end
+
+      p do_math(1, 2) { |x, y| x + y } # 3
+
+i 這是使用 & 的寫法：
+pre
+  code.ruby
+    | def do_math(a, b, &c)
+        c.call(a, b)
+      end
+
+      p do_math(1, 2) { |x, y| x + y } # 3
+p
+  | 你會發現使用 & 傳進來的 block 會被自動轉成 proc 並且將它存在一個參數裡(上面的例子就是 c 這個參數)，這時候我們就可以透過這個 proc 來做一些事情，這也是將 block 轉成 proc 的另一種方式。 & 另一個用途是將 proc 轉回 block，方式如下：
+pre
+  code.ruby
+    | def do_math(a, b)
+        yield(a, b)
+      end
+
+      do_add = Proc.new { |x, y| x + y }
+
+      p do_math(1, 2, &do_add) # 3
+p
+  | 上面的例子在呼叫 do_math 的時候，不帶 block，而是在最後一個參數傳入 do_add 這個 proc，並且加上 & ，這時候在 do_math 裡的 yield 就會使用 do_add 裡定義的程式碼。
+
+h3 The HighLine Example
+h2 Procs vs. Lambdas
+p
+  | ruby裡最常搞混的東西就是 Proc.new 與 lambda 所產生的 proc，如果你用 .class 去看它們產生的物件，它們都是 Proc：
+pre
+  code.ruby
+    | proc_from_proc_new = Proc.new do |x|
+        x + 1
+      end
+
+      p proc_from_proc_new.class # Proc
+      p proc_from_proc_new.call(1) # 2
+
+      proc_from_lambda = lambda do |x|
+        x + 1
+      end
+
+      p proc_from_lambda.class # Proc
+      p proc_from_lambda.call(1) # 2
+p
+  | 但實際上這兩個 proc 還是有一些差異，而且這些差異大到要用不同的名稱來稱呼這兩種 proc，如果是用 Proc.new 產生的 proc 稱做
+  span.mk-blue proc
+  | ，用 lambda 產生的 proc 稱做
+  span.mk-blue lambda
+  | 。
+
+h3 Procs, Lambdas, and return
+
+p
+  | 第一個最大的差別是 return 的行為，如果是在一個 method 裡建立 proc，而這個 proc 裡又有 return 的話，使用 Proc.new 與 lambda 的行為會不同，舉個例子：
+pre
+  code.ruby
+    | def do_math_proc_new(a)
+        proc_from_proc_new = Proc.new do |x|
+          return (x + 1)
+        end
+        result = proc_from_proc_new.call(a)
+        result = result * 2
+        result
+      end
+
+      p do_math_proc_new(1) # 2
+
+      def do_math_lambda(a)
+        proc_from_lambda = lambda do |x|
+          return (x + 1)
+        end
+        result = proc_from_lambda.call(a)
+        result = result * 2
+        result
+      end
+
+      p do_math_lambda(1) # 4
+p
+  | 上面的例子你會發現使用 Proc.new 算出來的值並沒有 * 2，這是因為 do_math_proc_new 在 result = proc_from_proc_new.call(a) 的時候因為 proc_from_proc_new 裡面有定義 return ，而這個 return 會導致 do_method_proc_new 會被 return 而提早結束執行，所以 result = result * 2 反而沒有執行到。如果我們把 proc_from_proc_new 從 do_math_proc_new 中搬到外面執行，就會出現下面的 error：
+pre
+  code.ruby
+    | proc_from_proc_new = Proc.new do |x|
+        return (x + 1)
+      end
+
+      p proc_from_proc_new.call(1) # in
+    = '`block in &lt;main>\': unexpected return (LocalJumpError)'
+p
+  | 這是因為上面的程式碼嘗試從 top-level return，這沒辦法做到，所以就出 exception 了。要讓 Proc.new 的 proc 可以正確運作，只要把 return 拿掉就可以了：
+pre
+  code.ruby
+    | proc_from_proc_new = Proc.new do |x|
+        x + 1
+      end
+
+    p proc_from_proc_new.call(1) # 2
+p
+  | 相較於 Proc.new，lambda 裡的 return 就不會有這個行為，是比較符合我們的預期。
+
+h3 Procs, Lambdas, and Arity
+
+p
+  | arity 指的就是接收的參數個數， proc 與 lambda 的第二個差異是對 arity 的容錯度，也就是當接收到與預期不同的參數個數時，proc 與 lambda有不同的處理方式：
+
+pre
+  code.ruby
+    | proc_from_proc_new = Proc.new do |a, b|
+        [a, b]
+      end
+      p proc_from_proc_new.arity # 2
+      p proc_from_proc_new.call(1, 2) # [1, 2]
+      p proc_from_proc_new.call(1) # [1, nil]
+      p proc_from_proc_new.call(1, 2, 3) # [1, 2]
+
+      proc_from_lambda = lambda do |a, b|
+        [a, b]
+      end
+      p proc_from_lambda.arity # 2
+      p proc_from_lambda.call(1, 2) # [1, 2]
+      p proc_from_lambda.call(1) #
+    = 'in `block in &lt;main>\': wrong number of arguments (1 for 2) (ArgumentError)' + "\n"
+    | p proc_from_lambda.call(1, 2, 3) #
+    = 'in `block in &lt;main>\': wrong number of arguments (3 for 2) (ArgumentError)'
+p
+  | 從例子可以發現 proc 會試著讀取傳入的參數，如果少了就會變成nil，多了則會略過。而 lambda 會做比較嚴格的檢查，只要參數不對就會出 exception。
+
+h3 Procs vs. Lambdas: The Verdict
+
+p
+  | 所以到底要用 Proc.new 還是用 lambda 呢？大部分的rubyist還是會建議如果可以用 lambda 就用 lambda，因為 return 的行為比較像 method，而且對參數列也採取比較嚴謹的檢查。
+
+h2 Method Objects
+
+p
+  | 除了 proc 與 lambda 外， method 也是另一種可被呼叫的物件。例子如下：
+pre
+  code.ruby
+    | class A
+        def initialize(word)
+          @word = word
+        end
+
+        def say
+          @word
+        end
+      end
+
+      a = A.new('Hi')
+
+      do_say = a.method(:say)
+      p do_say.call # Hi
+      p do_say.class # Method
+p
+  | 我們可以使用 Kernel#method 將一個物件裡的 method 變成一個物件化的 method，這樣就可以使用 call 做到延後呼叫的效果。BTW，有另一個 Kernel#singleton_method 可以把一個物件裡的 singleton method 轉成物件化的 method，不過等到下一章才會介紹什麼是 singleton method。
+
+p
+  | 那 method 與 proc / lambda 到底是差在什麼地方呢？最大的差別在於 method 它所參照到 scope 是屬於物件本身(也就是上面的 instance a，所以才可以使用 @word 這個 instance variable)，而 proc / lambda 則是參照它被宣告定義的時候所在的 scope (因為我們是使用 block 來宣告定義 proc / lambda，而 block 有 closure 的特性，也就是它是參照 block 被宣告定義時所在的 scope。)
+
+h3 Unbound Methods
+
+p
+  | 上面的例子 instance method say 所參照的是對應它所屬的 instance a，但如果是一個 module 的 method 被物件化，那它所參照的是什麼東西呢？
+pre
+  code.ruby
+    | module B
+        def say
+          'Hello'
+        end
+      end
+
+      do_say = B.instance_method(:say)
+      p do_say.call #
+    = 'in `&lt;main>\': undefined method `call\' for #&lt;UnboundMethod: B#say> (NoMethodError)' + "\n"
+    | p do_say.class # UnboundMethod
+p
+  | module 的 method 被物件化會變成所謂的 UnboundMethod ，它沒辦法直接被呼叫，但它可以做很神奇的事情：
+pre
+  code.ruby
+    | String.class_eval do
+        define_method(:say, do_say)
+      end
+
+      p 'Yoooo'.say # Hello
+p
+  | UnboundMethod 可以使用 define_method 被重新綁定(bind)到其它的 class，不過這樣的用法真的是很少見啊。
+
+h3 The Active Support Example
+
+p
+  | 書上舉了一個 Active Support 使用 UnboundMethod 的範例。在這個範例也提到了如果使用 UnboundMethod 來做 bind會造成method lookup的順序混亂，所以還是能盡量不用比較好。
+
+h2 Callable Objects Wrap-Up
+
+p
+  | 接下來的兩個章節，作者使用了之前提到的 meta-programming 的技巧實作了一組DSL。
+
+h1 Writing a Domain-Specific Language
+h2 Your First DSL
+h3 Sharing Among Events
+
+h1 Quiz: A Better DSL
+h2 Runaway Bill
+h2 Quiz Solution
+h2 Removing the “Global” Variables
+h3 Adding a Clean Room
+
+h1 Wrap-Up
