@@ -48,7 +48,9 @@ const buildHtml = function(layoutSlm, chunk) {
     datetime: data.datetime,
     category: data.category,
     keywords: data.tags || appData.tags,
-    description: data.description || appData.description
+    description: data.description || appData.description,
+    link: data.link,
+    disqus_id: appData.disqus_id
   })
 }
 
