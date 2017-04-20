@@ -1,0 +1,27 @@
+.meta-data title 如何測試本地端npm package資料夾裡的程式
+.meta-data datetime 2017-04-20 11:23:00
+.meta-data tags js,nodejs
+.meta-data category coding
+.meta-data link how-to-run-local-npm-package-folder
+.meta-data file 2017-04-20-112300-how-to-run-local-npm-package-folder
+.meta-data template post
+.meta-data end
+
+h1 問題
+p
+  | 在開發npm package的時候，如果想要在程式碼裡測試一下package，但又不想為此build一個暫時的package。
+
+h1 解法
+p
+  | 這個時候就可以用下面的方式直接require你要的檔案：
+pre
+  code.js
+    | const mycode = require('/User/your/local/package/folder/code')
+      // ...
+      mycode.bar()
+
+h1 Refs
+ul
+  li
+    a href="https://medium.com/@the1mills/how-to-test-your-npm-module-without-publishing-it-every-5-minutes-1c4cb4b369be" target="_blank"
+      | Node.js — How to test your new NPM module without publishing it every 5 minutes
