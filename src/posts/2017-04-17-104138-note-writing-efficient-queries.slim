@@ -1,0 +1,67 @@
+.meta-data title Writing Efficient Queries 筆記
+.meta-data datetime 2017-04-17 10:41:38
+.meta-data tags note,rails_model
+.meta-data category coding
+.meta-data link note-writing-efficient-queries
+.meta-data file 2017-04-17-104138-note-writing-efficient-queries
+.meta-data template post
+.meta-data end
+
+h1 前言
+p 
+  | 這是 
+  a href="https://blog.codeship.com/writing-efficient-queries/" target="_blank"
+    | Writing Efficient Queries
+  | 的閱讀筆記，這裡只記錄我覺得重要的。
+
+h2 Fetch Only Data You Need
+p 
+  | Bad
+pre
+  code.ruby
+    | def get_last_pizza
+        User.find(1).pizzas.last
+      end
+p 
+  | Good
+pre
+  code.ruby
+    | def get_last_pizza
+        User.select(:id).find(1).pizzas.last
+      end
+
+h2 select or pluck?
+h2 Ruby Methods or Query Methods?
+p 
+  code
+    | current_user.friends.count
+  | v.s.
+  code
+    | current_user.friends.length
+h2 Use IN
+h2 Save Time With a Transaction
+ul
+  li
+    | 能用 update_all ，就用 update_all。
+pre
+  code.ruby
+    | User.where(is_admin: true).update_all(is_admin: false)
+ul
+  li
+    | 如果不能用 update_all ，那把迴圈加到 transaction 中。
+p 
+  | Bad
+pre
+  code.ruby
+    | 20.times do |i|
+    =   "\n" + '  Post.update(title: "UPDATE_TITLE#{i}")' + "\n"
+    | end
+p 
+  | Good
+pre
+  code.ruby
+    | ActiveRecord::Base.transaction do 
+        20.times do |i|
+    =   "\n" + '   Post.update(title: "UPDATE_TITLE#{i}")' + "\n"
+    |   end
+      end 
