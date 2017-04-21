@@ -65,6 +65,12 @@ ul
     a href="https://shifteleven.com/articles/2009/02/09/useless-ruby-tricks-data-and-__end__/" target="_blank"
       | Useless Ruby Tricks: DATA and __END__
 
+h1 Image Processing library
+ul
+  li
+    a href="http://dlib.net/" target="_blank"
+      | Dlib C++ library
+
 h1 Ruby others
 ul
   li

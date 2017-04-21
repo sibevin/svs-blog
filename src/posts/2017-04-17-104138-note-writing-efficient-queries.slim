@@ -54,14 +54,14 @@ p
 pre
   code.ruby
     | 20.times do |i|
-    =   "\n" + '  Post.update(title: "UPDATE_TITLE#{i}")' + "\n"
-    | end
+        Post.update(title: "UPDATE_TITLE#{i}")
+      end
 p 
   | Good
 pre
   code.ruby
     | ActiveRecord::Base.transaction do 
         20.times do |i|
-    =   "\n" + '   Post.update(title: "UPDATE_TITLE#{i}")' + "\n"
-    |   end
+          Post.update(title: "UPDATE_TITLE#{i}")
+        end
       end 
