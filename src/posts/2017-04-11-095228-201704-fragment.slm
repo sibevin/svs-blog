@@ -13,6 +13,17 @@ ul
   li
     a href="http://quasar-framework.org/" target="_blank"
       | Quasar Framework
+  li
+    a href="https://adodson.com/hello.js/#hellojs" target="_blank"
+      | hello.js
+    | - A client-side JavaScript SDK for authenticating with OAuth2 (and OAuth1 with a oauth proxy) web services and querying their REST APIs.
+  li
+    a href="https://github.com/wrseward/vue-unit" target="_blank"
+      | Github - wrseward/vue-unit
+    | - Component testing utilities for Vue.js
+  li 
+    a href="http://bsonspec.org/" target="_blank"
+      | BSON - a bin­ary-en­coded seri­al­iz­a­tion of JSON-like doc­u­ments.
 
 h1 Who
 ul
