@@ -36,7 +36,7 @@ html
                       | {{ tagMap[tag].name }}
               .pt-category
                 .category-icon
-                  a v-bind:href="'/category/' + currentPost.category"
+                  a v-bind:href="'/category?c=' + currentPost.category"
                     div v-bind:class="'ca-icon-' + currentPost.category"
           .pt-content
             == this.content
