@@ -119,6 +119,6 @@ module.exports = {
         console.log('error', error)
       })
       .pipe(through.obj(embedHtmlContent('slides')))
-      .pipe(gulp.dest('./dist/slides'))
+      .pipe(gulp.dest('./dist/posts'))
   }
 }

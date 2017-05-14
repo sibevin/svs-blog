@@ -42,7 +42,7 @@ html
         for (var i = 0; i < sections.length; i++) {
           var tm = document.createElement('a');
           tm.className = 'trademark';
-          tm.setAttribute("href", "https://sibevin.github.io");
+          tm.setAttribute("href", "/");
           tm.setAttribute("target", "_blank");
           //var href = document.createAttribute("href");
           //var target = document.createAttribute("target");

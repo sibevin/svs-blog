@@ -151,8 +151,6 @@ export default {
       switch (post.category) {
         case 'bm':
           return post.website
-        case 'slides':
-          return '/slides/' + post.file
         default:
           return '/posts/' + post.file
       }
