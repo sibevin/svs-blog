@@ -1,0 +1,362 @@
+.meta-data title Rebuiding Rails - ch.3 - Rails Automatic Loading
+.meta-data datetime 2017-05-07 10:39:00
+.meta-data tags rails,ruby
+.meta-data category slides
+.meta-data link slides-rebuiding-rails-ch3-automatic-loading
+.meta-data file 2017-05-07-104100-slides-rebuiding-rails-ch3-automatic-loading
+.meta-data template slide
+.meta-data end
+
+header.caption
+  h2
+    | Rebuild Rails - Ch.3 - Rails Automatic Loading
+  p
+    | 2017.05.15 - Kait Wang @ Rails Study Group
+section.slide.no-page-number
+  h2
+    | Rebuild Rails - Ch.3 - Rails Automatic Loading
+  p
+    | Kait Wang
+  p
+    | 2017.05.15 @ Rails Study Group
+  ul
+    li
+      | Slides:
+      .
+      a href="https://sibevin.github.io/slides/2017-05-07-104100-slides-rebuiding-rails-ch3-automatic-loading" target="_blank"
+        | sibevin.github.io > category > slides
+    li
+      | Example code:
+      .
+      a href="https://github.com/sibevin/ruby-auto-loading-ex" target="_blank"
+        | Github - sibevin / ruby-auto-loading-ex
+section.slide.no-page-number
+  h2
+    | Who
+  p
+    | Kait Wang a.k.a Sibevin Wang
+  ul
+    li
+      | Blog:
+      .
+      a href="https://sibevin.github.io/" target="_blank"
+        | sibevin.github.io
+    li
+      | Github:
+      .
+      a href="https://github.com/sibevin" target="_blank"
+        | Github - sibevin
+    li
+      | Twitter:
+      .
+      a href="https://twitter.com/sibevin" target="_blank"
+        | @sibevin
+
+section.slide
+  h2
+    | What is the "Automatic Loading"
+  ol
+    li
+      | Create a new rails app
+    li
+      | Run rails server
+    li
+      | Change root to "homes#show" in routes
+    pre.font-m
+      code.ruby
+        | # config/routes.rb
+          root "homes#show"
+    li
+      | An exception occurs
+    pre.font-m
+      code.nohighlight
+        | Started GET "/" for 172.18.0.1 at 2017-05-08 05:34:30 +0000
+          Cannot render console from 172.18.0.1! Allowed networks: 127.0.0.1, ::1, ...
+          ActionController::RoutingError (uninitialized constant HomesController):
+          activesupport (5.1.0) lib/active_support/inflector/methods.rb:269:in `const_get'
+section.slide
+  h2
+    | What is the "Automatic Loading"
+  ol
+    li
+      | Add the "Homes" controller and views
+    pre.font-m
+      code.ruby
+        | # app/controllers/homes_controller.rb
+          class HomesController < ApplicationController
+          end
+    pre.font-m
+      code.html
+        | &lt;!-- app/views/homes/show.html.erb --&gt;
+          Hello world !!
+    li
+      | Everything is fine
+      .
+      span.underline
+        | without restarting the rails server
+      | ,
+      b
+        |  Magic
+      |  !!
+section.slide
+  h2
+    | What is the "Automatic Loading"
+  p
+    | It's not working in a regular ruby code, even the file is given ...
+  pre.font-m
+    code.ruby
+      | # homes_controller.rb
+        class HomesController
+          def show
+            p "The homes#show is called!!"
+          end
+        end
+  pre.font-m
+    code.ruby
+      | # main.rb
+        homes_ctrl = HomesController.new
+        homes_ctrl.show
+  pre.font-m
+    code.nohighlight
+      | main.rb:1:in `&lt;main&gt;': uninitialized constant HomesController (NameError)
+
+section.slide
+  h2
+    | Load codes from other files
+  p
+    | You need
+    .
+    b
+      | require
+    |  the file
+  pre.font-m
+    code.ruby
+      | # main.rb
+        require './homes_controller'
+        homes_ctrl = HomesController.new
+        homes_ctrl.show
+  pre.font-m
+    code.nohighlight
+      | The homes#show is called!!
+  p
+    | There are two ways to load codes:
+    .
+    a href="https://ruby-doc.org/core-2.4.1/Kernel.html#method-i-require" target="_blank"
+      | require
+    |
+    |  v.s.
+    .
+    a href="https://ruby-doc.org/core-2.4.1/Kernel.html#method-i-load" target="_blank"
+      | load
+    br
+    |  See also:
+    .
+    a href="https://sibevin.github.io/posts/2016-05-02-145830-load-vs-require-in-ruby" target="_blank"
+      | ruby的load與require是差在什麼地方？
+section.slide
+  h2
+    | Load codes from other files
+  p
+    | But we
+    .
+    b
+      | DON'T
+    .
+    | require files in rails ...
+  p
+    | What happened?
+section.slide
+  h2 In Ruby
+  pre.font-m
+    code.nohighlight
+      | Started GET "/" for 172.18.0.1 at 2017-05-08 05:34:30 +0000
+        Cannot render console from 172.18.0.1! Allowed networks: 127.0.0.1, ::1, ...
+        ActionController::RoutingError (uninitialized constant HomesController):
+        activesupport (5.1.0) lib/active_support/inflector/methods.rb:269:in `const_get'
+  p
+    | When we create a class
+  pre.font-m
+    code.ruby
+      | class HomesController do ... end
+  p
+    | It means
+  pre.font-m
+    code.ruby
+      | HomesController = Class.new do ... end
+section.slide
+  h2 In Ruby
+  ol
+    li
+      | When a new constant appears, ruby would try to get it with
+      .
+      a href="http://ruby-doc.org/core-2.4.1/Module.html#method-i-const_get" target="_blank"
+        | Object.const_get
+    li
+      | When a constant is not found, the
+      .
+      a href="http://ruby-doc.org/core-2.4.1/Module.html#method-i-const_missing" target="_blank"
+        | Object.const_missing
+      |  is called
+section.slide
+  h2 How to do magic
+  h3
+    b
+      | The "Automatic Loading" tricks: :tada:
+  ol
+    li
+      | Take over the progress when a constant is missing
+      br
+      | => Overwrite "const_get"
+    li
+      | Try to load codes from a file and get the constant again
+      br
+      | => Require the file and call "const_get" again
+section.slide
+  h2 How to do magic
+  pre.font-s
+    code.ruby
+      | class Object
+          def self.const_missing(c)
+            if c == :HomesController
+              require './homes_controller'
+              const_get(c)
+            else
+              super
+            end
+          end
+        end
+
+        homes_ctrl = HomesController.new
+        homes_ctrl.show
+section.slide
+  h2 How to do magic
+  p
+    | Try to find "
+    span.mk-blue
+      | Xxx::YYYZzzController
+    | " in "app/controllers/
+    span.mk-blue
+      | xxx/y_y_y_zzz_controller
+    | .rb"
+  pre.font-s
+    code.ruby
+      | def self.const_missing(c)
+          if c =~ /.*Controller\Z/
+            file_name = c.to_s.gsub(/::/, '/').
+              gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+              gsub(/([a-z\d])([A-Z])/,'\1_\2').
+              tr("-", "_").
+              downcase
+            require "./app/controllers/#{file_name}"
+            const_get(c)
+          else
+            # ...
+section.slide
+  h2 How to do magic
+  p
+    | Add the folder path to $LOAD_PATH, ruby would search these paths when we require files
+  pre.font-s
+    code.ruby
+      | <span class="mk-blue">$LOAD_PATH << File.join(File.dirname(__FILE__), "app", "controllers")</span>
+
+        class Object
+          def self.const_missing(c)
+            if c =~ /.*Controller\Z/
+              file_name = c.to_s.gsub(/::/, '/').gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+                gsub(/([a-z\d])([A-Z])/,'\1_\2').tr("-", "_").downcase
+              <span class="mk-blue">require file_name</span>
+              const_get(c)
+            else
+              # ...
+section.slide
+  h2 How to do magic
+  p
+    | If we use a wrong controller name ...
+  pre.font-m
+    code.ruby
+      | # app/controllers/<span class="mk-blue">homes_controller</span>.rb
+        class <span class="mk-red">HomeController</span>
+          def show
+            p "The homes#show is called!!"
+          end
+        end
+  pre.font-m
+    code.nohighlight
+      | ruby-2.2.3/lib/ruby/2.2.0/rubygems.rb:1119:in `each': stack level too deep (SystemStackError)
+       	from ruby-2.2.3/lib/ruby/2.2.0/rubygems.rb:1119:in `find_unresolved_default_spec'
+       	from ruby-2.2.3/lib/ruby/2.2.0/rubygems/core_ext/kernel_require.rb:43:in `require'
+       	from main.rb:11:in `const_missing'
+       	from main.rb:12:in `const_get'
+       	from main.rb:12:in `const_missing'
+       	from main.rb:12:in `const_get'
+       	from main.rb:12:in `const_missing'
+       	from main.rb:12:in `const_get'
+section.slide
+  h2 How to do magic
+  pre.font-s
+    code.ruby
+      | def self.const_missing(c)
+          <span class="mk-blue">super if @is_reloaded</span>
+          if c =~ /.*Controller\Z/
+            <span class="mk-blue">@is_reloaded = true</span>
+            file_name = c.to_s.gsub(/::/, '/').gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+              gsub(/([a-z\d])([A-Z])/,'\1_\2').tr("-", "_").downcase
+            require file_name
+            result = const_get(c)
+            <span class="mk-blue">@is_reloaded = false</span>
+            return result
+          else
+            super
+          end
+        end
+section.slide
+  h2 Back to rails
+  p
+    | The magic only works with a precondition ...
+  blockquote
+    span.font-xxxxl
+      | Convention over Configuration
+  p
+    | The "HomesController"
+    .
+    b
+      | MUST
+    |  be in "app/controllers/homes_controller.rb"
+  p
+    | More details:
+    .
+    a href="http://guides.rubyonrails.org/autoloading_and_reloading_constants.html" target="_blank"
+      | Rails Guide - Autoloading and Reloading Constants
+section.slide
+  h2 Back to rails
+  h3
+    b
+      | Tricks in rails:
+  ul
+    li
+      | Start at "const_missing":
+      .
+      a href="https://github.com/rails/rails/blob/v5.1.0/activesupport/lib/active_support/dependencies.rb#L200" target="_blank"
+        | activesupport/lib/active_support/dependencies.rb:200
+    pre.font-m
+      code.ruby
+        | def const_missing(const_name)
+            from_mod = anonymous? ? guess_for_anonymous(const_name) : self
+            Dependencies.load_missing_constant(from_mod, const_name)
+          end
+    li
+      | Dependencies.load_missing_constant:
+      .
+      a href="https://github.com/rails/rails/blob/v5.1.0/activesupport/lib/active_support/dependencies.rb#L493" target="_blank"
+        | activesupport/lib/active_support/dependencies.rb:493
+section.slide
+  h2 Not mentioned
+  ul
+    li
+      | Implement automatic loading in a rack app (See the book example)
+    li
+      | Do automatic loading when <span class="underline">files are changed or deleted</span> (See the book Exercise Two)
+    li
+      | The detail implementation in rails, ex: handle the nested namespace, autoload_paths, STI, ... (See Rails Guilde)
+section.slide
+  h2 Q & A
