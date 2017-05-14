@@ -1,5 +1,6 @@
 {
   "name": "魔法師的手杖",
   "description": "Kait's Blog - 分享自己寫程式的筆記",
-  "tags": "rails,javascript,web,sass"
+  "tags": "rails,javascript,web,sass",
+  "disqus_id": "wizard-note"
 }

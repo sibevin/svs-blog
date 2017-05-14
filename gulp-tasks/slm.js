@@ -48,7 +48,9 @@ const buildHtml = function(layoutSlm, chunk) {
     datetime: data.datetime,
     category: data.category,
     keywords: data.tags || appData.tags,
-    description: data.description || appData.description
+    description: data.description || appData.description,
+    link: data.link,
+    disqus_id: appData.disqus_id
   })
 }
 
@@ -63,6 +65,10 @@ const PAGE_TYPES = {
   },
   posts: {
     layout: './src/layouts/post.slm',
+    compile: buildHtml
+  },
+  slides: {
+    layout: './src/layouts/slides.slm',
     compile: buildHtml
   }
 }
@@ -103,5 +109,16 @@ module.exports = {
       })
       .pipe(through.obj(embedHtmlContent('posts')))
       .pipe(gulp.dest('./dist/posts'))
+  },
+  slides: function() {
+    return gulp.src('src/slides/*.slm')
+      //.pipe(cached('posts'))
+      .pipe(slm())
+      .on('error', function(error) {
+        debugger
+        console.log('error', error)
+      })
+      .pipe(through.obj(embedHtmlContent('slides')))
+      .pipe(gulp.dest('./dist/slides'))
   }
 }

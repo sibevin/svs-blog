@@ -1,0 +1,10 @@
+.meta-data title 404 找不到頁面
+.meta-data description 404 找不到頁面
+.meta-data end
+
+.error
+  .error-number
+    | 404
+  br
+  .error-title
+    |  我們之間一定有什麼誤會…
