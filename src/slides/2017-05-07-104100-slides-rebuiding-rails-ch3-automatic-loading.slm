@@ -15,26 +15,33 @@ header.caption
 section.slide.no-page-number
   h2
     | Rebuild Rails - Ch.3 - Rails Automatic Loading
+  br
+  br
+  br
   p
-    | Kait Wang
-  p
-    | 2017.05.15 @ Rails Study Group
+    | Kait Wang - 2017.05.15 @ Rails Study Group
   ul
     li
       | Slides:
       .
-      a href="https://sibevin.github.io/slides/2017-05-07-104100-slides-rebuiding-rails-ch3-automatic-loading" target="_blank"
-        | sibevin.github.io > category > slides
+      a href="https://sibevin.github.io/posts/2017-05-07-104100-slides-rebuiding-rails-ch3-automatic-loading" target="_blank"
+        | sibevin.github.io > 分類 > 演講
     li
       | Example code:
       .
       a href="https://github.com/sibevin/ruby-auto-loading-ex" target="_blank"
         | Github - sibevin / ruby-auto-loading-ex
+    li
+      | Book:
+      .
+      a href="http://rebuilding-rails.com/" target="_blank"
+        | Rebuilding Rails - by Noah Gibbs
 section.slide.no-page-number
   h2
     | Who
   p
     | Kait Wang a.k.a Sibevin Wang
+  br
   ul
     li
       | Blog:
@@ -54,7 +61,7 @@ section.slide.no-page-number
 
 section.slide
   h2
-    | What is the "Automatic Loading"
+    | What is Automatic Loading
   ol
     li
       | Create a new rails app
@@ -76,7 +83,7 @@ section.slide
           activesupport (5.1.0) lib/active_support/inflector/methods.rb:269:in `const_get'
 section.slide
   h2
-    | What is the "Automatic Loading"
+    | What is Automatic Loading
   ol
     li
       | Add the "Homes" controller and views
@@ -100,9 +107,12 @@ section.slide
       |  !!
 section.slide
   h2
-    | What is the "Automatic Loading"
+    | What is Automatic Loading
   p
-    | It's not working in a regular ruby code, even the file is given ...
+    | It's not working in a regular ruby code, even the file is given ... (
+    a href="https://github.com/sibevin/ruby-auto-loading-ex" target="_blank"
+      | source code
+    | )
   pre.font-m
     code.ruby
       | # homes_controller.rb
@@ -119,7 +129,6 @@ section.slide
   pre.font-m
     code.nohighlight
       | main.rb:1:in `&lt;main&gt;': uninitialized constant HomesController (NameError)
-
 section.slide
   h2
     | Load codes from other files
@@ -201,7 +210,7 @@ section.slide
   h2 How to do magic
   h3
     b
-      | The "Automatic Loading" tricks: :tada:
+      | The "Automatic Loading" tricks :tada:
   ol
     li
       | Take over the progress when a constant is missing
@@ -331,7 +340,7 @@ section.slide
   h2 Back to rails
   h3
     b
-      | Tricks in rails:
+      | Tricks in rails
   ul
     li
       | Start at "const_missing":
