@@ -66,6 +66,10 @@ const PAGE_TYPES = {
   posts: {
     layout: './src/layouts/post.slm',
     compile: buildHtml
+  },
+  slides: {
+    layout: './src/layouts/slides.slm',
+    compile: buildHtml
   }
 }
 
@@ -105,5 +109,16 @@ module.exports = {
       })
       .pipe(through.obj(embedHtmlContent('posts')))
       .pipe(gulp.dest('./dist/posts'))
+  },
+  slides: function() {
+    return gulp.src('src/slides/*.slm')
+      //.pipe(cached('posts'))
+      .pipe(slm())
+      .on('error', function(error) {
+        debugger
+        console.log('error', error)
+      })
+      .pipe(through.obj(embedHtmlContent('slides')))
+      .pipe(gulp.dest('./dist/slides'))
   }
 }

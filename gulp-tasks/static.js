@@ -16,5 +16,10 @@ module.exports = {
     return gulp.src('src/js/vendor/*')
       .pipe(cached('static_js'))
       .pipe(gulp.dest('./dist/js/vendor'))
+  },
+  shower: function() {
+    return gulp.src('src/shower/**/*')
+      .pipe(cached('static_shower'))
+      .pipe(gulp.dest('./dist/shower'))
   }
 }

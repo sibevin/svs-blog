@@ -133,12 +133,12 @@ var buildCategoryConst = function(chunk, enc, cb) {
 
 
 module.exports = function() {
-  var postsData = gulp.src(['src/posts/*.slm', 'src/bookmarks/*.slm'])
+  var postsData = gulp.src(['src/posts/*.slm', 'src/bookmarks/*.slm', 'src/slides/*.slm'])
       .pipe(through.obj(fetchMetadata))
       .pipe(concat('posts.js'))
       .pipe(through.obj(buildPostConst))
 
-  var tagsData = gulp.src(['src/posts/*.slm', 'src/bookmarks/*.slm'])
+  var tagsData = gulp.src(['src/posts/*.slm', 'src/bookmarks/*.slm', 'src/slides/*.slm'])
       .pipe(through.obj(fetchTag))
       .pipe(concat('tags.js'))
       .pipe(through.obj(buildTagConst))
