@@ -1,0 +1,46 @@
+.meta-data title Vue 筆記
+.meta-data datetime 2017-04-30 10:29:00
+.meta-data tags js,vue,note
+.meta-data category coding
+.meta-data link note-vue
+.meta-data file 2017-04-30-102900-note-vue
+.meta-data template post
+.meta-data draft
+.meta-data end
+
+h1 Resourse
+ul
+  li
+    a href="https://router.vuejs.org/" target="_blank"
+      | Vue router
+  li
+    a href="https://github.com/pagekit/vue-resource" target="_blank"
+      | Github - pagekit/vue-resource
+    | The HTTP client for Vue.js
+  li
+    a href="http://vue-chartjs.org/" target="_blank"
+      | vue-chartjs
+    | A wrapper for Chart.js in vue. You can easily create reuseable chart components.
+  li
+    a href="https://github.com/ghettovoice/vuelayers" target="_blank"
+      | Github - ghettovoice/vuelayers
+    | Vue components to work with OpenLayers
+
+h1 Refs
+ul
+  li
+    a href="https://vuejs.org/" target="_blank"
+      | Vue.js
+  li
+    a href="https://forum.vuejs.org/" target="_blank"
+      | Vuejs forum
+  li
+    a href="https://vuex.vuejs.org" target="_blank"
+      | Vuex
+
+h1 Links
+ul
+  li
+    a href="http://www.vuescript.com/" target="_blank"
+      | Vue.js Script
+    | Vue component collections

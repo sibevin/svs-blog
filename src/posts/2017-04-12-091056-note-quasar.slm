@@ -5,6 +5,7 @@
 .meta-data link note-quasar
 .meta-data file 2017-04-12-091056-note-quasar
 .meta-data template post
+.meta-data draft
 .meta-data end
 
 h1 Init
@@ -13,3 +14,27 @@ pre
     | $ quasar init [app_name]
       $ quasar dev
       $ quasar dev --play
+
+h1 Note
+
+h2 Use media query in style
+pre
+  code.sass
+    | @require '~quasar-framework/src/themes/core/size.variables.styl'
+      @media only screen and (min-width $layout-small-max)
+
+
+h1 Refs
+ul
+  li
+    a href="http://quasar-framework.org/" target="_blank"
+      | Quasar
+  li
+    a href="http://quasar-framework.org/quasar-play/android/index.html#/showcase" target="_blank"
+      | Quasar Showcase
+  li
+    a href="http://forum.quasar-framework.org/" target="_blank"
+      | Quasar Forum
+  li
+    a href="https://material.io/icons/" target="_blank"
+      | Meterial icons

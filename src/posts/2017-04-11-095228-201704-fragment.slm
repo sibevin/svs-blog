@@ -13,6 +13,19 @@ ul
   li
     a href="http://quasar-framework.org/" target="_blank"
       | Quasar Framework
+  li
+    a href="https://adodson.com/hello.js/#hellojs" target="_blank"
+      | hello.js
+    | - A client-side JavaScript SDK for authenticating with OAuth2 (and OAuth1 with a oauth proxy) web services and querying their REST APIs.
+  li
+    a href="https://github.com/wrseward/vue-unit" target="_blank"
+      | Github - wrseward/vue-unit
+    | - Component testing utilities for Vue.js
+  li
+    a href="http://bsonspec.org/" target="_blank"
+      | BSON - a bin­ary-en­coded seri­al­iz­a­tion of JSON-like doc­u­ments.
+  li
+    | Unpaywall
 
 h1 Who
 ul
@@ -22,6 +35,9 @@ ul
   li
     a href="https://www.godfat.org/" target="_blank"
       | godfat
+  li
+    a href="http://www.ioa.tw/" target="_blank"
+      | 吳政賢
 
 h1 Ruby web applications
 ul
@@ -64,6 +80,12 @@ ul
   li
     a href="https://shifteleven.com/articles/2009/02/09/useless-ruby-tricks-data-and-__end__/" target="_blank"
       | Useless Ruby Tricks: DATA and __END__
+
+h1 Image Processing library
+ul
+  li
+    a href="http://dlib.net/" target="_blank"
+      | Dlib C++ library
 
 h1 Ruby others
 ul

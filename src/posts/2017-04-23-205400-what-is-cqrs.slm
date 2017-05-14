@@ -1,0 +1,57 @@
+.meta-data title CQRS - Command Query Responsibility Segregation 指令查詢責任切割模式
+.meta-data datetime 2017-04-23 20:54:00
+.meta-data tags dp,elixir
+.meta-data category coding
+.meta-data link what-is-cqrs
+.meta-data file 2017-04-23-205400-what-is-cqrs
+.meta-data template post
+.meta-data end
+
+h1 Why
+
+ul
+  li
+    | 在很多情況下，讀取資料與存入資料的方式可能非常不同。例如：讀取的時候需要查詢多的 table 與 column 來組成特定的格式、在寫入時可能會限制只有某些欄位可以更改。
+  li
+    | 讀取資料與存入資料的地方可能是完全不同的硬體設備。例如：可能是借由 memory cache, read-only database repication, No-SQL 等來進行讀取的動作，而寫入的地方則是正真的 database 。
+
+h1 What
+p
+  | CQRS - Command Query Responsibility Segregation(指令查詢責任切割) 指是就是將 指令(寫入)的動作 與 查詢(讀取)的動作 分開，採用不同的 read/write model 來分別處理存取資料的動作。
+
+h2 名詞定義
+ul
+  li
+    | Command - 指的是「會」變動系統狀態或資料的動作，也會被稱做 modifier 或 mutator。通常用主動命令式的語法命名，例如：register account, pay order 等。而負責處理 command 的 model 就稱做 write model。
+  li
+    | Query - 指的是「不會」變動系統狀態或資料的查詢，負責處理 query 的 model 就是 read model，通常 read model 會針對 query 做最佳化處理，例如使用上面提到的技術來加快讀取的速度。
+  li
+    | Domain event - 表示系統目前的狀態，通常用被動的語法命名，例如：account registered, order paid 等。它是 immutable ，只能藉由 write model 來更改它。
+  li
+    | Event sourcing - 一種 write model 的實作方式，它將 command 做時間排序的 queue ，也就是每接收到一個 command 就將它放在 queue 中，系統在從 queue 將 command 一個個取出來執行。這樣做的好處是可以方便的追蹤或記錄每一次執行的 command ，甚至可以從這些記錄中藉由重新執行這些 command 來重建系統的狀態或資料。
+
+h2 優點
+ul
+  li
+    | 因為讀寫切割，所以可以針對個別的動作進行最佳化，甚至可以分配不同的資源(例如伺服器、資料庫的數量等)專門負責讀或寫。
+  li
+    | Domain event 只能從 write model 更改，所以系統的狀態是非常明確的。
+  li
+    | 容易與其它的系統整合，搭配 event sourcing 的話甚至可以在新環境重建整個系統。
+
+h2 缺點
+ul
+  li
+    | 因為讀寫動作被強迫分開，會大幅度增加系統的複雜度。
+  li
+    | 如果讀寫處理的資料類似，反而使用共通的model來處理是比較簡單的，冒然的使用 CQRS 只會增加系統開發的困難。
+
+h1 Refs
+ul
+  li
+    a href="https://martinfowler.com/bliki/CQRS.html" target="_blank"
+      | CQRS - by Martin Fowler
+    | 對 CQRS 有非常詳盡的說明。
+  li
+    a href="https://10consulting.com/2017/01/04/building-a-cqrs-web-application-in-elixir-using-phoenix" target="_blank"
+      | Building a CQRS/ES web application in Elixir using Phoenix
