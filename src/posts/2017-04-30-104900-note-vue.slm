@@ -8,6 +8,23 @@
 .meta-data draft
 .meta-data end
 
+h1 Resourse
+ul
+  li
+    a href="https://router.vuejs.org/" target="_blank"
+      | Vue router
+  li
+    a href="https://github.com/pagekit/vue-resource" target="_blank"
+      | Github - pagekit/vue-resource
+    | The HTTP client for Vue.js
+  li
+    a href="http://vue-chartjs.org/" target="_blank"
+      | vue-chartjs
+    | A wrapper for Chart.js in vue. You can easily create reuseable chart components.
+  li
+    a href="https://github.com/ghettovoice/vuelayers" target="_blank"
+      | Github - ghettovoice/vuelayers
+    | Vue components to work with OpenLayers
 
 h1 Refs
 ul
@@ -20,10 +37,10 @@ ul
   li
     a href="https://vuex.vuejs.org" target="_blank"
       | Vuex
+
+h1 Links
+ul
   li
-    a href="https://router.vuejs.org/" target="_blank"
-      | Vue router
-  li
-    a href="https://github.com/pagekit/vue-resource" target="_blank"
-      | Github - pagekit/vue-resource
-    | The HTTP client for Vue.js
+    a href="http://www.vuescript.com/" target="_blank"
+      | Vue.js Script
+    | Vue component collections
