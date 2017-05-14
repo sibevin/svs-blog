@@ -30,7 +30,7 @@
             .pl-name
               a.pl-website v-bind:href="post.website" v-show="post.website" target="_blank"
                 img src="/images/list/weblink_25x.svg"
-              a v-bind:href="post.category === 'bm' ? post.website : '/posts/' + post.file" v-bind:target="post.category === 'bm' ? '_blank' : '_self'"
+              a v-bind:href="getLink(post)" v-bind:target="getTarget(post)"
                 | {{ post.title }}
             .pl-time
               | {{ post.datetime }}
@@ -146,6 +146,24 @@ export default {
   methods: {
     switchPage: function(targetPage) {
       this.paginator.gotoPage(targetPage)
+    },
+    getLink: function(post) {
+      switch (post.category) {
+        case 'bm':
+          return post.website
+        case 'slides':
+          return '/slides/' + post.file
+        default:
+          return '/posts/' + post.file
+      }
+    },
+    getTarget: function(post) {
+      switch (post.category) {
+        case 'bm':
+          return '_target'
+        default:
+          return '_self'
+      }
     }
   },
   watch: {

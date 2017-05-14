@@ -1,0 +1,55 @@
+doctype html
+html
+  head
+    meta charset="utf-8"
+    meta content="width=device-width, initial-scale=1.0" name="viewport"
+    title
+      == this.title
+    meta name="description" content==this.description
+    - if this.tags
+      meta name="keywords" content==this.tags
+    link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/8.7.0/styles/hybrid.min.css"
+    link rel="stylesheet" href="/shower/themes/ribbon/styles/screen-16x10.css"
+    link href="/css/application.css" rel="stylesheet"
+    script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"
+    script src="//cdn.jsdelivr.net/highlight.js/8.7.0/highlight.min.js"
+    script src="/js/consts/metadata.js"
+    script src="/js/vendor/emojify.min.js"
+    javascript:
+      var FILE = ${=j(this.file)};
+      hljs.initHighlightingOnLoad();
+  body.shower.list
+    div id="app"
+      .slides.layout
+        .sl-content
+          == this.content
+    .progress
+    script src="/js/vendor/shower.min.js"
+    javascript:
+      $(function () {
+        // emoji
+        emojify.setConfig({
+          ignore_emoticons: true,
+          img_dir: '/images/emoji',
+          blacklist: {
+            elements: ['script', 'textarea', 'pre', 'code'],
+            classes: ['no-emojify']
+          }
+        });
+        emojify.run();
+        // Add trademark
+        var sections = document.getElementsByTagName('section');
+        for (var i = 0; i < sections.length; i++) {
+          var tm = document.createElement('a');
+          tm.className = 'trademark';
+          tm.setAttribute("href", "https://sibevin.github.io");
+          tm.setAttribute("target", "_blank");
+          //var href = document.createAttribute("href");
+          //var target = document.createAttribute("target");
+          //href.value = "https://sibevin.github.io"
+          //target.value = "_blank"
+          //tm.setAttributeNode(href)
+          //tm.setAttributeNode(target)
+          sections[i].appendChild(tm)
+        };
+      });
