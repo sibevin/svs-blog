@@ -1,3 +1,6 @@
 [submodule "scripts/svs-blog-post-creator"]
 	path = scripts/svs-blog-post-creator
 	url = git@github.com:sibevin/svs-blog-post-creator.git
+[submodule "scripts/svs-blog-uploader"]
+	path = scripts/svs-blog-uploader
+	url = git@github.com:sibevin/svs-blog-uploader.git
