@@ -1,0 +1,24 @@
+.meta-data title 筆記 - 加解密與數位簽章
+.meta-data datetime 2017-05-19 20:12:00
+.meta-data tags js,nodejs,js_es6
+.meta-data category coding
+.meta-data link js-module-import-vs-require
+.meta-data file 2017-05-19-201200-js-module-import-vs-require
+.meta-data template post
+.meta-data draft
+.meta-data end
+
+h1 Refs
+ul
+  li
+    a href="http://imweb.io/topic/582293894067ce9726778be9" target="_blank"
+      | Node中没搞明白require和import，你会被坑的很惨 by IMWeb 否子戈
+  li
+    a href="http://exploringjs.com/es6/ch_modules.html" target="_blank"
+      | Exploring ES6 - 16. Modules
+  li
+    a href="https://medium.freecodecamp.com/requiring-modules-in-node-js-everything-you-need-to-know-e7fbd119be8" target="_blank"
+      | Requiring modules in Node.js: Everything you need to know - Samer Buna
+  li
+    a href="https://dotblogs.com.tw/litfal/2014/03/08/144298" target="_blank"
+      | RSA數位簽章的簡單流程 - by Litfal的S/L中心

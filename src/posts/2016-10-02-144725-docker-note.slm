@@ -183,6 +183,17 @@ h3 docker inspect [container]
 p
   | 取得目前container的資訊。
 
+h3 docker attach [container]
+p
+  | 連線至指定的container，但多個attach指令到同一個container的話，會共用相同的console。
+
+h3 docker exec [container] [command]
+p
+  | 連線至指定的container並執行對應的指令。跟run一樣有 -it 參數可以使用，例如可以使用
+  code
+    | docker exec -it [container] bash
+  | 。
+
 h1 使用範例
 
 h2 範例：一個建立phoenix環境的Dockerfile

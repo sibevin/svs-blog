@@ -75,7 +75,7 @@ pre
       end
 ul
   li
-    | 在routes中掛載api的路徑。
+    | 在routes中掛載api的路徑。我們將api掛載在網址/api下，這樣所有的api網址都會從/api開始。
 p
   i
     | config/routes.rb
@@ -83,15 +83,55 @@ pre
   code
     | Rails.application.routes.draw do
         # ...
-        mount Api::Test => '/'
+        mount Api::Test => '/api'
         # ...
       end
 ul
   li
     | 重新啟動rails server，在網址列輸入
     code
-      | localhost:3000/ping
+      | localhost:3000/api/ping
     | 就可以呼叫API了。
+h1 寫測試
+p
+  | 寫測試是非常重要的，寫api的測試更是重要。api的測試與controller非常像，都是模擬送出request後，檢查對應的回傳結果。但controller通常不會測試body的內容(因為這是屬於view的測試)，而api的測試就會直接比對body輸出的結果。
+ul
+  li
+    | 在rails_helper中設定api的spec存放的路徑，將所有api的spec放在spec/api下。
+i
+  | spec/rails_helper.rb
+pre
+  code.ruby
+    | RSpec.configure do |config|
+        # ...
+        config.include RSpec::Rails::RequestExampleGroup, type: :request, file_path: /spec\/api/
+        # ...
+      end
+ul
+  li
+    | 建立Api::Test的spec：
+i
+  | spec/api/test_spec.rb
+pre
+  code.ruby
+    | require 'rails_helper'
+
+      describe Api::Test do
+        context 'GET /api/ping' do
+          it 'should return 200 and pong data' do
+            get '/api/ping'
+            expect(response.status).to eq(200)
+            expect(JSON.parse(response.body)).to eq({ 'data' => 'pong' })
+          end
+        end
+      end
+ul
+  li
+    | 執行rspec就可以看到測試的結果嘍。
+pre
+  code.nohighlight
+    | rspec spec/api/test_spec.rb
+
 h1 使用swagger自動生成API文件
 p
   | 使用grape的另一個好處是它可以自動生成swagger的API文件，所以只要API寫好了，API文件就寫好了。除此之外，還可以整合swagger-ui直接將API文件掛載在rails的routes下，超級方便的啊。下面是設定的步驟：
@@ -132,7 +172,7 @@ pre
           
           if Rails.env.development?
             add_swagger_documentation(
-              mount_path: 'api/swagger_doc',
+              mount_path: 'swagger_doc',
               hide_format: true,
               hide_documentation_path: true
             )
@@ -153,9 +193,9 @@ p
 pre
   code
     | if Rails.env.development?
-        GrapeSwaggerRails.options.url = "api/swagger_doc"
+        GrapeSwaggerRails.options.url = "swagger_doc"
         GrapeSwaggerRails.options.app_name = 'My App'
-        GrapeSwaggerRails.options.app_url = '/'
+        GrapeSwaggerRails.options.app_url = '/api/'
       end
 ul
   li

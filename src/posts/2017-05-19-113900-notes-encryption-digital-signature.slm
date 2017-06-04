@@ -1,0 +1,109 @@
+.meta-data title 筆記 - 加解密與數位簽章
+.meta-data datetime 2017-05-19 11:39:00
+.meta-data tags note
+.meta-data category coding
+.meta-data link notes-encryption-digital-signature
+.meta-data file 2017-05-19-113900-notes-encryption-digital-signature
+.meta-data template post
+.meta-data end
+
+h1
+  | 公開金鑰加密 / 非對稱加密(public key / asymmetric cryptography)
+h2 特性
+ul
+  li
+    | 分成公鑰(public key)與私鑰(private key)。
+  li
+    | 用公鑰加密的文件，只有私鑰可以解密，因此公鑰被取得也無法進行解密。
+h2 實作
+ul
+  li
+    | RSA
+
+h1
+  | 對稱加密(symmetric-key cryptography)
+h2 特性
+ul
+  li
+    | 加解密使用同一把金鑰。
+  li
+    | 因為加解密都需要同一把金鑰，因此會有金鑰交換的問題，也就是如果要讓對方做解密，則必須要把金鑰給對方。
+h2 實作
+ul
+  li
+    | AES
+  li
+    | DES / Triple DES
+
+h1
+  | 數位簽章(digital signature)
+h2 特性
+ul
+  li
+    | 通常使用非對稱加密技術，而且要確保公私鑰無法互相推算。
+  li
+    | 是一個反向使用公開金鑰加密的應用，也就是用私鑰加密，用公鑰解密。
+h2 應用
+p
+  | 數位簽章用來確保資料傳輸時能符合下面的特性：
+ul
+  li
+    | 完整性(integrity)：資料在傳輸的過程中不會被篡改。
+  li
+    | 來源驗證性(authentication)：資料確實是從持有私鑰的來源所發佈的。
+  li
+    | 不可否認性(non-repudiation)：資料來源不能否認此資料是從他們所發佈的。
+h2
+  | 訊息摘要(message digest)
+ul
+  li
+    | 在做加密前，會先將原本的明文使用雜湊函數(hash function)轉成訊息摘要之後，然後再做加密。
+  li
+    | 通常從雜湊函數取得的訊息摘要長度會比原本的明文短很多，所以對訊息摘要做加解密的速度也會比直接對明文做加解密的速度快很多。
+  li
+    | 雜湊函數可以確保明文與訊息摘要會呈現1對1的對應(也就是同一個明文產生的訊息摘要一定相同，而不同的明文會對應不同的訊息摘要)，所以轉成訊息摘要的好處是可以確保資料的完整性。然而在實際應用的雜湊函數所生成的訊息摘要都有長度的限制，所以還是可能有發生碰撞(也就是不同的明文但產生相同的訊息摘要)的情況，不過發生的機率很低就是了。
+  li
+    | 雜湊函數通常要具有快速(能快速從明文產生訊息摘要)與不可逆性(無法從訊息摘要回推對應的明文)。
+  li
+    | 常見的雜湊函數：MD5、SHA
+
+h2 簽名流程
+ul
+  li
+    | 傳送者持有私鑰(private key)。
+  li
+    | 傳送者要送出明文資料(A)。
+  li
+    | 使用雜湊函數將明文資料(A)轉成訊息摘要(B)。
+  li
+    | 使用私鑰進行對訊息摘要(B)加密得到加密後的摘要密文(B')。
+  li
+    | 將明文與摘要密文(A+B')同時進行傳送。
+
+h2 驗證流程
+ul
+  li
+    | 接收者持有公鑰(public key)。
+  li
+    | 接收者會接收到傳來包含明文與摘要密文(A+B')的資料。
+  li
+    | 使用雜湊函數將明文資料(A)轉成訊息摘要(B)。
+  li
+    | 使用公鑰解密摘要密文(B')取得解密後的訊息摘要(B'')。
+  li
+    | 然後對訊息摘要(B)與解密後的訊息摘要(B'')進行比對，如果兩者相同則表示此訊息的來源是可靠的。
+
+h1 Refs
+ul
+  li
+    a href="https://en.wikipedia.org/wiki/Encryption" target="_blank"
+      | wiki - Encryption
+  li
+    a href="https://en.wikipedia.org/wiki/Digital_signature" target="_blank"
+      | wiki - Digital signature
+  li
+    a href="http://david50.pixnet.net/blog/post/28798505" target="_blank"
+      | [筆記]Digital Signature 數位簽章 - by 小必
+  li
+    a href="https://dotblogs.com.tw/litfal/2014/03/08/144298" target="_blank"
+      | RSA數位簽章的簡單流程 - by Litfal的S/L中心

@@ -215,7 +215,7 @@ section.slide
     li
       | Take over the progress when a constant is missing
       br
-      | => Overwrite "const_get"
+      | => Overwrite "const_missing"
     li
       | Try to load codes from a file and get the constant again
       br
@@ -289,7 +289,7 @@ section.slide
             p "The homes#show is called!!"
           end
         end
-  pre.font-m
+  pre.font-m.next
     code.nohighlight
       | ruby-2.2.3/lib/ruby/2.2.0/rubygems.rb:1119:in `each': stack level too deep (SystemStackError)
        	from ruby-2.2.3/lib/ruby/2.2.0/rubygems.rb:1119:in `find_unresolved_default_spec'
