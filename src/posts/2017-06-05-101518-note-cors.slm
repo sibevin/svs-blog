@@ -1,0 +1,119 @@
+.meta-data title 筆記 - 什麼是CORS？
+.meta-data datetime 2017-06-05 10:15:18
+.meta-data tags note,web,rails
+.meta-data category coding
+.meta-data link note-cors
+.meta-data file 2017-06-05-101518-note-cors
+.meta-data template post
+.meta-data end
+
+h1
+  | Why
+p
+  | 因為安全性的考量，瀏覽器預設都會限制網頁做跨網域的連線。但如果要提供資料存取的服務給其它人使用，就必須要開放對應的API給其它人連線。而 CORS 就是一個瀏覽器做跨網域連線的時要遵守的規範。
+
+h1
+  | What
+h2
+  | 跨網域連線
+p
+  | 當一個網頁送出一個 request 的時候，瀏覽器會在 request (XMLHttpRequest) 的 header 塞入 Origin 這個資料，這個資料就是代表這個網頁的來源。 Origin 通常就是這個網頁對應網址的網域，也就是網頁發出的 request 必須與原本的網頁要有相同的來源(the same-origin policy)。當一個 request 的 Origin 網域與 request 的目標伺服器不同就是所謂的跨網域連線。
+h2
+  | CORS(Cross-Origin Resource Sharing)
+p
+  | CORS是一個瀏覽器做跨網域連線的方式。透過 HTTP header 的設定，可以規範瀏覽器在進行跨網域連線時可以存取的資料權限與範圍，包括哪些來源可以存取，或是哪些 HTTP verb, header 的 request 可以存取。
+
+h1
+  | How
+h2
+  | CORS的流程
+p
+  | 當一個支援 CORS 瀏覽器在網頁送出一個 request 時，會做下面的動作：
+ul
+  li
+    | 瀏覽器根據送出 request 的 HTTP verb 與 header，判斷這個 request 是一個簡單請求(simple request)或是非簡單請求(判斷的細節可參考
+    a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS#Simple_requests" target="_blank"
+      | MDN - HTTP access control (CORS) - Simple requests
+    |)。如果是一個簡單請求，則直接送出 request。
+  li
+    | 如果是一個非簡單請求的 request，則進行 CORS preflight。先對伺服器送出一個 verb 為 OPTION 的 preflight request，它會帶有特定的 header 告訴伺服器接下來的 request 需要哪些跨網域連線的權限。
+pre
+  code.nohighlight
+    | <span class="mk-red">OPTIONS</span> /resources/post-here/ HTTP/1.1
+      Host: bar.other
+      User-Agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.5; en-US; rv:1.9.1b3pre) Gecko/20081130 Minefield/3.1b3pre
+      Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+      Accept-Language: en-us,en;q=0.5
+      Accept-Encoding: gzip,deflate
+      Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+      Connection: keep-alive
+      Origin: http://foo.example
+      <span class="mk-blue">Access-Control-Request-Method: POST</span>
+      <span class="mk-blue">Access-Control-Request-Headers: X-PINGOTHER, Content-Type</span>
+ul
+  li
+    | 當伺服器收到 preflight 後，就會回傳帶有特定 header 的 response 給瀏覽器，告訴它有哪些權限是允許的。
+pre
+  code.nohighlight
+    | HTTP/1.1 200 OK
+      Date: Mon, 01 Dec 2008 01:15:39 GMT
+      Server: Apache/2.0.61 (Unix)
+      <span class="mk-blue">Access-Control-Allow-Origin: http://foo.example</span>
+      <span class="mk-blue">Access-Control-Allow-Methods: POST, GET, OPTIONS</span>
+      <span class="mk-blue">Access-Control-Allow-Headers: X-PINGOTHER, Content-Type</span>
+      <span class="mk-blue">Access-Control-Max-Age: 86400</span>
+      Vary: Accept-Encoding, Origin
+      Content-Encoding: gzip
+      Content-Length: 0
+      Keep-Alive: timeout=2, max=100
+      Connection: Keep-Alive
+      Content-Type: text/plain
+ul
+  li
+    | 瀏覽器取得伺服器的 response 後，如果符合連線權限，就會送出真正的 request。如果發現權限不符，就會出現錯誤訊息而中斷送出 request 的步驟。
+h2
+  | 讓 rails 支援 CORS
+p
+  | 如果要做跨網域連線，伺服器端在送出 preflight response 時，就必須要帶有特定的 header。在 rails 中可以在 config 中設定 header 如下：
+i
+  | config/application.rb
+pre
+ code.ruby
+  | config.action_dispatch.default_headers = {
+      'Access-Control-Allow-Origin' => '*',
+      'Access-Control-Request-Method' => 'GET, PATCH, PUT, POST, OPTIONS, DELETE',
+      'Access-Control-Allow-Headers:' => 'Origin, X-Requested-With, Content-Type, Accept'
+    }
+p
+  | 但非常不建議這樣做，因為這樣的設定會讓所有的 response 都開放跨網域連線，顯然是個不安全的行為。比較好的做法是使用
+  a href="https://github.com/cyu/rack-cors" target="_blank"
+    | rack-cors
+  | 這個 gem 來處理 CORS，它的用法也很簡單，只要在 config 中加入相關的設定就可以了：
+i
+  | config/application.rb
+pre
+ code.ruby
+  | config.middleware.insert_before 0, Rack::Cors do
+      allow do
+        origins '*'
+        resource '/api/*', :headers => :any, :methods => [:get, :post, :options]
+      end
+    end
+p
+  | 注意要記得調整設定裡的 resource 參數來限制哪些網址要開放跨網域連線，更多細節請參考官方文件。
+
+h1
+  | Refs
+ul
+  li
+    a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS" target="_blank"
+      | MDN - HTTP access control (CORS)
+  li
+    a href="https://www.html5rocks.com/en/tutorials/cors/" target="_blank"
+      | www.html5rocks.com - Using CORS
+  li
+    a href="https://blog.toright.com/posts/3205/%E5%AF%A6%E4%BD%9C-cross-origin-resource-sharing-cros-%E8%A7%A3%E6%B1%BA-ajax-%E7%99%BC%E9%80%81%E8%B7%A8%E7%B6%B2%E5%9F%9F%E5%AD%98%E5%8F%96-request.html" target="_blank"
+      | 實作 Cross-Origin Resource Sharing (CORS) 解決 Ajax 發送跨網域存取 Request by SJ
+  li
+    a href="https://stackoverflow.com/questions/29324852/allow-cors-in-ruby-on-rails" target="_blank"
+      | SO - Allow CORS in Ruby on Rails
