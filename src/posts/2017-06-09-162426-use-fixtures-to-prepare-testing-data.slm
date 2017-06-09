@@ -1,0 +1,89 @@
+.meta-data title 使用fixtures來建立測試資料
+.meta-data datetime 2017-06-09 16:24:26
+.meta-data tags test,rails,book_tp
+.meta-data category coding
+.meta-data link use-fixtures-to-prepare-testing-data
+.meta-data file 2017-06-09-162426-use-fixtures-to-prepare-testing-data
+.meta-data template post
+.meta-data end
+
+h1
+  | 前言
+p
+  | 這是 Test Prescription 這本書部分內容的筆記整理，如果你對這篇文章有興趣，強烈建議你去讀讀這本書。
+h1
+  | Fixtures的特性
+ul
+  li
+    | fixtures適用在任何的test framework。
+  li
+    | fixtures定義在測試一開始時測試資料的初始狀態，也就是每跑完一個測試案例就會恢複測試資料變成初始狀態。
+  li
+    | fixtures是全域的，也就是所有的測試案例都共用相同的fixtures。
+h1
+  | Fixtures的使用範例
+p
+  | 下面是一些fixtures的範例：(時間格式、斷行、支援association、支援erb語法但要注意縮排)
+p
+  i
+    | spec/fixtures/projects.yml
+pre
+  code.yaml
+    | book:
+        name: Write the book
+        due_date: 2014-04-14
+
+      runway:
+        name: Project Runway
+        due_date: <%= 1.month.from_now %>
+        description: |
+          The awesomest project ever.
+          It's really, really great.
+p
+  i
+    | spec/fixtures/tasks.yml
+pre
+  code.yaml
+    | chapter:
+        title: Write a chapter
+        project: book
+
+      <% 10.times do |i| %>
+      task_<%=i%>:
+        name: "Task <%= i %>"
+      <% end %>
+p
+  | 下面是一個在測試中使用fixture的範例：
+p
+  i
+    | spec/models/product_spec.rb
+pre
+  code.ruby
+    | it "should have a default name" do
+        project = projects(:book)
+        expect(project.name).to eq("Write the book")
+      end
+h1
+  | fixture的載入行為
+p
+  | fixtures預設在跑完每個測試案例就會恢複測試資料，假如想要測試案例之間資料的變換，這個行為就變的很麻煩。你可以在spec/spec_helper.rb中加上config.use_transactional_fixtures = false關閉這個行為，但因為這個設定是全域設定，這會變成所有的測試資料都不會復原，反而失去「復原功能」的好處。簡而言之，如果要測試案例之間資料的變換，不要用fixtures來做這件事。
+
+h1
+  | fixture的優點
+ul
+  li
+    | 快，因為它不做資料庫的insert，而是直接將資料載入到ActiveRecord的object中。
+  li
+    | 每個測試案例都可以使用它，對於要設定全域資料(全域資料：雖然是為了方便修改而儲存在資料庫中，但很少變動的資料)非常好用。
+
+h1
+  | fixture的缺點
+ul
+  li
+    | 它是全域的，如果你設定了很多的fixtures，表示跑每一個測試案例都要重複載入這些fixtures。
+  li
+    | 它是擴散的，如果你在model中加入了新的association，這意味著你必須要去修改對應的fixtures將這些association設定好。
+  li
+    | 無法一眼就就能從測試檔案中得知fixtures定義的值，也就是還要把fixtures檔案翻出來看。
+  li
+    | 一旦加入了新的測試資料到原本fixtures，因為它的全域的，所以有可能會破壞原本已經通過的測試。

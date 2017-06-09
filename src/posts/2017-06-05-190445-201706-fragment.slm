@@ -1,0 +1,28 @@
+.meta-data title 201706 碎片
+.meta-data datetime 2017-06-05 19:04:45
+.meta-data tags frag
+.meta-data category coding
+.meta-data link 201706-fragment
+.meta-data file 2017-06-05-190445-201706-fragment
+.meta-data template frag
+.meta-data draft
+.meta-data end
+
+h1
+  | Who
+ul
+  li
+    a href="http://mrpm.cc/" target="_blank"
+      | Mr. PM Blog
+h1
+  | Terms
+ul
+  li
+    a href="" target="_blank"
+      |
+h1
+  | Links
+ul
+  li
+    a href="" target="_blank"
+      |

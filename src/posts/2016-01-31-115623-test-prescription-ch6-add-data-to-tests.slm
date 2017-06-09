@@ -1,0 +1,95 @@
+.meta-data title rails讀書會 - Test Prescription - Ch.6 加入測試用的資料
+.meta-data datetime 2016-01-31 11:56:23
+.meta-data tags rails,test,book_tp,rails_study-group
+.meta-data category coding
+.meta-data link test-prescription-ch6-add-data-to-tests
+.meta-data file 2016-01-31-115623-test-prescription-ch6-add-data-to-tests
+.meta-data template post
+.meta-data end
+
+p
+  | 本章介紹兩種最常用來建立測試資料的方法：
+ul
+  li
+    | Fixtures：快速的建立全域性測試資料。
+  li
+    | Factories：建立測試資料的藍圖。
+
+h1
+  | What's the Problem?
+
+pre
+  code.ruby
+    | it "can tell which user is older" do
+        eldest = User.create(date_of_birth: '1971-01-22')
+        youngest = User.create(date_of_birth: '1973-08-31')
+        expect(User.find_eldest).to eq(eldest)
+        expect(User.find_youngest).to eq(youngest)
+      end
+p
+  | 隨著時間的演進，我們加了authentication的功能到user model中，這時所有用到User.create的地方都必須加上email與password才可以被塞進資料庫。
+pre
+  code.ruby
+    | it "can tell which user is older" do
+        eldest = User.create!(date_of_birth: '1971-01-22',
+          email: "eldest@example.com", password: "password")
+        youngest = User.create!(date_of_birth: '1973-08-31',
+          email: "youngest@example.com", password: "password")
+        expect(User.find_eldest).to eq(eldest)
+        expect(User.find_youngest).to eq(youngest)
+      end
+p
+  | 隨著時間的演進，我們又加了height, zip code與handedness(慣用手)的validation…
+pre
+  code.ruby
+    | it "can tell which user is older" do
+        eldest = User.create!(date_of_birth: '1971-01-22',
+          email: "eldest@example.com", password: "password",
+          height: 185, zip code: "60642", handedness: "left")
+        youngest = User.create!(date_of_birth: '1973-08-31',
+          email: "youngest@example.com", password: "password",
+          height: 178, zip code: "60642", handedness: "ambidextrous")
+        expect(User.find_eldest).to eq(eldest)
+        expect(User.find_youngest).to eq(youngest)
+      end
+p
+  | 由上面的例子可以發現，一旦user model的validation做變動，所有用到user create的測試都要做變動，這是件非常可怕的事。
+
+h1
+  | Fixtures
+p
+  | 請參考：
+  a href="/posts/2017-06-09-162426-use-fixtures-to-prepare-testing-data" target="_blank"
+    | 使用fixtures來建立測試資料
+
+h1
+  | Factories
+p
+  | 請參考：
+  a href="/posts/2017-06-09-163242-use-factory-to-prepare-testing-data" target="_blank"
+    | 使用factory來建立測試資料
+
+h1
+  | Dates and Times
+p
+  | 請參考：
+  a href="/posts/2017-06-09-183610-how-to-test-time" target="_blank"
+    | 如何測試時間
+h2
+  | Setting Rails Timestamps
+ul
+  li
+    | 在一般的情況下，rails會自動更新created_at與updated_at這兩個欄位的值。
+  li
+    | 在測試中處理created_at時，我們可以在fixtures、factories，甚至在ActiveRecord::new或是ActiveRecord::create中像其它的attribute一樣覆寫掉它的值。
+  li
+    | updated_at比較麻煩，因為它會在model被save時自動更新，如果真的要測試它，可以在測試前呼叫Project.record_timestamps = false讓model暫時停止更新timestamp，等測試完再呼叫Project.record_timestamps = true讓model變正常。
+h1
+  | Fixtures vs. Factories vs. Test Doubles
+ul
+  li
+    | fixtures：用來建立大量的靜態資料，每個測試案例都可以使用。
+  li
+    | 兩者可以一起用，fixtures用來建立需要大量資料複雜的controller或是integration test，factories則是用在比較簡單的controller或是unit test。
+  li
+    | 如果你有一個不想存取資料庫的理由(例如：存取資料庫會讓測試變慢，或是堅持「unit test絕對不存取資料庫」的原則，或是資料本身就有複雜的建立流程導致難以建立測試資料)，那麼就要交給doubles來產生假資料嘍。

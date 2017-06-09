@@ -117,3 +117,6 @@ ul
   li
     a href="https://stackoverflow.com/questions/29324852/allow-cors-in-ruby-on-rails" target="_blank"
       | SO - Allow CORS in Ruby on Rails
+  li
+    a href="https://github.com/ruby-grape/grape/issues/170" target="_blank"
+      | Github - ruby-grape/grape - issues - CORS Support

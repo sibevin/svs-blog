@@ -1,0 +1,219 @@
+.meta-data title 如何測試時間
+.meta-data datetime 2017-06-09 18:36:10
+.meta-data tags test,rails,book_tp
+.meta-data category coding
+.meta-data link how-to-test-time
+.meta-data file 2017-06-09-183610-how-to-test-time
+.meta-data template post
+.meta-data end
+
+h1
+  | 前言
+p
+  | 這是 Test Prescription 這本書部分內容的筆記整理，如果你對這篇文章有興趣，強烈建議你去讀讀這本書。
+h1
+  | 測試時間遇到的問題
+
+p
+  | 首先，我們建立了一些project的fixtures做為測試資料：
+p
+  i
+    | spec/fixtures/projects.yml
+pre
+  code.ruby
+    | runway:
+        name: Project Runway start_date: 2015-01-20
+      greenlight:
+        name: Project Greenlight start_date: 2015-02-04
+      gutenberg:
+        name: Project Gutenberg start_date: 2015-01-31
+p
+  | 我們有一個需求是要根據給的時間找出最近的project：
+p
+  i
+    | spec/models/project_spec.rb
+pre
+  code.ruby
+    | it "finds recently started projects" do
+        actual = Project.find_recently_started(6.months)
+        expect(actual.size).to eq(3)
+      end
+p
+  | 我們在2015/01/20寫了程式並讓程式pass上面的測試：
+pre
+  code.ruby
+    | def self.find_recently_started(time_span)
+        old_time = Date.today - time_span
+        all(conditions: ["start_date > ?", old_time.to_s(:db)])
+      end
+p
+  | 結果過了六個月後的某天，這個測試竟然爆了，而在那時候搞不好我們都已經忘了這個測試在幹嘛…爆的原因很明顯，因為我們用了固定的時間，而「時間」是會隨著時間變動的。要解決上面的問題，有兩種方式：
+ul
+  li
+    | 使用相對時間
+  li
+    | 使用假時間
+h1
+  | 使用相對時間來做測試
+p
+  | 要解決固定時間造成的問題，最直覺的做法就是改用相對時間，如下面所示：
+p
+  i
+    | spec/fixtures/projects.yml
+pre
+  code.ruby
+    | runway:
+        name: Project Runway start_date: <%= 1.month.ago %>
+      greenlight:
+        name: Project Greenlight start_date: <%= 1.week.ago %>
+      gutenberg:
+        name: Project Gutenberg start_date: <%= 1.day.ago %>
+p
+  | factory也可以做同樣的事：
+p
+  i
+    | spec/factories/projects.rb
+pre
+  code.ruby
+    | factory :project do
+        name "Project Runway"
+        start_date { 1.week.ago }
+      end
+p
+  | 相對時間的確可以解決一開始遇到的問題，只是在某些情況下我們很難用相對時間來做測試。例如我們要測試某個project被建立時，它的建立時間是否有被存起來：
+p
+  i
+    | spec/models/project_spec.rb
+pre
+  code.ruby
+    | it "should store the created_at time when a project is created" do
+        project = Project.create(name: 'New project')
+        expect(project.created_at.to_s(:db)).to eq(Time.now.to_s(:db))
+      end
+p
+  | 因為時間是流動的，所以在「建立project的時間」與「驗證建立的時間」中間仍然會有時間差，就會造成上面的測試失敗。這時候就要使用假時間來做測試了。
+h1
+  | 使用假時間來做測試
+p
+  | 在rails 4.1之後提供了一個處理時間測試的helper - ActiveSupport::Testing::TimeHelpers，它可以針對Date、Time、DateTime或是任何支援.to_time的class設定假時間。在rails 4.1之前可以使用
+  a href="https://github.com/travisjeffery/timecop" target="_blank"
+    | Timecop
+  | 這個gem達到相同的效果。
+p
+  | 設定假時間有下面幾種method：
+.rwd-table
+  table style="width:800px"
+    thead
+      tr
+        th
+          | 功用
+        th
+          | ActiveSupport::Testing::TimeHelpers的語法
+        th
+          | Timecop的語法
+    tbody
+      tr
+        td
+          | 將現在時間設定成指定的時間(given_time)並暫停時間，也就是在測試過程中時間不會流動，Time.now的值是固定的。
+        td
+          | travel_to(given_time)
+        td
+          | freeze(given_time)
+      tr
+        td
+          | 將現在時間設定成指定的時間(given_time)，並讓時間繼續流動。
+        td
+          |
+        td
+          | travel(given_time)
+      tr
+        td
+          | 將現在時間設定成指定的時間並暫停時間，不過是使用「過了多久的秒數(duration)」來設定假時間。
+        td
+          | travel(duration)
+        td
+          | freeze(Time.now + duration)
+      tr
+        td
+          | 復原現在的時間
+        td
+          | travel_back
+        td
+          | return
+p
+  | 下面會以ActiveSupport::Testing::TimeHelpers的語法為例。
+
+h2
+  | 設定
+p
+  | 要在測試中使用ActiveSupport::Testing::TimeHelpers提供的method，則必須先在spec/rails_helper.rb裡include TimeHelpers。
+p
+  i
+    | spec/rails_helper.rb
+pre
+  code.ruby
+    | RSpec.configure do |config|
+        # ...
+        # Setup time helper
+        config.include ActiveSupport::Testing::TimeHelpers
+        # ...
+      end
+h2
+  | 使用
+p
+  | 如果要跳到某個時間點之後暫停時間，則可以使用travel。當測試完時，要記得呼叫travel_back回到原本的時間。如果沒有呼叫travel_back，則假時間會繼續套用在其它的測試案例，這樣可能會造成非預期的測試結果。
+p
+  i
+    | spec/models/project_spec.rb
+pre
+  code.ruby
+    | # ...
+      it "finds recently started projects" do
+        travel_to(Date.parse("2015-02-10"))
+        actual = Project.find_recently_started(6.months)
+        expect(actual.size).to eq(3)
+        travel_back
+      end
+      # ...
+p
+  | 如果你想要所有的測試都要設定假時間，那可以在setup時呼叫travel_to或是travel，在teardown時呼叫travel_back。
+p
+  | travel_to與travel都支援後面接block的語法，在block中時間是假的，但離開block後時間就會變正常，travel_back可以不用寫。
+p
+  i
+    | spec/models/project_spec.rb
+pre
+  code.ruby
+    | # ...
+      it "finds recently started projects" do
+        travel_to(Date.parse("2015-02-10")) do
+          actual = Project.find_recently_started(6.months)
+          expect(actual.size).to eq(3)
+        end
+      end
+      # ...
+p
+  | 另外假時間可以在測試中的任何時間點使用，例如下面的例子可以達到快轉的效果：
+pre
+  code.ruby
+    | # ...
+      it "knows if the project is over" do
+        p = Project.new(:start_date => Date.today, :end_date = Date.today + 8.weeks)
+        expect(p).not_to be_complete
+        travel(10.weeks)
+        expect(p).to be_complete
+        travel_back
+      end
+      # ...
+h1
+  | 關於時間的比對
+ul
+  li
+    | Ruby本身並沒有時間系統，基本上Time class只是一個wrapper用來取得作業系統的時間，而Date與DateTime提供了額外的功能但比較慢。
+  li
+    | 在rails中很常用到Date與DateTime的object，但直接比對或是運算兩個Date或DateTime的object在測試時會很常導致失敗，主要的原因是作業系統的時間並非整數，而只要有小數的值在實際比對或運算時都會有極小的誤差。
+  li
+    | 基於前面的情況，比對時間會建議
+    strong
+      | 都將時間用轉to_s(:db)轉成字串來進行比對
+    | ，除了可以避免上面提到的問題，同時在印出錯誤訊息會比較好讀。如果在擷取時間物件有困難時，請善用to_date、to_time與to_datetime先轉成對應的時間物件，再使用to_s(:db)來進行比對。
