@@ -14,15 +14,70 @@ ul
   li
     a href="http://mrpm.cc/" target="_blank"
       | Mr. PM Blog
+  li
+    a href="https://github.com/khiav223577" target="_blank"
+      | Khiav's Page
 h1
   | Terms
 ul
   li
-    a href="" target="_blank"
-      |
+    a href="https://mariadb.com/" target="_blank"
+      | MariaDB
+h1
+  | Read
+ul
+  li
+    a href="http://blog.bigbinary.com/2016/02/15/rails-5-makes-belong-to-association-required-by-default.html" target="_blank"
+      | Rails 5 makes belongs_to association required by default
+  li
+    a href="http://www.smashcompany.com/technology/object-oriented-programming-is-an-expensive-disaster-which-must-end" target="_blank"
+      | Object Oriented Programming is an expensive disaster which must end
 h1
   | Links
 ul
   li
-    a href="" target="_blank"
-      |
+    a href="http://www.reddotrubyconf.com/" target="_blank"
+      | RED DOT RUBY CONF
+  li
+    a href="http://dry-rb.org/" target="_blank"
+      | dry-rb
+
+h1
+  | Books
+ol
+  li
+    | Haskell Programming: From First Principles
+
+hr
+h1
+  | Go - Iris
+ul
+  li
+    a href="http://iris-go.com/" target="_blank"
+      | Iris - The fastest backend web framework for Go
+  li
+    a href="https://github.com/kataras/iris" target="_blank"
+      | Github - kataras/iris
+  li
+    a href="http://colobu.com/2016/04/01/Is-iris-the-fastest-golang-router-library/" target="_blank"
+      | iris 真的是最快的Golang 路由框架吗?
+
+hr
+h1
+  | Rx
+ul
+  li
+    a href="https://github.com/lyyourc/blog/issues/18" target="_blank"
+      | let us learn RxJS
+  li
+    a href="http://rxmarbles.com/" target="_blank"
+      | Rxmarbles - Interactive diagrams of Rx Observables
+  li
+    a href="https://github.com/xufei/blog/issues/36" target="_blank"
+      | 数据的关联计算
+  li
+    a href="https://github.com/xufei/blog/issues/44" target="_blank"
+      | RxJS 入门指引和初步应用
+  li
+    a href="https://github.com/vuejs/vue-rx" target="_blank"
+      | vuejs/vue-rx

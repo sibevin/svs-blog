@@ -1,0 +1,70 @@
+.meta-data title rails 在 docker container 啓動速度超慢的問題
+.meta-data datetime 2017-11-01 14:26:12
+.meta-data tags docker,rails
+.meta-data category coding
+.meta-data link slow-rails-in-docker-container
+.meta-data file 2017-11-01-142612-slow-rails-in-docker-container
+.meta-data template post
+.meta-data end
+
+h1
+  | 問題
+
+p
+  | 當在 docker container 中使用 rails 時， rails s/c 的啓動速度會異常的緩慢，有時候甚至要等上5分鐘，已經超出可以忍受的範圍了。
+
+h1
+  | 原因
+
+p
+  | 爲了避免每次啓動 container 的時候還要重新跑 bundle install ，所以除了程式碼本身是掛在外面的 volumn 之外，所有 bundle 的資料也同樣放到 volumn 裡，這會導致啓動 rails 的時候進行 volumn 存取的次數更頻繁，而 docker 本身在讀取 volumn 因爲要進行同步的關係本來就會有緩慢的問題，詳情請參考下面連結。
+
+h1
+  | 解法
+
+p
+  | docker 在掛載 volumn 的時候可以設定掛載的方式，有 consistent, cached, delegated 三種可以選擇。
+ol
+  li
+    | consistent: 是掛載 volumn 預設的行爲，也就是完全同步狀態，也是速度最慢的一種。
+  li
+    | cached: 在 host 變更的資料不會及時反映在 container 中。
+  li
+    | delegated: 在 container 變更的資料不會及時反映在 host 中，雖然文件是這樣寫，但 docker in mac 目前的實作行爲與 cached 一樣。
+p
+  | 設定的方式也很簡單，只要在 volumn 的設定後加上
+  code
+    | :cached
+  | 即可，如下所示：
+pre
+  code.nohighlight
+    | version: "3"
+      services:
+        oauth_server:
+        image: ruby:2.4.2
+        stdin_open: true
+        tty: true
+        env_file:
+          - ./rails/server.env
+        ports:
+          - "3000:3000"
+        volumes:
+          - ./shared_folder/app:/app
+          - ./shared_folder/bundle/gems:/usr/local/bundle/gems<span class="mk-blue">:cached</span>
+          - ./shared_folder/bundle/extensions:/usr/local/bundle/extensions<span class="mk-blue">:cached</span>
+          - ./shared_folder/bundle/bin:/usr/local/bundle/bin<span class="mk-blue">:cached</span>
+          - ./shared_folder/bundle/cache:/usr/local/bundle/cache<span class="mk-blue">:cached</span>
+          - ./shared_folder/bundle/specifications:/usr/local/bundle/specifications<span class="mk-blue">:cached</span>
+h1
+  | Refs
+ol
+  li
+    a href="https://github.com/docker/for-mac/issues/77" target="_blank"
+      | github - docker/for-mac - issue - File access in mounted volumes extremely slow #77
+  li
+    a href="https://github.com/docker/for-mac/issues/1592" target="_blank"
+      | github - docker/for-mac - issue - File system performance improvements #1592
+
+
+
+

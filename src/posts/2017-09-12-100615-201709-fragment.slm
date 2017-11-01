@@ -1,0 +1,54 @@
+.meta-data title 201709 碎片
+.meta-data datetime 2017-09-12 10:06:15
+.meta-data tags frag
+.meta-data category coding
+.meta-data link 201709-fragment
+.meta-data file 2017-09-12-100615-201709-fragment
+.meta-data template frag
+.meta-data draft
+.meta-data end
+
+h1
+  | Terms
+ol
+  li
+    | mvc, mvp, mvvp
+  li
+    | jargon - 行話
+h1
+  | Links
+ol
+  li
+    a href="http://www.rubydoc.info/github/rack/rack/master/file/SPEC" target="_blank"
+      | Rack Spec
+  li
+    a href="https://github.com/trailblazer/cells" target="_blank"
+      | Github - trailblazer/cells - View Components for Ruby and Rails.
+  li
+    a href="https://docs.google.com/presentation/d/1uAihHwEtbx6Ml6Ot-VguXvyiyOhG0A2UW_onaIx7Ee8/edit" target="_blank"
+      | Summary of Rebuilding Rails
+h1
+  | Haskell
+ol
+  li
+    a href="http://learnyouahaskell.com/" target="_blank"
+      | Book - Learn You a Haskell for Great Good!
+  li
+    a href="http://haskellbook.com/" target="_blank"
+      | Book - Haskell Programming from first principles
+
+h1
+  | Books
+ol
+  li
+    a href="https://landing.google.com/sre/book.html" target="_blank"
+      | Site Reliability Engineering
+  li
+    a href="https://docs.microsoft.com/en-us/azure/architecture/patterns/" target="_blank"
+      | Cloud Design Patterns
+  li
+    a href="https://martinfowler.com/articles/enterprisePatterns.html" target="_blank"
+      | Patterns in Enterprise Software
+
+
+
