@@ -3,7 +3,6 @@ const requireDir = require('require-dir');
 const tasks = requireDir('./gulp-tasks');
 
 gulp.task('slm-index', tasks.slm.index);
-gulp.task('slm-index-template', tasks.slm.index_template);
 gulp.task('slm-views', tasks.slm.views);
 gulp.task('slm-posts', tasks.slm.posts);
 gulp.task('slm-slides', tasks.slm.slides);
@@ -16,10 +15,11 @@ gulp.task('static-js', tasks.static.js);
 gulp.task('static-shower', tasks.static.shower);
 gulp.task('clean', tasks.clean);
 
-gulp.task('default', ['build-slm', 'copy-static', 'sass', 'metadata', 'webpack']);
-gulp.task('build-slm', ['slm-index', 'slm-index-template', 'slm-views', 'slm-posts', 'slm-slides']);
-gulp.task('copy-static', ['static-favicon', 'static-image', 'static-js', 'static-shower']);
+gulp.task('default', ['dev']);
+gulp.task('dev', ['build-slm', 'copy-static', 'sass', 'metadata', 'webpack']);
 gulp.task('build', ['build-slm', 'copy-static', 'sass', 'metadata']);
+gulp.task('build-slm', ['slm-index', 'slm-views', 'slm-posts', 'slm-slides']);
+gulp.task('copy-static', ['static-favicon', 'static-image', 'static-js', 'static-shower']);
 
 gulp.task('watch', function(){
   gulp.watch('src/index.slm', ['slm-index']);
@@ -30,7 +30,7 @@ gulp.task('watch', function(){
   gulp.watch('src/images/static/**/*.svg', ['static-image']);
   gulp.watch('src/js/vendor/*.js', ['static-js']);
   gulp.watch('src/layouts/post.slm', ['slm-posts']);
-  gulp.watch('src/layouts/application.slm', ['slm-index', 'slm-views']);
+  gulp.watch('src/layouts/application.slm', ['build-index', 'slm-views']);
 });
 
 // var webpack = require('webpack-stream');

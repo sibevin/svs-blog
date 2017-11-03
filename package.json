@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "node build/dev-server.js",
     "start": "npm run dev",
-    "build": "gulp build && node build/build.js"
+    "build": "node build/build.js && gulp build"
   },
   "dependencies": {
     "lodash": "^4.17.4",
