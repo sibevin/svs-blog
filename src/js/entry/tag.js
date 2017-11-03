@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import Tag from 'tag.vue'
+import Tag from '@/vue/tag.vue'
 
 new Vue({
   el: '#app',
