@@ -53,7 +53,7 @@ const webpackConfig = merge(baseWebpackConfig, {
     // see https://github.com/ampedandwired/html-webpack-plugin
     new HtmlWebpackPlugin({
       filename: config.build.index,
-      template: './dist/index.html',
+      template: './index.html',
       inject: true,
       minify: {
         removeComments: true,
@@ -86,15 +86,16 @@ const webpackConfig = merge(baseWebpackConfig, {
     new webpack.optimize.CommonsChunkPlugin({
       name: 'manifest',
       chunks: ['vendor']
-    }),
+    })
+    // NOTE: We don't use static in svs-blog, the copy task is done by gulp
     // copy custom static assets
-    new CopyWebpackPlugin([
-      {
-        from: path.resolve(__dirname, '../static'),
-        to: config.build.assetsSubDirectory,
-        ignore: ['.*']
-      }
-    ])
+    // new CopyWebpackPlugin([
+      // {
+        // from: path.resolve(__dirname, '../static'),
+        // to: config.build.assetsSubDirectory,
+        // ignore: ['.*']
+      // }
+    // ])
   ]
 })
 
