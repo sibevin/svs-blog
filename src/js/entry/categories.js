@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import Categories from 'categories.vue'
+import Categories from '@/vue/categories.vue'
 
 new Vue({
   el: '#app',

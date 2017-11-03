@@ -79,9 +79,9 @@
 </template>
 
 <script>
-import { Paginator } from 'modules/paginator.js'
-import { TabSwitcher } from 'modules/tab_switcher.js'
-import { UrlParamParser } from 'modules/url_param_parser.js'
+import { Paginator } from '@/js/modules/paginator.js'
+import { TabSwitcher } from '@/js/modules/tab_switcher.js'
+import { UrlParamParser } from '@/js/modules/url_param_parser.js'
 const _ = require('lodash')
 
 export default {

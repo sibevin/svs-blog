@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { TabSwitcher } from 'modules/tab_switcher.js'
+import { TabSwitcher } from '@/js/modules/tab_switcher.js'
 
 new Vue({
   el: '#app',
