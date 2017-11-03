@@ -90,7 +90,14 @@ module.exports = {
       .pipe(cached('index'))
       .pipe(slm())
       .pipe(through.obj(embedHtmlContent('index')))
-      .pipe(gulp.dest('./dist/'))
+      .pipe(gulp.dest('./'))
+  },
+  index_template: function() {
+    return gulp.src('src/index.slm')
+      .pipe(cached('index'))
+      .pipe(slm())
+      .pipe(through.obj(embedHtmlContent('index')))
+      .pipe(gulp.dest('./dist'))
   },
   views: function() {
     return gulp.src('src/views/*.slm')
